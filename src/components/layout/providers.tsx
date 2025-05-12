@@ -18,13 +18,13 @@ export default function Providers({
   return (
     <>
       <ActiveThemeProvider initialTheme={activeThemeValue}>
-        <ClerkProvider
+        {/* <ClerkProvider
           appearance={{
             baseTheme: resolvedTheme === 'dark' ? dark : undefined
           }}
-        >
-          {children}
-        </ClerkProvider>
+        > */}
+        {children}
+        {/* </ClerkProvider> */}
       </ActiveThemeProvider>
     </>
   );
