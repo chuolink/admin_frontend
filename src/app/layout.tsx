@@ -1,4 +1,5 @@
 import Providers from '@/components/layout/providers';
+
 import { Toaster } from '@/components/ui/sonner';
 import { fontVariables } from '@/lib/font';
 import ThemeProvider from '@/components/layout/ThemeToggle/theme-provider';
@@ -7,6 +8,7 @@ import type { Metadata, Viewport } from 'next';
 import { cookies } from 'next/headers';
 import NextTopLoader from 'nextjs-toploader';
 import { NuqsAdapter } from 'nuqs/adapters/next/app';
+import SessionContext from '@/context/ClientSideAuthContext';
 import './globals.css';
 import './theme.css';
 
@@ -16,8 +18,8 @@ const META_THEME_COLORS = {
 };
 
 export const metadata: Metadata = {
-  title: 'Next Shadcn',
-  description: 'Basic dashboard with Next.js and Shadcn'
+  title: 'Chuolink Portal',
+  description: 'Search, Discover, Apply'
 };
 
 export const viewport: Viewport = {
@@ -66,8 +68,11 @@ export default async function RootLayout({
             enableColorScheme
           >
             <Providers activeThemeValue={activeThemeValue as string}>
-              <Toaster />
-              {children}
+              <SessionContext>
+                <Toaster />
+
+                {children}
+              </SessionContext>
             </Providers>
           </ThemeProvider>
         </NuqsAdapter>

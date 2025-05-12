@@ -2,13 +2,12 @@ import { authOptions } from '@/lib/authOptions';
 import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
 
-export default async function Page() {
+export default async function Dashboard() {
   const sess = await getServerSession(authOptions);
   if (!sess) {
     redirect('/signin');
   }
-  if (!sess.roles?.includes('admin') || !sess.roles?.includes('consultant')) {
-    redirect('https://app.chuolink.com/');
-  }
+  console.log(sess);
+
   redirect('/dashboard/overview');
 }
