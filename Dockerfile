@@ -42,7 +42,7 @@ RUN pnpm install
 COPY . .
 
 # Build the application
-RUN pnpm build
+RUN pnpm build --debug
 
 # Expose the port
 EXPOSE 3000
