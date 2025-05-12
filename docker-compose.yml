@@ -1,0 +1,17 @@
+services:
+  admin_frontend:
+    build:
+      context: .  
+      dockerfile: Dockerfile
+    image: admin_frontend:latest
+    container_name: admin_frontend
+    restart: always
+    ports:
+      - "7300:3000"
+    environment:
+      - NODE_ENV=production
+      - CHROME_EXECUTABLE_PATH=/usr/bin/chromium-browser
+      - PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+      - PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
+
+                              
