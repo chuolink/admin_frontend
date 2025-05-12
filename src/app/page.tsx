@@ -4,11 +4,18 @@ import { redirect } from 'next/navigation';
 
 export default async function Page() {
   const sess = await getServerSession(authOptions);
+
   if (!sess) {
     redirect('/signin');
   }
-  if (!sess.roles?.includes('admin') || !sess.roles?.includes('consultant')) {
+
+  if (!sess.roles?.includes('admin') && !sess.roles?.includes('consultant')) {
     redirect('https://app.chuolink.com/');
   }
-  redirect('/dashboard/overview');
+  if (sess.roles?.includes('admin')) {
+    redirect('/admin/overview');
+  }
+  if (sess.roles?.includes('consultant')) {
+    redirect('/consultant/overview');
+  }
 }
