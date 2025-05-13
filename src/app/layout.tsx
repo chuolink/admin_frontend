@@ -11,6 +11,7 @@ import { NuqsAdapter } from 'nuqs/adapters/next/app';
 import SessionContext from '@/context/ClientSideAuthContext';
 import './globals.css';
 import './theme.css';
+import SessionWrapper from '@/context/SessionWrapper';
 
 const META_THEME_COLORS = {
   light: '#ffffff',
@@ -69,9 +70,11 @@ export default async function RootLayout({
           >
             <Providers activeThemeValue={activeThemeValue as string}>
               <SessionContext>
-                <Toaster />
+                <SessionWrapper>
+                  <Toaster />
 
-                {children}
+                  {children}
+                </SessionWrapper>
               </SessionContext>
             </Providers>
           </ThemeProvider>

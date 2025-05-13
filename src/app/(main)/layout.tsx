@@ -5,6 +5,7 @@ import React from 'react';
 
 const MainLayout = async ({ children }: { children: React.ReactNode }) => {
   const sess = await getServerSession(authOptions);
+
   if (!sess) {
     redirect('/signin');
   }

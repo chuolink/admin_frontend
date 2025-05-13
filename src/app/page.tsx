@@ -8,14 +8,12 @@ export default async function Page() {
   if (!sess) {
     redirect('/signin');
   }
-
-  if (!sess.roles?.includes('admin') && !sess.roles?.includes('consultant')) {
-    redirect('https://app.chuolink.com/');
-  }
   if (sess.roles?.includes('admin')) {
     redirect('/admin/overview');
   }
   if (sess.roles?.includes('consultant')) {
     redirect('/consultant/overview');
   }
+
+  redirect('https://app.chuolink.com/');
 }
