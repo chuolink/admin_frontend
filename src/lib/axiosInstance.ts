@@ -7,17 +7,8 @@ const createAxiosInstance = (token: string, type: string = 'backend') => {
     process.env.NEXT_PUBLIC_BACKEND_URL
   );
   let baseURL = process.env.NEXT_PUBLIC_BACKEND_URL;
-  switch (type) {
-    case 'backend':
-      baseURL = process.env.NEXT_PUBLIC_BACKEND_URL;
-      break;
-    case 'ai':
-      baseURL = process.env.NEXT_PUBLIC_AI_URL;
-      break;
-    default:
-      baseURL = process.env.NEXT_PUBLIC_BACKEND_URL;
-      break;
-  }
+
+  console.log(baseURL);
   const instance = axios.create({
     baseURL: baseURL
   });

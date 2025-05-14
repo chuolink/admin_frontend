@@ -1,74 +1,59 @@
+'use client';
+
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import {
-  Card,
-  CardHeader,
-  CardContent,
-  CardTitle,
-  CardDescription
-} from '@/components/ui/card';
+import { formatCurrency } from '@/lib/utils';
 
-const salesData = [
-  {
-    name: 'Olivia Martin',
-    email: 'olivia.martin@email.com',
-    avatar: 'https://api.slingacademy.com/public/sample-users/1.png',
-    fallback: 'OM',
-    amount: '+$1,999.00'
-  },
-  {
-    name: 'Jackson Lee',
-    email: 'jackson.lee@email.com',
-    avatar: 'https://api.slingacademy.com/public/sample-users/2.png',
-    fallback: 'JL',
-    amount: '+$39.00'
-  },
-  {
-    name: 'Isabella Nguyen',
-    email: 'isabella.nguyen@email.com',
-    avatar: 'https://api.slingacademy.com/public/sample-users/3.png',
-    fallback: 'IN',
-    amount: '+$299.00'
-  },
-  {
-    name: 'William Kim',
-    email: 'will@email.com',
-    avatar: 'https://api.slingacademy.com/public/sample-users/4.png',
-    fallback: 'WK',
-    amount: '+$99.00'
-  },
-  {
-    name: 'Sofia Davis',
-    email: 'sofia.davis@email.com',
-    avatar: 'https://api.slingacademy.com/public/sample-users/5.png',
-    fallback: 'SD',
-    amount: '+$39.00'
+interface RecentSale {
+  id: string;
+  amount: number;
+  status: string;
+  student: {
+    name: string;
+    email: string;
+    avatar?: string;
+  };
+  date: string;
+}
+
+interface RecentSalesProps {
+  data?: RecentSale[];
+}
+
+export function RecentSales({ data = [] }: RecentSalesProps) {
+  if (!data.length) {
+    return (
+      <div className='flex h-[200px] items-center justify-center'>
+        <p className='text-muted-foreground'>No recent sales data available</p>
+      </div>
+    );
   }
-];
 
-export function RecentSales() {
   return (
-    <Card className='h-full'>
-      <CardHeader>
-        <CardTitle>Recent Sales</CardTitle>
-        <CardDescription>You made 265 sales this month.</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className='space-y-8'>
-          {salesData.map((sale, index) => (
-            <div key={index} className='flex items-center'>
-              <Avatar className='h-9 w-9'>
-                <AvatarImage src={sale.avatar} alt='Avatar' />
-                <AvatarFallback>{sale.fallback}</AvatarFallback>
-              </Avatar>
-              <div className='ml-4 space-y-1'>
-                <p className='text-sm leading-none font-medium'>{sale.name}</p>
-                <p className='text-muted-foreground text-sm'>{sale.email}</p>
-              </div>
-              <div className='ml-auto font-medium'>{sale.amount}</div>
-            </div>
-          ))}
+    <div className='space-y-8'>
+      {data.map((sale) => (
+        <div key={sale.id} className='flex items-center'>
+          <Avatar className='h-9 w-9'>
+            <AvatarImage src={sale.student.avatar} alt={sale.student.name} />
+            <AvatarFallback>
+              {sale.student.name
+                .split(' ')
+                .map((n) => n[0])
+                .join('')}
+            </AvatarFallback>
+          </Avatar>
+          <div className='ml-4 space-y-1'>
+            <p className='text-sm leading-none font-medium'>
+              {sale.student.name}
+            </p>
+            <p className='text-muted-foreground text-sm'>
+              {sale.student.email}
+            </p>
+          </div>
+          <div className='ml-auto font-medium'>
+            {formatCurrency(sale.amount)}
+          </div>
         </div>
-      </CardContent>
-    </Card>
+      ))}
+    </div>
   );
 }

@@ -1,23 +1,85 @@
-import KBar from '@/components/kbar';
-import AppSidebar from '@/components/layout/app-sidebar';
-import Header from '@/components/layout/header';
-import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
+import {
+  Sidebar,
+  SidebarInset,
+  SidebarProvider
+} from '@/components/ui/sidebar';
+import { Icons } from '@/components/icons';
 import { authOptions } from '@/lib/authOptions';
 import type { Metadata } from 'next';
 import { getServerSession } from 'next-auth';
 
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
+import { cn } from '@/lib/utils';
+import {
+  IconDashboard,
+  IconUsers,
+  IconCreditCard,
+  IconBuildingBank,
+  IconBell,
+  IconMail,
+  IconFileText,
+  IconWallet,
+  IconUsersGroup
+} from '@tabler/icons-react';
+import { ReactNode } from 'react';
+import KBar from '@/components/kbar';
+import Header from '@/components/layout/header';
+import AppSidebar from '@/components/layout/app-sidebar';
 
 export const metadata: Metadata = {
   title: 'Chuolink Portal',
   description: 'Search, Discover, Apply'
 };
 
-export default async function DashboardLayout({
+type NavigationItem = {
+  name: string;
+  href: string;
+  icon: keyof typeof Icons;
+};
+
+const navigation: NavigationItem[] = [
+  {
+    name: 'Overview',
+    href: '/admin/overview',
+    icon: 'dashboard'
+  },
+  {
+    name: 'Students',
+    href: '/admin/students',
+    icon: 'users'
+  },
+  {
+    name: 'Applications',
+    href: '/admin/applications',
+    icon: 'file-text'
+  },
+  {
+    name: 'Payments',
+    href: '/admin/payments',
+    icon: 'credit-card'
+  },
+  {
+    name: 'Withdrawals',
+    href: '/admin/withdrawals',
+    icon: 'wallet'
+  },
+  {
+    name: 'Referrals',
+    href: '/admin/referrals',
+    icon: 'users-group'
+  },
+  {
+    name: 'Settings',
+    href: '/admin/settings',
+    icon: 'settings'
+  }
+];
+
+export default async function AdminLayout({
   children
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   // Persisting the sidebar state in the cookie.
   const cookieStore = await cookies();
@@ -31,7 +93,7 @@ export default async function DashboardLayout({
   return (
     <KBar>
       <SidebarProvider defaultOpen={defaultOpen}>
-        <AppSidebar />
+        <AppSidebar navigation={navigation} />
         <SidebarInset>
           <Header />
           {/* page main content */}

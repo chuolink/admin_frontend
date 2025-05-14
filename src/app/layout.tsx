@@ -1,5 +1,6 @@
 import Providers from '@/components/layout/providers';
-
+import { Providers as NewProviders } from '@/providers';
+import { Inter } from 'next/font/google';
 import { Toaster } from '@/components/ui/sonner';
 import { fontVariables } from '@/lib/font';
 import ThemeProvider from '@/components/layout/ThemeToggle/theme-provider';
@@ -12,11 +13,14 @@ import SessionContext from '@/context/ClientSideAuthContext';
 import './globals.css';
 import './theme.css';
 import SessionWrapper from '@/context/SessionWrapper';
+import { ActiveThemeProvider } from '@/components/active-theme';
 
 const META_THEME_COLORS = {
   light: '#ffffff',
   dark: '#09090b'
 };
+
+const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: 'Chuolink Portal',
@@ -56,7 +60,8 @@ export default async function RootLayout({
           'bg-background overflow-hidden overscroll-none font-sans antialiased',
           activeThemeValue ? `theme-${activeThemeValue}` : '',
           isScaled ? 'theme-scaled' : '',
-          fontVariables
+          fontVariables,
+          inter.className
         )}
       >
         <NextTopLoader showSpinner={false} />
@@ -68,15 +73,14 @@ export default async function RootLayout({
             disableTransitionOnChange
             enableColorScheme
           >
-            <Providers activeThemeValue={activeThemeValue as string}>
+            <NewProviders>
               <SessionContext>
                 <SessionWrapper>
                   <Toaster />
-
-                  {children}
+                  <ActiveThemeProvider>{children}</ActiveThemeProvider>
                 </SessionWrapper>
               </SessionContext>
-            </Providers>
+            </NewProviders>
           </ThemeProvider>
         </NuqsAdapter>
       </body>
