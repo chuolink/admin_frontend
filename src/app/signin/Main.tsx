@@ -111,7 +111,7 @@ export default function Main() {
       <div className='flex w-full flex-col items-center lg:w-1/2'>
         <header className='m-auto text-center'>
           <h1 className='xs:mb-4 text-error xs:text-3xl mb-2 text-2xl lg:text-4xl xl:text-5xl'>
-            Welcome to <strong className='text-primary'>ChuoLink</strong>
+            Welcome to <strong className='text-primary'>ChuoLink Portal</strong>
           </h1>
           <p className='xs:text-xl text-center text-lg font-thin text-white'>
             Search, Discover, Apply
