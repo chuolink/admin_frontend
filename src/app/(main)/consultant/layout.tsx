@@ -7,7 +7,7 @@ import type { Metadata } from 'next';
 import { getServerSession } from 'next-auth';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-
+import { Icons } from '@/components/icons';
 export const metadata: Metadata = {
   title: 'Chuolink Portal',
   description: 'Search, Discover, Apply'
@@ -26,10 +26,61 @@ export default async function DashboardLayout({
   if (sess?.roles?.includes('admin')) {
     redirect('/admin/overview');
   }
+
+  type NavigationItem = {
+    name: string;
+    href: string;
+    icon: keyof typeof Icons;
+  };
+
+  const navigation: NavigationItem[] = [
+    {
+      name: 'Overview',
+      href: '/admin/overview',
+      icon: 'dashboard'
+    },
+    {
+      name: 'Students',
+      href: '/admin/students',
+      icon: 'users'
+    },
+    {
+      name: 'Applications',
+      href: '/admin/applications',
+      icon: 'file-text'
+    },
+    {
+      name: 'Payments',
+      href: '/admin/payments',
+      icon: 'credit-card'
+    },
+    {
+      name: 'Withdrawals',
+      href: '/admin/withdrawals',
+      icon: 'wallet'
+    },
+    {
+      name: 'Countries',
+      href: '/admin/countries',
+      icon: 'map'
+    }
+
+    // {
+    //   name: 'Referrals',
+    //   href: '/admin/referrals',
+    //   icon: 'users-group'
+    // },
+    // {
+    //   name: 'Settings',
+    //   href: '/admin/settings',
+    //   icon: 'settings'
+    // }
+  ];
+
   return (
     <KBar>
       <SidebarProvider defaultOpen={defaultOpen}>
-        <AppSidebar />
+        <AppSidebar navigation={navigation} />
         <SidebarInset>
           <Header />
           {/* page main content */}

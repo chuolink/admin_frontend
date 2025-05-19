@@ -65,15 +65,21 @@ const navigation: NavigationItem[] = [
     icon: 'wallet'
   },
   {
-    name: 'Referrals',
-    href: '/admin/referrals',
-    icon: 'users-group'
-  },
-  {
-    name: 'Settings',
-    href: '/admin/settings',
-    icon: 'settings'
+    name: 'Countries',
+    href: '/admin/countries',
+    icon: 'map'
   }
+
+  // {
+  //   name: 'Referrals',
+  //   href: '/admin/referrals',
+  //   icon: 'users-group'
+  // },
+  // {
+  //   name: 'Settings',
+  //   href: '/admin/settings',
+  //   icon: 'settings'
+  // }
 ];
 
 export default async function AdminLayout({

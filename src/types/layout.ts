@@ -1,9 +1,9 @@
-import { IconType } from '@tabler/icons-react';
+import { IconProps } from '@tabler/icons-react';
 
 export interface NavigationItem {
   name: string;
   href: string;
-  icon: IconType;
+  icon: IconProps;
   disabled?: boolean;
   external?: boolean;
   shortcut?: [string, string];

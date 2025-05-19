@@ -4,8 +4,6 @@ import { useMemo, useState } from 'react';
 import {
   MaterialReactTable,
   type MRT_ColumnDef,
-  type MRT_Cell,
-  type MRT_Row,
   MRT_ToggleFiltersButton
 } from 'material-react-table';
 import {
@@ -15,35 +13,39 @@ import {
   ListItemIcon,
   Chip,
   Stack,
-  Typography
+  Typography,
+  useMediaQuery,
+  useTheme as useMuiTheme
 } from '@mui/material';
 import { Edit, Delete, Visibility, Download, Add } from '@mui/icons-material';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import useClientApi from '@/lib/axios/clientSide';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { format, parseISO } from 'date-fns';
-import { Student, StudentsResponse } from '@/types/student-details';
+import { format } from 'date-fns';
 import { ColumnFiltersState, SortingState } from '@tanstack/react-table';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { useTheme } from 'next-themes';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { formatCurrency } from '@/lib/utils';
 
-interface StudentsTableProps {
+interface ApplicationTableProps {
   onExport?: () => void;
   onAddNew?: () => void;
 }
 
-export default function StudentsTable({
+export default function ApplicationTable({
   onExport,
   onAddNew
-}: StudentsTableProps) {
+}: ApplicationTableProps) {
   const { resolvedTheme } = useTheme();
   const { api } = useClientApi();
   const router = useRouter();
   const queryClient = useQueryClient();
+  const muiTheme = useMuiTheme();
+
+  // Responsive check
+  const isMobile = useMediaQuery(muiTheme.breakpoints.down('sm'));
 
   // State for server-side operations
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -56,58 +58,34 @@ export default function StudentsTable({
 
   // Build query params from table state
   const queryParams = useMemo(() => {
-    const params: Record<string, any> = {
-      page: pagination.pageIndex + 1,
-      page_size: pagination.pageSize
-    };
+    const params: Record<string, string> = {};
 
-    // Add search param
     if (globalFilter) {
       params.search = globalFilter;
     }
 
-    // Add sorting param
     if (sorting.length > 0) {
       params.ordering = sorting
-        .map((sort) => (sort.desc ? '-' : '') + sort.id)
+        .map((sort) => (sort.desc ? `-${sort.id}` : sort.id))
         .join(',');
     }
 
-    // Add column filters
-    columnFilters.forEach((filter) => {
-      const { id, value } = filter;
+    params.page = String(pagination.pageIndex + 1);
+    params.page_size = String(pagination.pageSize);
 
-      // Handle different filter types based on your backend API
-      if (id === 'user.is_active') {
-        params.is_active = value;
-      } else if (id === 'subscription_status') {
-        params.subscription_status = value;
-      } else if (id === 'subscription_type') {
-        // Map the frontend type to backend query param
-        if (value === 'standard') {
-          params.subscription_status = 'none';
-        } else {
-          params.subscription_status = value;
-        }
-      } else if (id === 'reg_prog') {
-        if (Array.isArray(value)) {
-          params.min_progress = value[0];
-          params.max_progress = value[1];
-        }
-      } else if (id === 'referral_count') {
-        if (Array.isArray(value)) {
-          params.min_referrals = value[0];
-          params.max_referrals = value[1];
-        }
-      } else if (id === 'user.date_joined') {
-        if (Array.isArray(value) && value[0] && value[1]) {
-          params.created_after = value[0].toISOString();
-          params.created_before = value[1].toISOString();
-        }
-      } else if (id === 'has_payments') {
-        params.has_payments = value;
-      } else if (id === 'education_level') {
-        params.education_level = value;
+    columnFilters.forEach((filter) => {
+      if (filter.id === 'is_sent') {
+        params[filter.id] = filter.value === 'true' ? 'true' : 'false';
+      } else if (filter.id === 'status') {
+        params[filter.id] = filter.value as string;
+      } else if (filter.id === 'university_name') {
+        params.university_name = filter.value as string;
+      } else if (filter.id === 'course_name') {
+        params.course_name = filter.value as string;
+      } else if (filter.id === 'created_at') {
+        const dateRange = filter.value as [string, string];
+        if (dateRange[0]) params.created_after = dateRange[0];
+        if (dateRange[1]) params.created_before = dateRange[1];
       }
     });
 
@@ -115,11 +93,11 @@ export default function StudentsTable({
   }, [columnFilters, globalFilter, sorting, pagination]);
 
   // Fetch data with server-side filtering
-  const { data, isLoading, isFetching } = useQuery<StudentsResponse>({
-    queryKey: ['students', queryParams],
+  const { data, isLoading, isFetching } = useQuery({
+    queryKey: ['applications', queryParams],
     queryFn: async () => {
       if (!api) throw new Error('API not initialized');
-      const response = await api.get('/admin/students/', {
+      const response = await api.get('/admin/applications/', {
         params: queryParams
       });
       return response.data;
@@ -128,209 +106,124 @@ export default function StudentsTable({
 
   // Delete mutation
   const deleteMutation = useMutation({
-    mutationFn: async (studentId: string) => {
+    mutationFn: async (applicationId: string) => {
       if (!api) throw new Error('API not initialized');
-      await api.delete(`/admin/students/${studentId}/`);
+      await api.delete(`/admin/applications/${applicationId}/`);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['students'] });
-      toast.success('Student deleted successfully');
+      queryClient.invalidateQueries({ queryKey: ['applications'] });
+      toast.success('Application deleted successfully');
     },
     onError: () => {
-      toast.error('Failed to delete student');
+      toast.error('Failed to delete application');
     }
   });
 
-  // Define columns with proper responsive settings
-  const columns = useMemo<MRT_ColumnDef<Student>[]>(
+  // Define columns with consistent sizing
+  const columns = useMemo<MRT_ColumnDef<any>[]>(
     () => [
       {
-        accessorKey: 'user_name',
-        header: 'Name',
-        size: 150,
-        minSize: 100,
-        maxSize: 200,
-        enableColumnFilter: true,
-        filterVariant: 'text',
-        muiTableHeadCellProps: {
-          sx: { minWidth: '100px' }
-        },
-        muiTableBodyCellProps: {
-          sx: { minWidth: '100px' }
-        }
-      },
-      {
-        accessorKey: 'user_email',
-        header: 'Email',
-        size: 200,
-        minSize: 150,
-        maxSize: 300,
-        enableColumnFilter: true,
-        filterVariant: 'text',
-        muiTableBodyCellProps: {
-          sx: {
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-            maxWidth: '200px'
-          }
-        }
-      },
-      {
-        accessorKey: 'user.is_active',
-        header: 'Status',
+        accessorKey: 'app_id',
+        header: 'ID',
         size: 100,
-        enableColumnFilter: true,
-        filterVariant: 'checkbox',
-        Cell: ({ cell }: { cell: MRT_Cell<Student> }) => (
-          <Chip
-            label={cell.getValue<boolean>() ? 'Active' : 'Inactive'}
-            color={cell.getValue<boolean>() ? 'success' : 'default'}
-            size='small'
-          />
-        )
+        enableColumnFilter: false
       },
       {
-        id: 'subscription_status',
-        accessorFn: (row) => row.subscription.status,
-        header: 'Subscription',
-        size: 120,
-        enableColumnFilter: true,
-        filterVariant: 'select',
-        filterSelectOptions: [
-          { label: 'Active', value: 'active' },
-          { label: 'Expired', value: 'expired' },
-          { label: 'None', value: 'none' }
-        ],
-        Cell: ({ row }: { row: MRT_Row<Student> }) => {
-          const status = row.original.subscription.status;
-          return (
-            <Chip
-              label={status.charAt(0).toUpperCase() + status.slice(1)}
-              color={status === 'active' ? 'success' : 'default'}
-              size='small'
-            />
-          );
-        }
-      },
-      {
-        id: 'subscription_type',
-        accessorFn: (row) => row.subscription.type,
-        header: 'Type',
-        size: 100,
-        enableColumnFilter: true,
-        filterVariant: 'select',
-        filterSelectOptions: [
-          { label: 'Premium', value: 'premium' },
-          { label: 'Standard', value: 'standard' },
-          { label: 'Basic', value: 'basic' }
-        ],
-        Cell: ({ row }: { row: MRT_Row<Student> }) => {
-          const type = row.original.subscription.type;
-          const colors: Record<string, 'secondary' | 'primary' | 'default'> = {
-            premium: 'secondary',
-            standard: 'primary',
-            basic: 'default'
-          };
-          return (
-            <Chip
-              label={type.charAt(0).toUpperCase() + type.slice(1)}
-              color={colors[type] || 'default'}
-              size='small'
-              variant='outlined'
-            />
-          );
-        }
-      },
-      {
-        accessorKey: 'education_level',
-        header: 'Education',
+        accessorKey: 'student_name',
+        header: 'Student',
         size: 150,
         enableColumnFilter: true,
-        filterVariant: 'text',
-        Cell: ({ cell }: { cell: MRT_Cell<Student> }) =>
-          cell.getValue<string>() || 'Not Set'
-      },
-      {
-        accessorKey: 'reg_prog',
-        header: 'Progress',
-        size: 100,
-        enableColumnFilter: true,
-        filterVariant: 'range-slider',
-        muiFilterSliderProps: {
-          min: 0,
-          max: 100,
-          step: 10
-        },
-        Cell: ({ cell }: { cell: MRT_Cell<Student> }) => (
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Box
-              sx={{ width: 60, height: 8, bgcolor: '#e5e7eb', borderRadius: 1 }}
-            >
-              <Box
-                sx={{
-                  width: `${cell.getValue<number>()}%`,
-                  height: '100%',
-                  bgcolor: '#3b82f6',
-                  borderRadius: 1
-                }}
-              />
-            </Box>
-            <Box sx={{ fontSize: '0.875rem', minWidth: '35px' }}>
-              {cell.getValue<number>()}%
-            </Box>
+        filterFn: 'contains',
+        Cell: ({ row }) => (
+          <Box>
+            <Typography variant='body2' fontWeight='medium'>
+              {row.original.student.name}
+            </Typography>
           </Box>
         )
       },
       {
-        accessorKey: 'referral_count',
-        header: 'Referrals',
-        size: 80,
+        accessorKey: 'university.name',
+        header: 'University',
+        size: 150,
         enableColumnFilter: true,
-        filterVariant: 'range',
-        muiFilterTextFieldProps: {
-          type: 'number'
+        filterFn: 'contains',
+        Cell: ({ cell }) => {
+          const universityName = cell.getValue<string>();
+          return <Box title={universityName}>{universityName}</Box>;
         }
       },
       {
-        accessorKey: 'user.created_at',
-        header: 'Joined',
+        accessorKey: 'courses',
+        header: 'Course',
+        size: 150,
+        enableColumnFilter: true,
+        Cell: ({ row }) => {
+          const courses = row.original.courses;
+          if (!courses || courses.length === 0) return 'No courses';
+          return courses[0].name;
+        }
+      },
+      {
+        accessorKey: 'status',
+        header: 'Status',
         size: 100,
-        enableColumnFilter: true,
-        filterVariant: 'date-range',
-        Cell: ({ cell }: { cell: MRT_Cell<Student> }) => {
-          const date = cell.getValue<string>();
-          return date ? format(parseISO(date), 'MMM d, yyyy') : 'N/A';
+        filterVariant: 'select',
+        filterSelectOptions: [
+          'PENDING',
+          'APPROVED',
+          'REJECTED',
+          'CANCELLED',
+          'REVOKED'
+        ],
+        Cell: ({ cell }) => {
+          const status = cell.getValue<string>();
+          const color = {
+            PENDING: 'warning',
+            APPROVED: 'success',
+            REJECTED: 'error',
+            CANCELLED: 'default',
+            REVOKED: 'default'
+          }[status] as 'warning' | 'success' | 'error' | 'default';
+          return (
+            <Chip
+              label={status}
+              color={color}
+              size='small'
+              className='capitalize'
+            />
+          );
         }
       },
       {
-        id: 'has_payments',
-        accessorFn: (row) => (row.payments?.total_amount || 0) > 0,
-        header: 'Has Payments',
-        size: 120,
-        enableColumnFilter: true,
-        filterVariant: 'checkbox',
-        Cell: ({ row }: { row: MRT_Row<Student> }) => {
-          const amount = row.original.payments?.total_amount || 0;
-          const count = row.original.payments?.total_count || 0;
-          return amount > 0 ? (
-            <Box>
-              <Box sx={{ fontWeight: 500, fontSize: '0.875rem' }}>
-                {formatCurrency(amount)}
-              </Box>
-              <Box sx={{ fontSize: '0.75rem', color: '#6b7280' }}>
-                {count} payments
-              </Box>
-            </Box>
-          ) : (
-            <Typography variant='body2' color='text.secondary'>
-              No payments
-            </Typography>
+        accessorKey: 'is_sent',
+        header: 'Sent',
+        size: 80,
+        filterVariant: 'select',
+        filterSelectOptions: ['true', 'false'],
+        Cell: ({ cell }) => {
+          const isSent = cell.getValue<boolean>();
+          return (
+            <Chip
+              label={isSent ? 'Yes' : 'No'}
+              color={isSent ? 'success' : 'default'}
+              size='small'
+            />
           );
+        }
+      },
+      {
+        accessorKey: 'created_at',
+        header: 'Date',
+        size: 120,
+        filterVariant: 'date-range',
+        Cell: ({ cell }) => {
+          const date = cell.getValue<string>();
+          return format(new Date(date), 'MMM d, yyyy');
         }
       }
     ],
-    []
+    [isMobile]
   );
 
   // Create MUI theme based on next-themes
@@ -433,7 +326,7 @@ export default function StudentsTable({
                       startIcon={<Add />}
                       size='small'
                     >
-                      Add Student
+                      Add Application
                     </Button>
                   )}
                 </Stack>
@@ -444,7 +337,7 @@ export default function StudentsTable({
               <MenuItem
                 key='view'
                 onClick={() => {
-                  router.push(`/admin/students/${row.original.id}`);
+                  router.push(`/admin/applications/${row.original.id}`);
                   closeMenu();
                 }}
               >
@@ -456,7 +349,7 @@ export default function StudentsTable({
               <MenuItem
                 key='edit'
                 onClick={() => {
-                  router.push(`/admin/students/${row.original.id}/edit`);
+                  router.push(`/admin/applications/${row.original.id}/edit`);
                   closeMenu();
                 }}
               >
@@ -468,11 +361,7 @@ export default function StudentsTable({
               <MenuItem
                 key='delete'
                 onClick={() => {
-                  if (
-                    confirm(
-                      `Are you sure you want to delete ${row.original.user_name}?`
-                    )
-                  ) {
+                  if (confirm(`Delete this application?`)) {
                     deleteMutation.mutate(row.original.id.toString());
                   }
                   closeMenu();
@@ -495,10 +384,10 @@ export default function StudentsTable({
             initialState={{
               density: 'compact',
               columnVisibility: {
-                education_level: false
+                is_sent: false
               },
               columnPinning: {
-                left: ['mrt-row-select', 'user_name'],
+                left: ['mrt-row-select', 'student_name'],
                 right: ['mrt-row-actions']
               }
             }}
@@ -529,6 +418,7 @@ export default function StudentsTable({
               sx: {
                 maxHeight: 'calc(100vh - 400px)',
                 minHeight: '400px',
+                width: '100%',
                 '&::-webkit-scrollbar': {
                   height: '10px',
                   width: '10px'
@@ -545,14 +435,16 @@ export default function StudentsTable({
             // Table styling
             muiTableProps={{
               sx: {
-                tableLayout: 'fixed'
+                tableLayout: 'fixed',
+                width: '100%'
               }
             }}
             // Paper styling
             muiTablePaperProps={{
               sx: {
                 boxShadow: 'none',
-                border: '1px solid rgba(0,0,0,0.1)'
+                border: '1px solid rgba(0,0,0,0.1)',
+                width: '100%'
               }
             }}
           />

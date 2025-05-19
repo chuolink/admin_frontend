@@ -1,37 +1,50 @@
-import { DateRange } from './common';
-
-export type ApplicationStatus = 'pending' | 'approved' | 'rejected';
-
 export interface Application {
   id: string;
-  student_name: string;
-  student_email: string;
-  student_phone: string;
-  course_name: string;
-  status: ApplicationStatus;
+  app_id: string;
+  student: {
+    id: string;
+    name: string;
+    email: string;
+    phone: string;
+    created_at: string;
+  };
+
+  university: {
+    id: string;
+    name: string;
+  };
+  courses: Array<{
+    id: string;
+    name: string;
+  }>;
+  admission_letter: {
+    id: string;
+    url: string;
+    created_at: string;
+  } | null;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED' | 'REVOKED';
+  budget: number | null;
+  info: string | null;
+  is_sent: boolean;
+  when: string | null;
   created_at: string;
-  additional_info: string;
-  notes?: string;
-  university_id: string;
-  course_id: string;
+  updated_at: string;
+  credentials_data: any | null;
+  documents: any[] | null;
+  fees: any[];
+  information: any[];
+  progress: any | null;
 }
 
-export interface ApplicationFilters {
-  status: string;
-  university: string;
-  course: string;
-  search: string;
-  dateRange: DateRange | null;
-  ordering: string;
-  page: number;
-  pageSize: number;
+export interface ApplicationInfo {
+  id: string;
+  info: string;
+  created_at: string;
 }
-
-export interface ApplicationStats {
-  total_applications: number;
-  pending_applications: number;
-  approved_applications: number;
-  rejected_applications: number;
+export interface ApplicationDocument {
+  id: string;
+  url: string;
+  created_at: string;
 }
 
 export interface ApplicationResponse {
@@ -39,34 +52,4 @@ export interface ApplicationResponse {
   next: string | null;
   previous: string | null;
   results: Application[];
-}
-
-export interface University {
-  id: string;
-  name: string;
-  code?: string;
-}
-
-export interface Course {
-  id: string;
-  name: string;
-  code?: string;
-  university_id: string;
-}
-
-export interface ApplicationDetailsProps {
-  application: Application;
-}
-
-export interface ApplicationFiltersProps {
-  filters: ApplicationFilters;
-  onChange: (filters: ApplicationFilters) => void;
-  universities: University[];
-  courses: Course[];
-}
-
-export interface ApplicationActionsProps {
-  applicationId: string;
-  status: ApplicationStatus;
-  onSuccess: () => void;
 }

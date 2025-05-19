@@ -8,6 +8,7 @@ import useClientApi from '@/lib/axios/clientSide';
 import PageContainer from '@/components/layout/page-container';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { formatCurrency } from '@/lib/utils';
 import {
   User,
   Mail,
@@ -36,12 +37,15 @@ interface StudentDetails {
     first_name: string;
     last_name: string;
     phone_number: string;
-    date_joined: string;
+    profile_image: string;
+    created_at: string;
+    updated_at: string;
     last_login: string;
     is_active: boolean;
   };
   user_name: string;
   user_email: string;
+  email: string;
   education_level: string;
   reg_prog: number;
   maritial_status: string;
@@ -115,13 +119,6 @@ export default function StudentDetailsPage() {
     );
   }
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
-    }).format(amount);
-  };
-
   return (
     <PageContainer>
       <div className='space-y-6'>
@@ -129,7 +126,9 @@ export default function StudentDetailsPage() {
         <div className='flex items-center justify-between'>
           <div>
             <h1 className='text-3xl font-bold'>{student.user_name}</h1>
-            <p className='text-muted-foreground'>{student.user_email}</p>
+            <p className='text-muted-foreground'>
+              {student?.email || student.user.email}
+            </p>
           </div>
           <div className='flex gap-2'>
             <Button
@@ -173,7 +172,10 @@ export default function StudentDetailsPage() {
                     : 'secondary'
                 }
               >
-                {student.subscription.type} - {student.subscription.status}
+                {student.subscription.type === 'inactive'
+                  ? 'Inactive'
+                  : student.subscription.type}{' '}
+                - {'subscription'}
               </Badge>
             </CardContent>
           </Card>
@@ -184,9 +186,9 @@ export default function StudentDetailsPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <Progress value={student.reg_prog} className='mb-1' />
+              <Progress value={student.profile_complete} className='mb-1' />
               <p className='text-muted-foreground text-sm'>
-                {student.reg_prog}%
+                {student.profile_complete}%
               </p>
             </CardContent>
           </Card>
@@ -196,7 +198,7 @@ export default function StudentDetailsPage() {
             </CardHeader>
             <CardContent>
               <p className='text-lg font-semibold'>
-                {formatCurrency(student.balance)}
+                {formatCurrency(student?.balance || 0)}
               </p>
             </CardContent>
           </Card>
@@ -208,7 +210,7 @@ export default function StudentDetailsPage() {
             </CardHeader>
             <CardContent>
               <p className='text-lg font-semibold'>
-                {formatCurrency(student.earnings)}
+                {formatCurrency(student?.earnings || 0)}
               </p>
             </CardContent>
           </Card>
@@ -274,7 +276,7 @@ export default function StudentDetailsPage() {
                     </p>
                     <p className='font-medium'>
                       {student.user.last_login
-                        ? format(parseISO(student.user.last_login), 'PPP')
+                        ? format(parseISO(student.user.updated_at), 'PPP')
                         : 'Never'}
                     </p>
                   </div>
@@ -363,7 +365,7 @@ export default function StudentDetailsPage() {
                       Current Balance
                     </p>
                     <p className='text-2xl font-bold'>
-                      {formatCurrency(student.balance)}
+                      {formatCurrency(student?.balance || 0)}
                     </p>
                   </div>
                   <div className='space-y-1'>
@@ -371,7 +373,7 @@ export default function StudentDetailsPage() {
                       Total Earnings
                     </p>
                     <p className='text-2xl font-bold'>
-                      {formatCurrency(student.earnings)}
+                      {formatCurrency(student?.earnings || 0)}
                     </p>
                   </div>
                 </div>

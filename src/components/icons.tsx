@@ -35,12 +35,14 @@ import {
   IconBell,
   IconMail,
   IconWallet,
-  IconUsersGroup
+  IconUsersGroup,
+  IconMap
 } from '@tabler/icons-react';
 
 export type Icon = React.ComponentType<IconProps>;
 
 export const Icons = {
+  map: IconMap,
   dashboard: IconLayoutDashboard,
   logo: IconCommand,
   login: IconLogin,
