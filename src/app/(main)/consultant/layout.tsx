@@ -8,12 +8,13 @@ import { getServerSession } from 'next-auth';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { Icons } from '@/components/icons';
+import RegistrationProvider from './providers/RegistrationProvider';
 export const metadata: Metadata = {
   title: 'Chuolink Portal',
   description: 'Search, Discover, Apply'
 };
 
-export default async function DashboardLayout({
+export default async function ConsultantLayout({
   children
 }: {
   children: React.ReactNode;
@@ -36,45 +37,30 @@ export default async function DashboardLayout({
   const navigation: NavigationItem[] = [
     {
       name: 'Overview',
-      href: '/admin/overview',
+      href: '/consultant/overview',
       icon: 'dashboard'
     },
     {
-      name: 'Students',
-      href: '/admin/students',
-      icon: 'users'
-    },
-    {
       name: 'Applications',
-      href: '/admin/applications',
+      href: '/consultant/applications',
       icon: 'file-text'
     },
     {
       name: 'Payments',
-      href: '/admin/payments',
+      href: '/consultant/payments',
       icon: 'credit-card'
     },
     {
       name: 'Withdrawals',
-      href: '/admin/withdrawals',
+      href: '/consultant/withdrawals',
       icon: 'wallet'
     },
-    {
-      name: 'Countries',
-      href: '/admin/countries',
-      icon: 'map'
-    }
 
-    // {
-    //   name: 'Referrals',
-    //   href: '/admin/referrals',
-    //   icon: 'users-group'
-    // },
-    // {
-    //   name: 'Settings',
-    //   href: '/admin/settings',
-    //   icon: 'settings'
-    // }
+    {
+      name: 'Profile',
+      href: '/consultant/profile',
+      icon: 'user'
+    }
   ];
 
   return (
@@ -84,7 +70,7 @@ export default async function DashboardLayout({
         <SidebarInset>
           <Header />
           {/* page main content */}
-          {children}
+          <RegistrationProvider>{children}</RegistrationProvider>
           {/* page main content ends */}
         </SidebarInset>
       </SidebarProvider>

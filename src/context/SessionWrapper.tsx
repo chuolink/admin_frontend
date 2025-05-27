@@ -41,6 +41,7 @@ export const useSessionWrapper = (options?: { required?: boolean }) => {
 export default function SessionWrapper({ children }: { children: ReactNode }) {
   // This is the only place we call useSession() directly
   const { data: session, status, update } = useSession();
+
   useEffect(() => {
     if (session?.error === 'RefreshAccessTokenError') {
       console.log('RefreshAccessTokenError');

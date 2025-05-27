@@ -55,6 +55,16 @@ const navigation: NavigationItem[] = [
     icon: 'file-text'
   },
   {
+    name: 'Consultants',
+    href: '/admin/consultants',
+    icon: 'users-group'
+  },
+  {
+    name: 'Consultants Applications',
+    href: '/admin/consultant-applications',
+    icon: 'file-text'
+  },
+  {
     name: 'Payments',
     href: '/admin/payments',
     icon: 'credit-card'
@@ -100,7 +110,7 @@ export default async function AdminLayout({
     <KBar>
       <SidebarProvider defaultOpen={defaultOpen}>
         <AppSidebar navigation={navigation} />
-        <SidebarInset>
+        <SidebarInset className='h-screen overflow-y-auto'>
           <Header />
           {/* page main content */}
           {children}

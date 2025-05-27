@@ -1,5 +1,7 @@
 import axios from 'axios';
 import { config } from 'process';
+import { signOut } from 'next-auth/react';
+import { redirect } from 'next/navigation';
 
 const createAxiosInstance = (token: string, type: string = 'backend') => {
   console.log(
@@ -27,6 +29,15 @@ const createAxiosInstance = (token: string, type: string = 'backend') => {
   instance.interceptors.response.use(
     (response) => response,
     (error) => {
+      if (error.response?.status === 401) {
+        if (typeof window !== 'undefined') {
+          // Client-side: Use signOut
+          signOut();
+        } else {
+          // Server-side: Redirect to signin with logout param
+          redirect('/signin?logout=true');
+        }
+      }
       console.error('Response error:', {
         status: error.response?.status,
         data: error.response?.data,

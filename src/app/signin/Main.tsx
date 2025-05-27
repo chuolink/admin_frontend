@@ -1,8 +1,8 @@
 'use client';
 
 import { Button, buttonVariants } from '@/components/ui/button2';
-import { useState } from 'react';
-import { signIn } from 'next-auth/react';
+import { useEffect, useState } from 'react';
+import { signIn, signOut } from 'next-auth/react';
 import { toast } from 'react-hot-toast';
 import { PiSpinnerGap } from 'react-icons/pi';
 import { createRegistrationUrl, customSignIn } from '@/lib/helpers';
@@ -17,6 +17,17 @@ export default function Main() {
   const [isLoadingLogin, setIsLoadingLogin] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
+  const logout = searchParams.get('logout');
+
+  useEffect(() => {
+    if (logout === 'true') {
+      signOut();
+      // Remove the logout parameter from the URL
+      const newUrl = new URL(window.location.href);
+      newUrl.searchParams.delete('logout');
+      window.history.replaceState({}, '', newUrl);
+    }
+  }, [logout]);
 
   async function login() {
     const provider = 'keycloak';

@@ -73,14 +73,14 @@ export default async function RootLayout({
             disableTransitionOnChange
             enableColorScheme
           >
-            <NewProviders>
-              <SessionContext>
-                <SessionWrapper>
+            <SessionContext>
+              <SessionWrapper>
+                <NewProviders>
                   <Toaster />
                   <ActiveThemeProvider>{children}</ActiveThemeProvider>
-                </SessionWrapper>
-              </SessionContext>
-            </NewProviders>
+                </NewProviders>
+              </SessionWrapper>
+            </SessionContext>
           </ThemeProvider>
         </NuqsAdapter>
       </body>
