@@ -1,4 +1,4 @@
-FROM node:18-alpine AS builder
+FROM node:18-alpine
 
 # Install Chromium and its dependencies
 RUN apk add --no-cache \
@@ -42,49 +42,7 @@ RUN pnpm install
 COPY . .
 
 # Build the application
-RUN pnpm build
-
-# Production stage
-FROM node:18-alpine AS runner
-
-# Install only the necessary runtime dependencies
-RUN apk add --no-cache \
-    chromium \
-    nss \
-    freetype \
-    harfbuzz \
-    ca-certificates \
-    ttf-freefont \
-    wget \
-    bash
-
-# Set environment variables for Chromium
-ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
-ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
-
-# Set PNPM_HOME and SHELL environment variables
-ENV PNPM_HOME="/root/.local/share/pnpm"
-ENV PATH="${PNPM_HOME}:$PATH"
-ENV SHELL="/bin/bash"
-
-# Install pnpm using standalone script
-RUN wget -qO /bin/pnpm "https://github.com/pnpm/pnpm/releases/latest/download/pnpm-linuxstatic-x64" && \
-    chmod +x /bin/pnpm && \
-    /bin/pnpm setup && \
-    source /root/.bashrc && \
-    /bin/pnpm self-update
-
-# Set working directory
-WORKDIR /app
-
-# Copy only the necessary files from the builder stage
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/package.json ./package.json
-COPY --from=builder /app/pnpm-lock.yaml ./pnpm-lock.yaml
-
-# Install only production dependencies
-RUN pnpm install 
+RUN pnpm build --debug
 
 # Expose the port
 EXPOSE 3000
