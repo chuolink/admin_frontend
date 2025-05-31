@@ -83,8 +83,6 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/pnpm-lock.yaml ./pnpm-lock.yaml
 
-# Install only production dependencies
-RUN pnpm install --prod
 
 # Expose the port
 EXPOSE 3000
