@@ -41,10 +41,11 @@ RUN pnpm install
 # Copy the rest of the application
 COPY . .
 
+RUN rm -rf .env
+
 # Build the application
 RUN pnpm build --debug
 
-RUN rm -rf .env
 
 # Expose the port
 EXPOSE 3000
