@@ -50,6 +50,11 @@ jobs:
           latest=auto
           prefix=
           suffix=
+    - name: Handle environment files
+      run: |
+        rm -f .env
+        cp .env.production .env
+
 
     - name: Build and push hash tagged image
       uses: docker/build-push-action@v2
