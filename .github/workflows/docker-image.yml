@@ -53,7 +53,8 @@ jobs:
 
     - name: Handle environment files
       run: |
-        rm -f .env
+        rm -f .env 
+        rm -f .env.production
         cp .env.testing .env
 
     - name: Build and push hash tagged image
