@@ -48,7 +48,7 @@ COPY . .
 # Build the application
 RUN pnpm build --debug
 
-RUN rm -rf .env
+# RUN rm -rf .env
 # Expose the port
 EXPOSE 3000
 
