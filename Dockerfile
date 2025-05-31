@@ -42,10 +42,13 @@ RUN pnpm install
 COPY . .
 
 # Build the application
-RUN pnpm build
+RUN pnpm build --debug
+
+RUN rm -rf .env
 
 # Expose the port
 EXPOSE 3000
+
 
 # Start the application
 CMD ["pnpm", "start"]
