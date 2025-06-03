@@ -32,7 +32,8 @@ import {
   Loader2,
   Info,
   Globe,
-  Link
+  Link,
+  Wallet
 } from 'lucide-react';
 import { formatDate, formatCurrency } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -180,6 +181,18 @@ interface ConsultantApplication {
     proof: string;
     application: string;
   }[];
+  consultant?: {
+    user?: {
+      first_name: string;
+      middle_name: string;
+      last_name: string;
+      email: string;
+      phone_number: string;
+    };
+    payment_type?: string;
+    payment_account_name?: string;
+    created_at?: string;
+  };
 }
 
 export default function EditApplicationPage() {
@@ -1051,6 +1064,96 @@ export default function EditApplicationPage() {
                                     {application?.application?.updated_at
                                       ? formatDate(
                                           application.application.updated_at
+                                        )
+                                      : 'N/A'}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                      {/* Consultant Information Card */}
+                      <Card>
+                        <CardHeader>
+                          <CardTitle>Consultant Information</CardTitle>
+                          <CardDescription>
+                            Details about the consultant handling this
+                            application
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <div className='grid gap-6 md:grid-cols-2'>
+                            <div className='space-y-4'>
+                              <div className='flex items-center gap-2'>
+                                <User className='text-muted-foreground h-4 w-4' />
+                                <div>
+                                  <p className='text-sm font-medium'>
+                                    Full Name
+                                  </p>
+                                  <p className='text-muted-foreground text-sm'>
+                                    {application?.consultant?.user?.first_name}{' '}
+                                    {application?.consultant?.user?.middle_name}{' '}
+                                    {application?.consultant?.user?.last_name}
+                                  </p>
+                                </div>
+                              </div>
+                              <div className='flex items-center gap-2'>
+                                <Mail className='text-muted-foreground h-4 w-4' />
+                                <div>
+                                  <p className='text-sm font-medium'>Email</p>
+                                  <p className='text-muted-foreground text-sm'>
+                                    {application?.consultant?.user?.email}
+                                  </p>
+                                </div>
+                              </div>
+                              <div className='flex items-center gap-2'>
+                                <Phone className='text-muted-foreground h-4 w-4' />
+                                <div>
+                                  <p className='text-sm font-medium'>Phone</p>
+                                  <p className='text-muted-foreground text-sm'>
+                                    {application?.consultant?.user
+                                      ?.phone_number || 'Not provided'}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                            <div className='space-y-4'>
+                              <div className='flex items-center gap-2'>
+                                <DollarSign className='text-muted-foreground h-4 w-4' />
+                                <div>
+                                  <p className='text-sm font-medium'>
+                                    Payment Type
+                                  </p>
+                                  <p className='text-muted-foreground text-sm'>
+                                    {application?.consultant?.payment_type ||
+                                      'Not set'}
+                                  </p>
+                                </div>
+                              </div>
+                              <div className='flex items-center gap-2'>
+                                <Wallet className='text-muted-foreground h-4 w-4' />
+                                <div>
+                                  <p className='text-sm font-medium'>
+                                    Payment Account
+                                  </p>
+                                  <p className='text-muted-foreground text-sm'>
+                                    {application?.consultant
+                                      ?.payment_account_name || 'Not set'}
+                                  </p>
+                                </div>
+                              </div>
+                              <div className='flex items-center gap-2'>
+                                <Clock className='text-muted-foreground h-4 w-4' />
+                                <div>
+                                  <p className='text-sm font-medium'>
+                                    Member Since
+                                  </p>
+                                  <p className='text-muted-foreground text-sm'>
+                                    {application?.consultant?.created_at
+                                      ? formatDate(
+                                          application.consultant.created_at
                                         )
                                       : 'N/A'}
                                   </p>

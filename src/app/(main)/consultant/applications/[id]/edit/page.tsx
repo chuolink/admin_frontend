@@ -93,6 +93,14 @@ interface ApplicationPayment {
   created_at: string;
 }
 
+interface ApplicationProof {
+  id: string;
+  proof: string;
+  created_at: string;
+  updated_at: string;
+  application: string;
+}
+
 interface PaymentResponse {
   id: string;
   application: string;
@@ -124,6 +132,7 @@ interface ConsultantApplication {
   id: string;
   application: {
     id: string;
+
     student: {
       id: string;
       name: string;
@@ -173,6 +182,7 @@ interface ConsultantApplication {
   status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'WAITING' | 'COMPLETED';
   created_at: string;
   updated_at: string;
+  proofs?: ApplicationProof[];
 }
 
 export default function EditApplicationPage() {
@@ -375,7 +385,7 @@ export default function EditApplicationPage() {
         queryKey: ['consultant-application', applicationId]
       });
       toast.success('Application submitted successfully');
-      router.push(`/consultant/applications/${applicationId}`);
+      router.push(`/consultant/applications/${applicationId}/edit`);
     },
     onError: (error: any) => {
       if (error.response?.data?.proofs) {
@@ -1644,6 +1654,227 @@ export default function EditApplicationPage() {
                             </p>
                           )}
                         </div>
+
+                        {/* Proof Upload Section */}
+                        {application?.status === 'COMPLETED' ||
+                        application?.status === 'WAITING' ? (
+                          <>
+                            <Separator className='my-6' />
+                            <div className='space-y-4'>
+                              <div className='flex items-center justify-between'>
+                                <div>
+                                  <h3 className='text-sm font-medium'>
+                                    Proof Documents
+                                  </h3>
+                                  <p className='text-muted-foreground text-sm'>
+                                    View submitted proof documents
+                                  </p>
+                                </div>
+                              </div>
+
+                              <div className='space-y-4'>
+                                {application?.proofs &&
+                                application.proofs.length > 0 ? (
+                                  application.proofs.map((proof) => (
+                                    <div
+                                      key={proof.id}
+                                      className='rounded-lg border p-4'
+                                    >
+                                      <div className='flex items-start gap-3'>
+                                        {proof.proof.match(
+                                          /\.(jpg|jpeg|png|gif)$/i
+                                        ) ? (
+                                          <div className='relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-md border'>
+                                            <img
+                                              src={proof.proof}
+                                              alt='Proof document'
+                                              className='h-full w-full object-cover'
+                                            />
+                                          </div>
+                                        ) : (
+                                          <div className='bg-muted flex h-20 w-20 flex-shrink-0 items-center justify-center rounded-md border'>
+                                            <FileText className='text-muted-foreground h-8 w-8' />
+                                          </div>
+                                        )}
+                                        <div className='flex-1 space-y-1'>
+                                          <p className='text-sm font-medium'>
+                                            Proof Document
+                                          </p>
+                                          <p className='text-muted-foreground text-xs'>
+                                            Uploaded on{' '}
+                                            {formatDate(proof.created_at)}
+                                          </p>
+                                        </div>
+                                        <Button
+                                          variant='outline'
+                                          size='sm'
+                                          onClick={() =>
+                                            window.open(proof.proof, '_blank')
+                                          }
+                                        >
+                                          <Eye className='mr-2 h-4 w-4' />
+                                          View
+                                        </Button>
+                                      </div>
+                                    </div>
+                                  ))
+                                ) : (
+                                  <p className='text-muted-foreground text-sm'>
+                                    No proof documents available
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <Separator className='my-6' />
+                            <div className='space-y-4'>
+                              <div className='flex items-center justify-between'>
+                                <div>
+                                  <h3 className='text-sm font-medium'>
+                                    Proof Documents
+                                  </h3>
+                                  <p className='text-muted-foreground text-sm'>
+                                    Upload proof documents for final submission
+                                  </p>
+                                </div>
+                              </div>
+
+                              {credentialsData?.results &&
+                              credentialsData.results.length > 0 &&
+                              paymentHistory?.results?.some(
+                                (payment) => payment.status === 'success'
+                              ) ? (
+                                <div className='space-y-4'>
+                                  <div className='flex items-center gap-4'>
+                                    <Input
+                                      type='file'
+                                      onChange={handleProofFileChange}
+                                      disabled={
+                                        submitApplicationMutation.isPending
+                                      }
+                                      accept='image/*,.pdf'
+                                      multiple
+                                    />
+                                  </div>
+
+                                  {proofFiles.length > 0 && (
+                                    <div className='space-y-4'>
+                                      {proofFiles.map((file, index) => (
+                                        <div
+                                          key={index}
+                                          className='rounded-lg border p-4'
+                                        >
+                                          <div className='flex items-start gap-3'>
+                                            {file.type.startsWith('image/') ? (
+                                              <div className='relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-md border'>
+                                                <img
+                                                  src={URL.createObjectURL(
+                                                    file
+                                                  )}
+                                                  alt={file.name}
+                                                  className='h-full w-full object-cover'
+                                                />
+                                              </div>
+                                            ) : (
+                                              <div className='bg-muted flex h-20 w-20 flex-shrink-0 items-center justify-center rounded-md border'>
+                                                <FileText className='text-muted-foreground h-8 w-8' />
+                                              </div>
+                                            )}
+                                            <div className='flex-1 space-y-1'>
+                                              <p className='text-sm font-medium'>
+                                                {file.name}
+                                              </p>
+                                              <p className='text-muted-foreground text-xs'>
+                                                {(file.size / 1024).toFixed(1)}{' '}
+                                                KB
+                                              </p>
+                                            </div>
+                                            <Button
+                                              variant='ghost'
+                                              size='sm'
+                                              onClick={() =>
+                                                removeProofFile(index)
+                                              }
+                                              className='h-8 w-8 p-0'
+                                            >
+                                              <XCircle className='h-4 w-4' />
+                                              <span className='sr-only'>
+                                                Remove file
+                                              </span>
+                                            </Button>
+                                          </div>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  )}
+
+                                  {proofFiles.length > 0 && (
+                                    <Button
+                                      onClick={handleFinalSubmit}
+                                      disabled={
+                                        submitApplicationMutation.isPending
+                                      }
+                                      className='w-full'
+                                    >
+                                      {submitApplicationMutation.isPending ? (
+                                        <>
+                                          <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                                          Submitting...
+                                        </>
+                                      ) : (
+                                        <>
+                                          <Send className='mr-2 h-4 w-4' />
+                                          Submit Application
+                                        </>
+                                      )}
+                                    </Button>
+                                  )}
+                                </div>
+                              ) : (
+                                <div className='bg-muted/50 rounded-lg border p-4'>
+                                  <div className='space-y-2'>
+                                    <div className='flex items-center gap-2'>
+                                      <Info className='text-muted-foreground h-4 w-4' />
+                                      <p className='text-sm font-medium'>
+                                        Proof Upload Not Available
+                                      </p>
+                                    </div>
+                                    <div className='text-muted-foreground space-y-1 text-sm'>
+                                      <p>
+                                        To enable proof upload, you need to:
+                                      </p>
+                                      <ol className='list-inside list-decimal space-y-1'>
+                                        <li>
+                                          Submit GEPG payment and wait for
+                                          successful confirmation
+                                        </li>
+                                        <li>Add application credentials</li>
+                                      </ol>
+                                      <div className='mt-2 flex items-center gap-2'>
+                                        <Badge
+                                          variant='outline'
+                                          className='gap-1'
+                                        >
+                                          <Clock className='h-3 w-3' />
+                                          {!paymentHistory?.results?.some(
+                                            (payment) =>
+                                              payment.status === 'success'
+                                          )
+                                            ? 'Waiting for payment confirmation'
+                                            : !credentialsData?.results?.length
+                                              ? 'Credentials required'
+                                              : 'Ready to upload proofs'}
+                                        </Badge>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          </>
+                        )}
                       </CardContent>
                     </Card>
                   </TabsContent>
