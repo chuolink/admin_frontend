@@ -19,15 +19,15 @@ export default function Main() {
   const searchParams = useSearchParams();
   const logout = searchParams.get('logout');
 
-  useEffect(() => {
-    if (logout === 'true') {
-      signOut();
-      // Remove the logout parameter from the URL
-      const newUrl = new URL(window.location.href);
-      newUrl.searchParams.delete('logout');
-      window.history.replaceState({}, '', newUrl);
-    }
-  }, [logout]);
+  // useEffect(() => {
+  //   if (logout === 'true') {
+  //     signOut();
+  //     // Remove the logout parameter from the URL
+  //     const newUrl = new URL(window.location.href);
+  //     newUrl.searchParams.delete('logout');
+  //     window.history.replaceState({}, '', newUrl);
+  //   }
+  // }, [logout]);
 
   async function login() {
     const provider = 'keycloak';
