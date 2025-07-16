@@ -95,6 +95,7 @@ export interface ConsultantApplication {
   status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'WAITING' | 'COMPLETED';
   created_at: string;
   updated_at: string;
+  paid_fee?: boolean;
 }
 
 export interface ConsultantWithdrawal {

@@ -193,6 +193,42 @@ interface ConsultantApplication {
     payment_account_name?: string;
     created_at?: string;
   };
+  results?: {
+    o_level_result?: {
+      school: string;
+      reg_no: string;
+      division: string;
+      points: number | null;
+    };
+    o_level_grades?: {
+      id: string;
+      subject: {
+        id: string;
+        name: string;
+      };
+      grade: {
+        id: string;
+        grade: string;
+      };
+    }[];
+    a_level_result?: {
+      school: string;
+      reg_no: string;
+      division: string;
+      points: number | null;
+    };
+    a_level_grades?: {
+      id: string;
+      subject: {
+        id: string;
+        name: string;
+      };
+      grade: {
+        id: string;
+        grade: string;
+      };
+    }[];
+  };
 }
 
 export default function EditApplicationPage() {
@@ -1291,6 +1327,120 @@ export default function EditApplicationPage() {
                                   </div>
                                 </div>
                               )
+                            )}
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                      {/* Results Section */}
+                      <Card>
+                        <CardHeader>
+                          <CardTitle>Student Results</CardTitle>
+                          <CardDescription>
+                            O-Level and A-Level academic results
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          {/* O-Level Results */}
+                          <div className='mb-6'>
+                            <h3 className='mb-2 font-semibold'>
+                              O-Level Results
+                            </h3>
+                            {application?.results?.o_level_result ? (
+                              <>
+                                <div className='mb-2'>
+                                  <span className='font-medium'>School:</span>{' '}
+                                  {application.results.o_level_result.school ||
+                                    'N/A'}
+                                </div>
+                                <div className='mb-2'>
+                                  <span className='font-medium'>
+                                    Registration No:
+                                  </span>{' '}
+                                  {application.results.o_level_result.reg_no ||
+                                    'N/A'}
+                                </div>
+                                <div className='mb-2'>
+                                  <span className='font-medium'>Division:</span>{' '}
+                                  {application.results.o_level_result
+                                    .division || 'N/A'}
+                                </div>
+                                <div className='mb-2'>
+                                  <span className='font-medium'>Points:</span>{' '}
+                                  {application.results.o_level_result.points ??
+                                    'N/A'}
+                                </div>
+                                <div>
+                                  <span className='font-medium'>
+                                    Subjects & Grades:
+                                  </span>
+                                  <ul className='ml-6 list-disc'>
+                                    {application.results.o_level_grades?.map(
+                                      (grade: any) => (
+                                        <li key={grade.id}>
+                                          {grade.subject?.name}:{' '}
+                                          {grade.grade?.grade}
+                                        </li>
+                                      )
+                                    )}
+                                  </ul>
+                                </div>
+                              </>
+                            ) : (
+                              <p className='text-muted-foreground text-sm'>
+                                No O-Level results available.
+                              </p>
+                            )}
+                          </div>
+                          {/* A-Level Results */}
+                          <div>
+                            <h3 className='mb-2 font-semibold'>
+                              A-Level Results
+                            </h3>
+                            {application?.results?.a_level_result ? (
+                              <>
+                                <div className='mb-2'>
+                                  <span className='font-medium'>School:</span>{' '}
+                                  {application.results.a_level_result.school ||
+                                    'N/A'}
+                                </div>
+                                <div className='mb-2'>
+                                  <span className='font-medium'>
+                                    Registration No:
+                                  </span>{' '}
+                                  {application.results.a_level_result.reg_no ||
+                                    'N/A'}
+                                </div>
+                                <div className='mb-2'>
+                                  <span className='font-medium'>Division:</span>{' '}
+                                  {application.results.a_level_result
+                                    .division || 'N/A'}
+                                </div>
+                                <div className='mb-2'>
+                                  <span className='font-medium'>Points:</span>{' '}
+                                  {application.results.a_level_result.points ??
+                                    'N/A'}
+                                </div>
+                                <div>
+                                  <span className='font-medium'>
+                                    Subjects & Grades:
+                                  </span>
+                                  <ul className='ml-6 list-disc'>
+                                    {application.results.a_level_grades?.map(
+                                      (grade: any) => (
+                                        <li key={grade.id}>
+                                          {grade.subject?.name}:{' '}
+                                          {grade.grade?.grade}
+                                        </li>
+                                      )
+                                    )}
+                                  </ul>
+                                </div>
+                              </>
+                            ) : (
+                              <p className='text-muted-foreground text-sm'>
+                                No A-Level results available.
+                              </p>
                             )}
                           </div>
                         </CardContent>

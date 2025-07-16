@@ -234,6 +234,22 @@ export default function ApplicationTable() {
           );
         }
       },
+      // Paid Fee column
+      {
+        accessorKey: 'paid_fee',
+        header: 'Processing Fee',
+        size: 120,
+        enableColumnFilter: false,
+        enableSorting: false,
+        Cell: ({ cell }) => {
+          const paid = cell.getValue<boolean>();
+          return paid ? (
+            <Chip label='Paid' color='success' size='small' />
+          ) : (
+            <Chip label='Not Paid' color='error' size='small' />
+          );
+        }
+      },
       {
         accessorKey: 'created_at',
         header: 'Created Date',

@@ -27,6 +27,39 @@ import {
 import { formatDate, formatCurrency } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useQuery as useReactQuery } from '@tanstack/react-query';
+import { Student as StudentDetailsBase } from '@/types/student-details';
+
+// Extend StudentDetails to include passport and results for this page
+interface StudentDetails extends StudentDetailsBase {
+  passport?: string;
+  results?: {
+    o_level_result?: {
+      school?: string;
+      division?: string;
+      points?: number | null;
+      reg_no?: string;
+      transcript?: string;
+    };
+    o_level_grades?: {
+      id: string;
+      subject: { id: string; name: string };
+      grade: { id: string; grade: string };
+    }[];
+    a_level_result?: {
+      school?: string;
+      division?: string;
+      points?: number | null;
+      reg_no?: string;
+      transcript?: string;
+    };
+    a_level_grades?: {
+      id: string;
+      subject: { id: string; name: string };
+      grade: { id: string; grade: string };
+    }[];
+  };
+}
 
 export default function ApplicationDetailsPage() {
   const router = useRouter();
@@ -47,6 +80,21 @@ export default function ApplicationDetailsPage() {
     },
     enabled: !!applicationId
   });
+
+  // Fetch full student details for results/passport
+  const { data: studentDetails, isLoading: isStudentLoading } =
+    useReactQuery<StudentDetails>({
+      queryKey: ['student-details', application?.student?.id],
+      queryFn: async () => {
+        if (!api || !application?.student?.id)
+          throw new Error('API not initialized');
+        const response = await api.get(
+          `/admin/students/${application.student.id}/`
+        );
+        return response.data as StudentDetails;
+      },
+      enabled: !!application?.student?.id
+    });
 
   if (isLoading) {
     return (
@@ -317,39 +365,248 @@ export default function ApplicationDetailsPage() {
           <TabsContent value='student' className='space-y-4'>
             <Card>
               <CardHeader>
-                <CardTitle>Student Information</CardTitle>
+                <CardTitle>Personal Information</CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className='space-y-4'>
-                  <div className='flex items-center gap-2'>
-                    <User className='text-muted-foreground h-5 w-5' />
-                    <div>
-                      <p className='text-sm font-medium'>Name</p>
-                      <p>{application.student.name}</p>
-                    </div>
+              <CardContent className='space-y-4'>
+                {isStudentLoading ? (
+                  <div className='text-muted-foreground mt-4 text-sm'>
+                    Loading student details...
                   </div>
-                  <div className='flex items-center gap-2'>
-                    <Mail className='text-muted-foreground h-5 w-5' />
-                    <div>
-                      <p className='text-sm font-medium'>Email</p>
-                      <p>{application.student.email}</p>
+                ) : studentDetails ? (
+                  <>
+                    <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
+                      <div className='space-y-1'>
+                        <p className='text-muted-foreground text-sm font-medium'>
+                          Full Name
+                        </p>
+                        <p className='font-medium'>
+                          {studentDetails.user_name}
+                        </p>
+                      </div>
+                      <div className='space-y-1'>
+                        <p className='text-muted-foreground text-sm font-medium'>
+                          Email
+                        </p>
+                        <p className='font-medium'>
+                          {studentDetails.user_email}
+                        </p>
+                      </div>
+                      <div className='space-y-1'>
+                        <p className='text-muted-foreground text-sm font-medium'>
+                          Education Level
+                        </p>
+                        <p className='font-medium'>
+                          {studentDetails.education_level || 'Not Set'}
+                        </p>
+                      </div>
+                      <div className='space-y-1'>
+                        <p className='text-muted-foreground text-sm font-medium'>
+                          Marital Status
+                        </p>
+                        <p className='font-medium'>
+                          {studentDetails.maritial_status || 'Not Set'}
+                        </p>
+                      </div>
+                      <div className='space-y-1'>
+                        <p className='text-muted-foreground text-sm font-medium'>
+                          Joined Date
+                        </p>
+                        <p className='font-medium'>
+                          {studentDetails.created_at
+                            ? formatDate(studentDetails.created_at)
+                            : 'N/A'}
+                        </p>
+                      </div>
+                      <div className='space-y-1'>
+                        <p className='text-muted-foreground text-sm font-medium'>
+                          Last Login
+                        </p>
+                        <p className='font-medium'>
+                          {studentDetails.user?.last_login
+                            ? formatDate(studentDetails.user.last_login)
+                            : 'Never'}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                  <div className='flex items-center gap-2'>
-                    <Phone className='text-muted-foreground h-5 w-5' />
-                    <div>
-                      <p className='text-sm font-medium'>Phone</p>
-                      <p>{application.student.phone || 'Not provided'}</p>
-                    </div>
-                  </div>
-                  <div className='flex items-center gap-2'>
-                    <Calendar className='text-muted-foreground h-5 w-5' />
-                    <div>
-                      <p className='text-sm font-medium'>Student Since</p>
-                      <p>{formatDate(application.student.created_at)}</p>
-                    </div>
-                  </div>
-                </div>
+                    {studentDetails.about_us && (
+                      <div className='space-y-1'>
+                        <p className='text-muted-foreground text-sm font-medium'>
+                          About
+                        </p>
+                        <p className='font-medium'>{studentDetails.about_us}</p>
+                      </div>
+                    )}
+                    {/* Passport section */}
+                    {studentDetails.passport && (
+                      <div className='space-y-1'>
+                        <p className='text-muted-foreground text-sm font-medium'>
+                          Passport
+                        </p>
+                        <div>
+                          <a
+                            href={studentDetails.passport}
+                            target='_blank'
+                            rel='noopener noreferrer'
+                          >
+                            <img
+                              src={studentDetails.passport}
+                              alt='Passport'
+                              style={{
+                                maxWidth: '180px',
+                                borderRadius: '8px',
+                                border: '1px solid #eee'
+                              }}
+                            />
+                          </a>
+                        </div>
+                      </div>
+                    )}
+                    {/* Results section */}
+                    {studentDetails.results && (
+                      <div className='mt-6 space-y-4'>
+                        <h2 className='text-lg font-semibold'>
+                          Student Results
+                        </h2>
+                        {/* O-Level Results */}
+                        <div className='space-y-2'>
+                          <h3 className='font-semibold'>O-Level Results</h3>
+                          {studentDetails.results.o_level_result ? (
+                            <>
+                              <div>
+                                <span className='font-medium'>School:</span>{' '}
+                                {studentDetails.results.o_level_result.school ||
+                                  'N/A'}
+                              </div>
+                              <div>
+                                <span className='font-medium'>
+                                  Registration No:
+                                </span>{' '}
+                                {studentDetails.results.o_level_result.reg_no ||
+                                  'N/A'}
+                              </div>
+                              <div>
+                                <span className='font-medium'>Division:</span>{' '}
+                                {studentDetails.results.o_level_result
+                                  .division || 'N/A'}
+                              </div>
+                              <div>
+                                <span className='font-medium'>Points:</span>{' '}
+                                {studentDetails.results.o_level_result.points ??
+                                  'N/A'}
+                              </div>
+                              {studentDetails.results.o_level_result
+                                .transcript && (
+                                <div>
+                                  <span className='font-medium'>
+                                    Transcript:
+                                  </span>{' '}
+                                  <a
+                                    href={
+                                      studentDetails.results.o_level_result
+                                        .transcript
+                                    }
+                                    target='_blank'
+                                    rel='noopener noreferrer'
+                                    className='text-blue-600 underline'
+                                  >
+                                    View O-Level Transcript
+                                  </a>
+                                </div>
+                              )}
+                              <div>
+                                <span className='font-medium'>
+                                  Subjects & Grades:
+                                </span>
+                                <ul className='ml-6 list-disc'>
+                                  {studentDetails.results.o_level_grades?.map(
+                                    (grade) => (
+                                      <li key={grade.id}>
+                                        {grade.subject?.name}:{' '}
+                                        {grade.grade?.grade}
+                                      </li>
+                                    )
+                                  )}
+                                </ul>
+                              </div>
+                            </>
+                          ) : (
+                            <p className='text-muted-foreground text-sm'>
+                              No O-Level results available.
+                            </p>
+                          )}
+                        </div>
+                        {/* A-Level Results */}
+                        <div className='space-y-2'>
+                          <h3 className='font-semibold'>A-Level Results</h3>
+                          {studentDetails.results.a_level_result ? (
+                            <>
+                              <div>
+                                <span className='font-medium'>School:</span>{' '}
+                                {studentDetails.results.a_level_result.school ||
+                                  'N/A'}
+                              </div>
+                              <div>
+                                <span className='font-medium'>
+                                  Registration No:
+                                </span>{' '}
+                                {studentDetails.results.a_level_result.reg_no ||
+                                  'N/A'}
+                              </div>
+                              <div>
+                                <span className='font-medium'>Division:</span>{' '}
+                                {studentDetails.results.a_level_result
+                                  .division || 'N/A'}
+                              </div>
+                              <div>
+                                <span className='font-medium'>Points:</span>{' '}
+                                {studentDetails.results.a_level_result.points ??
+                                  'N/A'}
+                              </div>
+                              {studentDetails.results.a_level_result
+                                .transcript && (
+                                <div>
+                                  <span className='font-medium'>
+                                    Transcript:
+                                  </span>{' '}
+                                  <a
+                                    href={
+                                      studentDetails.results.a_level_result
+                                        .transcript
+                                    }
+                                    target='_blank'
+                                    rel='noopener noreferrer'
+                                    className='text-blue-600 underline'
+                                  >
+                                    View A-Level Transcript
+                                  </a>
+                                </div>
+                              )}
+                              <div>
+                                <span className='font-medium'>
+                                  Subjects & Grades:
+                                </span>
+                                <ul className='ml-6 list-disc'>
+                                  {studentDetails.results.a_level_grades?.map(
+                                    (grade) => (
+                                      <li key={grade.id}>
+                                        {grade.subject?.name}:{' '}
+                                        {grade.grade?.grade}
+                                      </li>
+                                    )
+                                  )}
+                                </ul>
+                              </div>
+                            </>
+                          ) : (
+                            <p className='text-muted-foreground text-sm'>
+                              No A-Level results available.
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </>
+                ) : null}
               </CardContent>
             </Card>
           </TabsContent>

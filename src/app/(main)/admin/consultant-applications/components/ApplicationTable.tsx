@@ -184,6 +184,22 @@ export default function ApplicationTable() {
           );
         }
       },
+      // Paid Fee column
+      {
+        accessorKey: 'paid_fee',
+        header: 'Processing Fee',
+        size: 120,
+        enableColumnFilter: false,
+        enableSorting: false,
+        Cell: ({ cell }) => {
+          const paid = cell.getValue<boolean>();
+          return paid ? (
+            <Chip label='Paid' color='success' size='small' />
+          ) : (
+            <Chip label='Not Paid' color='error' size='small' />
+          );
+        }
+      },
       {
         accessorKey: 'created_at',
         header: 'Date',
@@ -192,6 +208,39 @@ export default function ApplicationTable() {
         Cell: ({ cell }) => {
           const date = cell.getValue<string>();
           return format(new Date(date), 'MMM d, yyyy');
+        }
+      },
+      // Consultant Name column
+      {
+        id: 'consultant_name',
+        header: 'Consultant',
+        size: 180,
+        enableColumnFilter: false,
+        enableSorting: false,
+        accessorFn: (row: ConsultantApplication) => {
+          if (
+            row.consultant &&
+            typeof row.consultant === 'object' &&
+            (row.consultant as any).user
+          ) {
+            const user = (row.consultant as any).user;
+            return `${user.first_name || ''} ${user.middle_name || ''} ${user.last_name || ''}`.trim();
+          }
+          return '';
+        },
+        Cell: ({ row }: { row: { original: ConsultantApplication } }) => {
+          const user = (row.original.consultant as any)?.user;
+          if (!user) return '';
+          return (
+            <Box>
+              <Typography variant='body2' fontWeight='medium'>
+                {`${user.first_name || ''} ${user.middle_name || ''} ${user.last_name || ''}`.trim()}
+              </Typography>
+              <Typography variant='caption' color='text.secondary'>
+                {user.email}
+              </Typography>
+            </Box>
+          );
         }
       }
     ],
