@@ -58,7 +58,7 @@ interface OnboardingModalProps {
   onClose: () => void;
 }
 
-// Custom DialogContent without close button
+// Custom DialogContent with proper scrolling
 const DialogContent = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>
@@ -68,7 +68,7 @@ const DialogContent = React.forwardRef<
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
-        'bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] fixed top-[50%] left-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border p-6 shadow-lg duration-200 sm:rounded-lg',
+        'bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] fixed top-[50%] left-[50%] z-50 flex max-h-[90vh] w-full max-w-lg translate-x-[-50%] translate-y-[-50%] flex-col overflow-hidden border shadow-lg duration-200 sm:rounded-lg',
         className
       )}
       {...props}
@@ -166,7 +166,9 @@ export default function OnboardingModal({
       }
     }
   });
+
   const queryClient = useQueryClient();
+
   // Create consultant mutation
   const createConsultant = useMutation({
     mutationFn: async (data: FormValues) => {
@@ -236,290 +238,306 @@ export default function OnboardingModal({
           onPointerDownOutside={(e) => e.preventDefault()}
           onEscapeKeyDown={(e) => e.preventDefault()}
         >
-          <DialogHeader>
+          {/* Fixed Header */}
+          <DialogHeader className='flex-shrink-0 p-6 pb-0'>
             <DialogTitle>Complete Your Profile</DialogTitle>
             <DialogDescription>
               Please provide your personal and payment information.
             </DialogDescription>
           </DialogHeader>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
-              <PhoneAndEmail />
-              <FormField
-                control={form.control}
-                name='first_name'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>First Name</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name='last_name'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Last Name</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name='email'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <div className='space-y-2'>
-                        <Input
-                          {...field}
-                          type='email'
-                          disabled
-                          className='bg-gray-100'
-                        />
-                        <p className='text-sm text-gray-500'>
-                          Email cannot be edited
-                        </p>
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name='phone_number'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Phone Number</FormLabel>
-                    <FormControl>
-                      <div className='space-y-2'>
-                        <Input
-                          {...field}
-                          onChange={(e) => {
-                            if (e.target.value.length <= 3) return;
-                            if (e.target.value.length > 13) return;
-                            field.onChange(e);
-                            setContact((prev) => ({
-                              ...prev,
-                              phoneNumber: e.target.value
-                            }));
-                          }}
-                        />
-                        {field.value && field.value.length > 3 && (
-                          <div className='flex items-center gap-2'>
-                            {phoneAndEmailVerify.verifiedNumber?.some(
-                              (number) => number.phone_number === field.value
-                            ) ? (
-                              <div className='flex items-center gap-2 text-green-500'>
-                                <BsCheckLg size={16} />
-                                <span className='text-sm'>
-                                  Phone number verified
-                                </span>
-                              </div>
-                            ) : (
-                              <Button
-                                type='button'
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  if (
-                                    !field.value ||
-                                    field.value.length !== 13
-                                  ) {
-                                    toast.error(
-                                      'Please enter a valid phone number'
-                                    );
-                                    return;
-                                  }
-                                  setPhoneAndEmailVerify({
-                                    ...phoneAndEmailVerify,
-                                    isOpen: true,
-                                    phone: field.value,
-                                    email: '',
-                                    isRequired: true
-                                  });
-                                }}
-                                className='bg-primary hover:bg-primaryLight h-8 px-3 py-1 text-sm'
-                              >
-                                Verify Phone
-                              </Button>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name='payment_type'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Payment Method</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
+
+          {/* Scrollable Content */}
+          <div className='flex-1 overflow-y-auto px-6 pb-6'>
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className='space-y-4'
+              >
+                <PhoneAndEmail />
+                <FormField
+                  control={form.control}
+                  name='first_name'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>First Name</FormLabel>
                       <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder='Select payment method' />
-                        </SelectTrigger>
+                        <Input {...field} />
                       </FormControl>
-                      <SelectContent>
-                        <SelectItem value='MOBILE'>Mobile Money</SelectItem>
-                        <SelectItem value='BANK'>Bank Account</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name='payment_name'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      {form.watch('payment_type') === 'MOBILE'
-                        ? 'Mobile Money Provider'
-                        : 'Bank Name'}
-                    </FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name='last_name'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Last Name</FormLabel>
                       <FormControl>
-                        <SelectTrigger>
-                          <SelectValue
-                            placeholder={
-                              form.watch('payment_type') === 'MOBILE'
-                                ? 'Select mobile money provider'
-                                : 'Select bank'
-                            }
-                          />
-                        </SelectTrigger>
+                        <Input {...field} />
                       </FormControl>
-                      <SelectContent>
-                        {form.watch('payment_type') === 'MOBILE' ? (
-                          <>
-                            <SelectItem value='MIX BY YAS'>
-                              MIX BY YAS
-                            </SelectItem>
-                            <SelectItem value='AIRTEL MONEY'>
-                              AIRTEL MONEY
-                            </SelectItem>
-                            <SelectItem value='MPESA'>MPESA</SelectItem>
-                            <SelectItem value='HALOPESA'>HALOPESA</SelectItem>
-                          </>
-                        ) : (
-                          <>
-                            <SelectItem value='CRDB'>CRDB</SelectItem>
-                            <SelectItem value='NMB'>NMB</SelectItem>
-                            <SelectItem value='NBC'>NBC</SelectItem>
-                          </>
-                        )}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name='payment_account_name'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Account Name</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name='payment_account_number'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Account Number</FormLabel>
-                    <FormControl>
-                      <div className='space-y-2'>
-                        <div className='relative'>
-                          {form.watch('payment_type') === 'MOBILE' && (
-                            <span className='absolute top-1/2 left-3 -translate-y-1/2 text-white'>
-                              +255
-                            </span>
-                          )}
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name='email'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                        <div className='space-y-2'>
                           <Input
                             {...field}
-                            className={
-                              form.watch('payment_type') === 'MOBILE'
-                                ? 'pl-12'
-                                : ''
-                            }
+                            type='email'
+                            disabled
+                            className='bg-gray-100'
+                          />
+                          <p className='text-sm text-gray-500'>
+                            Email cannot be edited
+                          </p>
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name='phone_number'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Phone Number</FormLabel>
+                      <FormControl>
+                        <div className='space-y-2'>
+                          <Input
+                            {...field}
                             onChange={(e) => {
-                              if (form.watch('payment_type') === 'MOBILE') {
-                                // Remove any non-digit characters
-                                const value = e.target.value.replace(/\D/g, '');
-                                // Only allow up to 9 digits
-                                if (value.length <= 9) {
-                                  field.onChange(value);
-                                }
-                              } else {
-                                field.onChange(e.target.value);
-                              }
+                              if (e.target.value.length <= 3) return;
+                              if (e.target.value.length > 13) return;
+                              field.onChange(e);
+                              setContact((prev) => ({
+                                ...prev,
+                                phoneNumber: e.target.value
+                              }));
                             }}
                           />
-                        </div>
-                        {form.watch('payment_type') === 'MOBILE' &&
-                          field.value &&
-                          field.value.length > 0 && (
+                          {field.value && field.value.length > 3 && (
                             <div className='flex items-center gap-2'>
-                              {field.value.length !== 9 && (
-                                <span className='text-sm text-gray-500'>
-                                  Enter 9 digits
-                                </span>
+                              {phoneAndEmailVerify.verifiedNumber?.some(
+                                (number) => number.phone_number === field.value
+                              ) ? (
+                                <div className='flex items-center gap-2 text-green-500'>
+                                  <BsCheckLg size={16} />
+                                  <span className='text-sm'>
+                                    Phone number verified
+                                  </span>
+                                </div>
+                              ) : (
+                                <Button
+                                  type='button'
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    if (
+                                      !field.value ||
+                                      field.value.length !== 13
+                                    ) {
+                                      toast.error(
+                                        'Please enter a valid phone number'
+                                      );
+                                      return;
+                                    }
+                                    setPhoneAndEmailVerify({
+                                      ...phoneAndEmailVerify,
+                                      isOpen: true,
+                                      phone: field.value,
+                                      email: '',
+                                      isRequired: true
+                                    });
+                                  }}
+                                  className='bg-primary hover:bg-primaryLight h-8 px-3 py-1 text-sm'
+                                >
+                                  Verify Phone
+                                </Button>
                               )}
                             </div>
                           )}
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <Button
-                type='submit'
-                className='w-full'
-                disabled={
-                  isSubmitting ||
-                  !phoneAndEmailVerify.verifiedNumber?.some(
-                    (number) => number.phone_number === contact.phoneNumber
-                  )
-                }
-              >
-                {isSubmitting ? (
-                  <div className='flex items-center gap-2'>
-                    <PiSpinner className='animate-spin' size={20} />
-                    <span>Saving...</span>
-                  </div>
-                ) : (
-                  'Save Profile'
-                )}
-              </Button>
-            </form>
-          </Form>
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name='payment_type'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Payment Method</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder='Select payment method' />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value='MOBILE'>Mobile Money</SelectItem>
+                          <SelectItem value='BANK'>Bank Account</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name='payment_name'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        {form.watch('payment_type') === 'MOBILE'
+                          ? 'Mobile Money Provider'
+                          : 'Bank Name'}
+                      </FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue
+                              placeholder={
+                                form.watch('payment_type') === 'MOBILE'
+                                  ? 'Select mobile money provider'
+                                  : 'Select bank'
+                              }
+                            />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {form.watch('payment_type') === 'MOBILE' ? (
+                            <>
+                              <SelectItem value='MIX BY YAS'>
+                                MIX BY YAS
+                              </SelectItem>
+                              <SelectItem value='AIRTEL MONEY'>
+                                AIRTEL MONEY
+                              </SelectItem>
+                              <SelectItem value='MPESA'>MPESA</SelectItem>
+                              <SelectItem value='HALOPESA'>HALOPESA</SelectItem>
+                            </>
+                          ) : (
+                            <>
+                              <SelectItem value='CRDB'>CRDB</SelectItem>
+                              <SelectItem value='NMB'>NMB</SelectItem>
+                              <SelectItem value='NBC'>NBC</SelectItem>
+                            </>
+                          )}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name='payment_account_name'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Account Name</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name='payment_account_number'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Account Number</FormLabel>
+                      <FormControl>
+                        <div className='space-y-2'>
+                          <div className='relative'>
+                            {form.watch('payment_type') === 'MOBILE' && (
+                              <span className='absolute top-1/2 left-3 -translate-y-1/2 text-white'>
+                                +255
+                              </span>
+                            )}
+                            <Input
+                              {...field}
+                              className={
+                                form.watch('payment_type') === 'MOBILE'
+                                  ? 'pl-12'
+                                  : ''
+                              }
+                              onChange={(e) => {
+                                if (form.watch('payment_type') === 'MOBILE') {
+                                  // Remove any non-digit characters
+                                  const value = e.target.value.replace(
+                                    /\D/g,
+                                    ''
+                                  );
+                                  // Only allow up to 9 digits
+                                  if (value.length <= 9) {
+                                    field.onChange(value);
+                                  }
+                                } else {
+                                  field.onChange(e.target.value);
+                                }
+                              }}
+                            />
+                          </div>
+                          {form.watch('payment_type') === 'MOBILE' &&
+                            field.value &&
+                            field.value.length > 0 && (
+                              <div className='flex items-center gap-2'>
+                                {field.value.length !== 9 && (
+                                  <span className='text-sm text-gray-500'>
+                                    Enter 9 digits
+                                  </span>
+                                )}
+                              </div>
+                            )}
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </form>
+            </Form>
+          </div>
+
+          {/* Fixed Footer with Submit Button */}
+          <div className='flex-shrink-0 p-6 pt-0'>
+            <Button
+              type='submit'
+              onClick={form.handleSubmit(onSubmit)}
+              className='w-full'
+              disabled={
+                isSubmitting ||
+                !phoneAndEmailVerify.verifiedNumber?.some(
+                  (number) => number.phone_number === contact.phoneNumber
+                )
+              }
+            >
+              {isSubmitting ? (
+                <div className='flex items-center gap-2'>
+                  <PiSpinner className='animate-spin' size={20} />
+                  <span>Saving...</span>
+                </div>
+              ) : (
+                'Save Profile'
+              )}
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
     </>

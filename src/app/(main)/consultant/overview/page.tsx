@@ -193,7 +193,7 @@ export default function ConsultantOverview() {
         </Card>
       </div>
 
-      <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
+      {/* <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
         <Card>
           <CardHeader>
             <CardTitle>Recent Applications</CardTitle>
@@ -260,7 +260,7 @@ export default function ConsultantOverview() {
             )}
           </CardContent>
         </Card>
-      </div>
+      </div> */}
     </div>
   );
 }

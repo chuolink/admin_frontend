@@ -111,7 +111,7 @@ const StudentStats = ({
   return (
     <Card className='@container/card'>
       <CardHeader>
-        <CardDescription>Total Students</CardDescription>
+        <CardDescription>Total Users</CardDescription>
         <CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
           {total_students}
         </CardTitle>

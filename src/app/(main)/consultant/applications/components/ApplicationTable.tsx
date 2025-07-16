@@ -51,38 +51,71 @@ export default function ApplicationTable() {
     pageSize: 25
   });
 
-  // Build query params from table state
+  // Build query params - each column filter maps to specific backend parameter
   const queryParams = useMemo(() => {
     const params: Record<string, string> = {};
 
+    // Global search using the 'search' parameter for global search bar
     if (globalFilter) {
       params.search = globalFilter;
     }
 
+    // Sorting - map frontend column IDs to backend field names
     if (sorting.length > 0) {
       params.ordering = sorting
-        .map((sort) => (sort.desc ? `-${sort.id}` : sort.id))
+        .map((sort) => {
+          let fieldName = sort.id;
+
+          // Map frontend column IDs to backend field names for sorting
+          switch (sort.id) {
+            case 'student_name':
+              fieldName = 'application__student__user__first_name';
+              break;
+            case 'university':
+              fieldName = 'application__university__name';
+              break;
+            case 'application.app_id':
+              fieldName = 'application__app_id';
+              break;
+            default:
+              fieldName = sort.id;
+          }
+
+          return sort.desc ? `-${fieldName}` : fieldName;
+        })
         .join(',');
     }
 
     params.page = String(pagination.pageIndex + 1);
     params.limit = String(pagination.pageSize);
 
+    // Individual column filters - each maps to its specific backend filter
     columnFilters.forEach((filter) => {
-      if (filter.id === 'status') {
-        params[filter.id] = filter.value as string;
-      } else if (filter.id === 'application.university.name') {
-        params['application__university__name__icontains'] =
-          filter.value as string;
-      } else if (filter.id === 'course_name') {
-        params['application__courses__name'] = filter.value as string;
-      } else if (filter.id === 'student_name') {
-        params['application__student__user__first_name__icontains'] =
-          filter.value as string;
-      } else if (filter.id === 'created_at') {
-        const dateRange = filter.value as [string, string];
-        if (dateRange[0]) params.created_at__gte = dateRange[0];
-        if (dateRange[1]) params.created_at__lte = dateRange[1];
+      if (filter.value) {
+        switch (filter.id) {
+          case 'status':
+            // Status filter - exact match
+            params.status = filter.value as string;
+            break;
+          case 'student_name':
+            // Student name filter - searches first name OR last name
+            params.student_name = filter.value as string;
+            break;
+          case 'university':
+            // University filter - case insensitive contains
+            params.university = filter.value as string;
+            break;
+          case 'course_name':
+            // Course name filter - case insensitive contains
+            params.course_name = filter.value as string;
+            break;
+          case 'created_at':
+            // Date range filter
+            const dateRange = filter.value as [string, string];
+            if (dateRange[0]) params.created_at__gte = dateRange[0];
+            if (dateRange[1]) params.created_at__lte = dateRange[1];
+            break;
+        }
       }
     });
 
@@ -98,25 +131,27 @@ export default function ApplicationTable() {
         params: queryParams
       });
       return response.data;
-    }
+    },
+    placeholderData: (prev) => prev
   });
 
-  // Define columns with consistent sizing
+  // Define columns - each column filter only searches within that specific column
   const columns = useMemo<MRT_ColumnDef<ConsultantApplication>[]>(
     () => [
       {
         accessorKey: 'application.app_id',
-        header: 'ID',
-        size: 100,
-        enableColumnFilter: false
+        header: 'Application ID',
+        size: 120,
+        enableColumnFilter: false, // ID doesn't need filtering usually
+        enableSorting: true
       },
       {
-        id: 'student_name',
-        header: 'Student',
-        size: 150,
+        id: 'student_name', // This maps to backend 'student_name' filter
+        header: 'Student Name',
+        size: 180,
         enableColumnFilter: true,
         filterVariant: 'text',
-        filterFn: 'contains',
+        enableSorting: true,
         accessorFn: (row) =>
           `${row.application.student.user.first_name} ${row.application.student.user.last_name}`,
         Cell: ({ row }) => (
@@ -128,43 +163,58 @@ export default function ApplicationTable() {
               {row.original.application.student.user.email}
             </Typography>
           </Box>
-        )
-      },
-      {
-        accessorKey: 'application.university.name',
-        header: 'University',
-        size: 150,
-        enableColumnFilter: true,
-        filterVariant: 'text',
-        filterFn: 'contains',
-        Cell: ({ cell }) => {
-          const universityName = cell.getValue<string>();
-          return <Box title={universityName}>{universityName}</Box>;
+        ),
+        // Custom filter placeholder
+        muiColumnFilterTextFieldProps: {
+          placeholder: 'Search student name...'
         }
       },
       {
+        id: 'university', // This maps to backend 'university' filter
+        accessorKey: 'application.university.name',
+        header: 'University',
+        size: 200,
+        enableColumnFilter: true,
+        filterVariant: 'text',
+        enableSorting: true,
+        Cell: ({ cell }) => {
+          const universityName = cell.getValue<string>();
+          return <Box title={universityName}>{universityName}</Box>;
+        },
+        muiColumnFilterTextFieldProps: {
+          placeholder: 'Search university...'
+        }
+      },
+      {
+        id: 'course_name', // This maps to backend 'course_name' filter
         accessorKey: 'application.courses',
         header: 'Course',
-        size: 150,
+        size: 180,
         enableColumnFilter: true,
+        filterVariant: 'text',
+        enableSorting: false,
         Cell: ({ row }) => {
           const courses = row.original.application.courses;
           if (!courses || courses.length === 0) return 'No courses';
           return courses[0].name;
+        },
+        muiColumnFilterTextFieldProps: {
+          placeholder: 'Search course...'
         }
       },
       {
         accessorKey: 'status',
         header: 'Status',
-        size: 100,
+        size: 120,
         filterVariant: 'select',
         filterSelectOptions: [
-          'PENDING',
-          'APPROVED',
-          'REJECTED',
-          'WAITING',
-          'COMPLETED'
+          { value: 'PENDING', text: 'Pending' },
+          { value: 'APPROVED', text: 'Approved' },
+          { value: 'REJECTED', text: 'Rejected' },
+          { value: 'WAITING', text: 'Waiting' },
+          { value: 'COMPLETED', text: 'Completed' }
         ],
+        enableSorting: true,
         Cell: ({ cell }) => {
           const status = cell.getValue<string>();
           const color = {
@@ -186,9 +236,10 @@ export default function ApplicationTable() {
       },
       {
         accessorKey: 'created_at',
-        header: 'Date',
-        size: 120,
+        header: 'Created Date',
+        size: 140,
         filterVariant: 'date-range',
+        enableSorting: true,
         Cell: ({ cell }) => {
           const date = cell.getValue<string>();
           return format(new Date(date), 'MMM d, yyyy');
@@ -294,7 +345,7 @@ export default function ApplicationTable() {
                 </Stack>
                 <Box sx={{ minWidth: '300px' }}>
                   <TextField
-                    placeholder='Search all columns...'
+                    placeholder='Global search across all fields...'
                     value={globalFilter ?? ''}
                     onChange={(e) => setGlobalFilter(e.target.value)}
                     size='small'
@@ -337,9 +388,10 @@ export default function ApplicationTable() {
             initialState={{
               density: 'compact',
               columnPinning: {
-                left: ['mrt-row-select', 'application.student.user.first_name'],
+                left: ['mrt-row-select'],
                 right: ['mrt-row-actions']
-              }
+              },
+              showColumnFilters: true // Show column filters by default
             }}
             // Display column options
             displayColumnDefOptions={{

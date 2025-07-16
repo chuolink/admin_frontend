@@ -17,7 +17,7 @@ export default function Main() {
   const [isLoadingLogin, setIsLoadingLogin] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const logout = searchParams.get('logout');
+  // const logout = searchParams.get('logout');
 
   // useEffect(() => {
   //   if (logout === 'true') {

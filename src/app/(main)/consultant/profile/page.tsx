@@ -23,6 +23,41 @@ import {
 } from '@/components/ui/alert-dialog';
 import { useState } from 'react';
 import { useStateStore } from '@/stores/useStateStore';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription
+} from '@/components/ui/dialog';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select';
+import * as z from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+
+const paymentFormSchema = z.object({
+  payment_type: z.enum(['MOBILE', 'BANK']),
+  payment_name: z.string().min(2, 'Payment name is required'),
+  payment_account_name: z.string().min(2, 'Account name is required'),
+  payment_account_number: z.string().min(2, 'Account number is required')
+});
+type PaymentFormValues = z.infer<typeof paymentFormSchema>;
 
 export default function ConsultantProfile() {
   const { api } = useClientApi();
@@ -30,8 +65,24 @@ export default function ConsultantProfile() {
   const [showStatusDialog, setShowStatusDialog] = useState(false);
   const [pendingStatus, setPendingStatus] = useState<boolean | null>(null);
   const { consultant } = useStateStore();
-
-  // Mutation for updating active status
+  const [showEditPayment, setShowEditPayment] = useState(false);
+  const paymentForm = useForm<PaymentFormValues>({
+    resolver: zodResolver(paymentFormSchema),
+    defaultValues: {
+      payment_type: consultant?.payment_type || 'MOBILE',
+      payment_name: consultant?.payment_name || '',
+      payment_account_name: consultant?.payment_account_name || '',
+      payment_account_number: consultant?.payment_account_number || ''
+    },
+    values: consultant
+      ? {
+          payment_type: consultant.payment_type || 'MOBILE',
+          payment_name: consultant.payment_name || '',
+          payment_account_name: consultant.payment_account_name || '',
+          payment_account_number: consultant.payment_account_number || ''
+        }
+      : undefined
+  });
   const { mutate: updateActiveStatus, isPending } = useMutation({
     mutationFn: async (isActive: boolean) => {
       if (!api) throw new Error('API not initialized');
@@ -48,6 +99,21 @@ export default function ConsultantProfile() {
       toast.error('Failed to update profile');
       console.error('Error updating profile:', error);
       setShowStatusDialog(false);
+    }
+  });
+  const { mutate: updatePayment, isPending: isUpdatingPayment } = useMutation({
+    mutationFn: async (data: PaymentFormValues) => {
+      if (!api) throw new Error('API not initialized');
+      await api.patch(`/consultant/overview/${consultant?.id}/`, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['consultant-profile'] });
+      toast.success('Payment information updated successfully');
+      setShowEditPayment(false);
+    },
+    onError: (error) => {
+      toast.error('Failed to update payment information');
+      console.error('Error updating payment info:', error);
     }
   });
 
@@ -96,6 +162,126 @@ export default function ConsultantProfile() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Edit Payment Modal */}
+      <Dialog open={showEditPayment} onOpenChange={setShowEditPayment}>
+        <DialogContent className='sm:max-w-[425px]'>
+          <DialogHeader>
+            <DialogTitle>Edit Payment Information</DialogTitle>
+            <DialogDescription>
+              Update your payment details below.
+            </DialogDescription>
+          </DialogHeader>
+          <Form {...paymentForm}>
+            <form
+              onSubmit={paymentForm.handleSubmit((data) => updatePayment(data))}
+              className='space-y-4'
+            >
+              <FormField
+                control={paymentForm.control}
+                name='payment_type'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Payment Method</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder='Select payment method' />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value='MOBILE'>Mobile Money</SelectItem>
+                        <SelectItem value='BANK'>Bank Account</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={paymentForm.control}
+                name='payment_name'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      {paymentForm.watch('payment_type') === 'MOBILE'
+                        ? 'Mobile Money Provider'
+                        : 'Bank Name'}
+                    </FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue
+                            placeholder={
+                              paymentForm.watch('payment_type') === 'MOBILE'
+                                ? 'Select mobile money provider'
+                                : 'Select bank'
+                            }
+                          />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {paymentForm.watch('payment_type') === 'MOBILE' ? (
+                          <>
+                            <SelectItem value='MIX BY YAS'>
+                              MIX BY YAS
+                            </SelectItem>
+                            <SelectItem value='AIRTEL MONEY'>
+                              AIRTEL MONEY
+                            </SelectItem>
+                            <SelectItem value='MPESA'>MPESA</SelectItem>
+                            <SelectItem value='HALOPESA'>HALOPESA</SelectItem>
+                          </>
+                        ) : (
+                          <>
+                            <SelectItem value='CRDB'>CRDB</SelectItem>
+                            <SelectItem value='NMB'>NMB</SelectItem>
+                            <SelectItem value='NBC'>NBC</SelectItem>
+                          </>
+                        )}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={paymentForm.control}
+                name='payment_account_name'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Account Name</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={paymentForm.control}
+                name='payment_account_number'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Account Number</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button
+                type='submit'
+                className='w-full'
+                disabled={isUpdatingPayment}
+              >
+                {isUpdatingPayment ? 'Saving...' : 'Save Changes'}
+              </Button>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
 
       <Card>
         <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
@@ -156,8 +342,15 @@ export default function ConsultantProfile() {
         </Card>
 
         <Card>
-          <CardHeader>
+          <CardHeader className='flex flex-row items-center justify-between'>
             <CardTitle>Payment Information</CardTitle>
+            <Button
+              size='sm'
+              variant='outline'
+              onClick={() => setShowEditPayment(true)}
+            >
+              Edit
+            </Button>
           </CardHeader>
           <CardContent className='space-y-4'>
             <div>
