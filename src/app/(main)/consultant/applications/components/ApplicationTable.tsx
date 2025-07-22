@@ -39,8 +39,9 @@ export default function ApplicationTable() {
   const queryClient = useQueryClient();
   const muiTheme = useMuiTheme();
 
-  // Responsive check
-  const isMobile = useMediaQuery(muiTheme.breakpoints.down('sm'));
+  // Responsive checks
+  const isMobile = useMediaQuery('(max-width: 768px)');
+  const isTablet = useMediaQuery('(max-width: 1024px)');
 
   // State for server-side operations
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -48,81 +49,47 @@ export default function ApplicationTable() {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [pagination, setPagination] = useState({
     pageIndex: 0,
-    pageSize: 25
+    pageSize: 15 // Reduced from 25 for faster loading
   });
+  const [paymentStatusFilter, setPaymentStatusFilter] = useState<string>('');
 
-  // Build query params - each column filter maps to specific backend parameter
+  // Simplified query params for better performance
   const queryParams = useMemo(() => {
     const params: Record<string, string> = {};
 
-    // Global search using the 'search' parameter for global search bar
     if (globalFilter) {
       params.search = globalFilter;
     }
 
-    // Sorting - map frontend column IDs to backend field names
     if (sorting.length > 0) {
       params.ordering = sorting
-        .map((sort) => {
-          let fieldName = sort.id;
-
-          // Map frontend column IDs to backend field names for sorting
-          switch (sort.id) {
-            case 'student_name':
-              fieldName = 'application__student__user__first_name';
-              break;
-            case 'university':
-              fieldName = 'application__university__name';
-              break;
-            case 'application.app_id':
-              fieldName = 'application__app_id';
-              break;
-            default:
-              fieldName = sort.id;
-          }
-
-          return sort.desc ? `-${fieldName}` : fieldName;
-        })
+        .map((sort) => (sort.desc ? `-${sort.id}` : sort.id))
         .join(',');
     }
 
     params.page = String(pagination.pageIndex + 1);
     params.limit = String(pagination.pageSize);
 
-    // Individual column filters - each maps to its specific backend filter
+    // Simplified column filters
     columnFilters.forEach((filter) => {
-      if (filter.value) {
-        switch (filter.id) {
-          case 'status':
-            // Status filter - exact match
-            params.status = filter.value as string;
-            break;
-          case 'student_name':
-            // Student name filter - searches first name OR last name
-            params.student_name = filter.value as string;
-            break;
-          case 'university':
-            // University filter - case insensitive contains
-            params.university = filter.value as string;
-            break;
-          case 'course_name':
-            // Course name filter - case insensitive contains
-            params.course_name = filter.value as string;
-            break;
-          case 'created_at':
-            // Date range filter
-            const dateRange = filter.value as [string, string];
-            if (dateRange[0]) params.created_at__gte = dateRange[0];
-            if (dateRange[1]) params.created_at__lte = dateRange[1];
-            break;
-        }
+      if (filter.id === 'status') {
+        params[filter.id] = filter.value as string;
+      } else if (filter.id === 'application.university.name') {
+        params['university'] = filter.value as string;
+      } else if (filter.id === 'student_name') {
+        params['student'] = filter.value as string;
       }
     });
 
+    if (paymentStatusFilter === 'not_paid') {
+      params['not_paid'] = 'true';
+    } else if (paymentStatusFilter === 'paid') {
+      params['not_paid'] = 'false';
+    }
     return params;
-  }, [columnFilters, globalFilter, sorting, pagination]);
+  }, [columnFilters, globalFilter, sorting, pagination, paymentStatusFilter]);
 
-  // Fetch data with server-side filtering
+  // Fetch data with server-side filtering - Optimized for performance
   const { data, isLoading, isFetching } = useQuery({
     queryKey: ['consultant-applications', queryParams],
     queryFn: async () => {
@@ -132,89 +99,102 @@ export default function ApplicationTable() {
       });
       return response.data;
     },
-    placeholderData: (prev) => prev
+    staleTime: 30000, // Cache for 30 seconds to reduce requests
+    refetchOnWindowFocus: false // Prevent unnecessary refetches
   });
 
-  // Define columns - each column filter only searches within that specific column
+  // Define columns with responsive sizing
   const columns = useMemo<MRT_ColumnDef<ConsultantApplication>[]>(
     () => [
       {
         accessorKey: 'application.app_id',
-        header: 'Application ID',
-        size: 120,
-        enableColumnFilter: false, // ID doesn't need filtering usually
-        enableSorting: true
+        header: 'ID',
+        size: isMobile ? 80 : 100,
+        maxSize: 100,
+        minSize: 80,
+        enableColumnFilter: false,
+        enableHiding: false
       },
       {
-        id: 'student_name', // This maps to backend 'student_name' filter
-        header: 'Student Name',
-        size: 180,
+        id: 'student_name',
+        header: 'Student',
+        size: isMobile ? 150 : 200,
+        maxSize: 250,
+        minSize: 150,
         enableColumnFilter: true,
         filterVariant: 'text',
-        enableSorting: true,
+        filterFn: 'contains',
+        enableHiding: false,
         accessorFn: (row) =>
           `${row.application.student.user.first_name} ${row.application.student.user.last_name}`,
         Cell: ({ row }) => (
-          <Box>
-            <Typography variant='body2' fontWeight='medium'>
+          <Box sx={{ minWidth: 0 }}>
+            <Typography
+              variant='body2'
+              fontWeight='medium'
+              sx={{
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap'
+              }}
+            >
               {`${row.original.application.student.user.first_name} ${row.original.application.student.user.last_name}`}
             </Typography>
-            <Typography variant='caption' color='text.secondary'>
+            <Typography
+              variant='caption'
+              color='text.secondary'
+              sx={{
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+                display: 'block'
+              }}
+            >
               {row.original.application.student.user.email}
             </Typography>
           </Box>
-        ),
-        // Custom filter placeholder
-        muiColumnFilterTextFieldProps: {
-          placeholder: 'Search student name...'
-        }
+        )
       },
       {
-        id: 'university', // This maps to backend 'university' filter
         accessorKey: 'application.university.name',
         header: 'University',
-        size: 200,
+        size: isMobile ? 120 : 180,
+        maxSize: 200,
+        minSize: 120,
         enableColumnFilter: true,
         filterVariant: 'text',
-        enableSorting: true,
+        filterFn: 'contains',
         Cell: ({ cell }) => {
           const universityName = cell.getValue<string>();
-          return <Box title={universityName}>{universityName}</Box>;
-        },
-        muiColumnFilterTextFieldProps: {
-          placeholder: 'Search university...'
+          return (
+            <Box
+              title={universityName}
+              sx={{
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              {universityName}
+            </Box>
+          );
         }
       },
-      {
-        id: 'course_name', // This maps to backend 'course_name' filter
-        accessorKey: 'application.courses',
-        header: 'Course',
-        size: 180,
-        enableColumnFilter: true,
-        filterVariant: 'text',
-        enableSorting: false,
-        Cell: ({ row }) => {
-          const courses = row.original.application.courses;
-          if (!courses || courses.length === 0) return 'No courses';
-          return courses[0].name;
-        },
-        muiColumnFilterTextFieldProps: {
-          placeholder: 'Search course...'
-        }
-      },
+
       {
         accessorKey: 'status',
         header: 'Status',
-        size: 120,
+        size: isMobile ? 100 : 120,
+        maxSize: 130,
+        minSize: 100,
         filterVariant: 'select',
         filterSelectOptions: [
-          { value: 'PENDING', text: 'Pending' },
-          { value: 'APPROVED', text: 'Approved' },
-          { value: 'REJECTED', text: 'Rejected' },
-          { value: 'WAITING', text: 'Waiting' },
-          { value: 'COMPLETED', text: 'Completed' }
+          'PENDING',
+          'APPROVED',
+          'REJECTED',
+          'WAITING',
+          'COMPLETED'
         ],
-        enableSorting: true,
         Cell: ({ cell }) => {
           const status = cell.getValue<string>();
           const color = {
@@ -229,40 +209,174 @@ export default function ApplicationTable() {
               label={status}
               color={color}
               size='small'
-              className='capitalize'
+              sx={{
+                fontSize: isMobile ? '10px' : '12px',
+                height: isMobile ? 20 : 24
+              }}
             />
           );
         }
       },
-      // Paid Fee column
       {
         accessorKey: 'paid_fee',
-        header: 'Processing Fee',
-        size: 120,
+        header: 'Fee',
+        size: isMobile ? 80 : 110,
+        maxSize: 120,
+        minSize: 80,
         enableColumnFilter: false,
         enableSorting: false,
         Cell: ({ cell }) => {
           const paid = cell.getValue<boolean>();
           return paid ? (
-            <Chip label='Paid' color='success' size='small' />
+            <Chip
+              label='Paid'
+              color='success'
+              size='small'
+              sx={{
+                fontSize: isMobile ? '10px' : '11px',
+                height: isMobile ? 18 : 22
+              }}
+            />
           ) : (
-            <Chip label='Not Paid' color='error' size='small' />
+            <Chip
+              label='Not Paid'
+              color='error'
+              size='small'
+              sx={{
+                fontSize: isMobile ? '10px' : '11px',
+                height: isMobile ? 18 : 22
+              }}
+            />
           );
         }
       },
       {
         accessorKey: 'created_at',
-        header: 'Created Date',
-        size: 140,
-        filterVariant: 'date-range',
-        enableSorting: true,
+        header: 'Date',
+        size: isMobile ? 100 : 120,
+        maxSize: 130,
+        minSize: 100,
+        enableColumnFilter: false, // Disabled for performance
         Cell: ({ cell }) => {
           const date = cell.getValue<string>();
-          return format(new Date(date), 'MMM d, yyyy');
+          return (
+            <Typography
+              variant='body2'
+              sx={{ fontSize: isMobile ? '11px' : '14px' }}
+            >
+              {format(new Date(date), isMobile ? 'M/d/yy' : 'MMM d, yyyy')}
+            </Typography>
+          );
+        }
+      },
+      {
+        id: 'consultant_name',
+        header: 'Consultant',
+        size: isMobile ? 140 : 180,
+        maxSize: 200,
+        minSize: 140,
+        enableColumnFilter: false,
+        enableSorting: false,
+        accessorFn: (row: ConsultantApplication) => {
+          if (
+            row.consultant &&
+            typeof row.consultant === 'object' &&
+            (row.consultant as any).user
+          ) {
+            const user = (row.consultant as any).user;
+            return `${user.first_name || ''} ${user.middle_name || ''} ${user.last_name || ''}`.trim();
+          }
+          return '';
+        },
+        Cell: ({ row }: { row: { original: ConsultantApplication } }) => {
+          const user = (row.original.consultant as any)?.user;
+          if (!user) return '';
+          return (
+            <Box sx={{ minWidth: 0 }}>
+              <Typography
+                variant='body2'
+                fontWeight='medium'
+                sx={{
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                  fontSize: isMobile ? '11px' : '14px'
+                }}
+              >
+                {`${user.first_name || ''} ${user.middle_name || ''} ${user.last_name || ''}`.trim()}
+              </Typography>
+              <Typography
+                variant='caption'
+                color='text.secondary'
+                sx={{
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                  display: 'block',
+                  fontSize: isMobile ? '10px' : '12px'
+                }}
+              >
+                {user.email}
+              </Typography>
+            </Box>
+          );
+        }
+      },
+      {
+        id: 'payment_status',
+        header: 'Payment',
+        size: isMobile ? 90 : 120,
+        maxSize: 130,
+        minSize: 90,
+        enableColumnFilter: false,
+        Cell: ({ row }) => {
+          const payment = row.original.payment;
+          if (!payment) {
+            return (
+              <Chip
+                label='Not Submitted'
+                color='warning'
+                size='small'
+                sx={{
+                  fontSize: isMobile ? '9px' : '11px',
+                  height: isMobile ? 18 : 22,
+                  minWidth: 0,
+                  px: 0.5
+                }}
+              />
+            );
+          }
+          const status = payment.status as
+            | 'pending'
+            | 'success'
+            | 'failed'
+            | 'cancelled';
+          const colorMap: Record<
+            typeof status,
+            'warning' | 'success' | 'error'
+          > = {
+            pending: 'warning',
+            success: 'success',
+            failed: 'error',
+            cancelled: 'error'
+          };
+          return (
+            <Chip
+              label={status.charAt(0).toUpperCase() + status.slice(1)}
+              color={colorMap[status] || 'warning'}
+              size='small'
+              sx={{
+                fontSize: isMobile ? '9px' : '11px',
+                height: isMobile ? 18 : 22,
+                minWidth: 0,
+                px: 0.5
+              }}
+            />
+          );
         }
       }
     ],
-    [isMobile]
+    [isMobile, isTablet]
   );
 
   // Create MUI theme based on next-themes
@@ -283,19 +397,29 @@ export default function ApplicationTable() {
           MuiTableCell: {
             styleOverrides: {
               root: {
-                padding: '8px 16px'
+                padding: isMobile ? '4px 8px' : '8px 16px',
+                fontSize: isMobile ? '12px' : '14px'
               }
             }
           }
         }
       }),
-    [resolvedTheme]
+    [resolvedTheme, isMobile]
   );
 
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <ThemeProvider theme={theme}>
-        <Box sx={{ width: '100%', overflowX: 'auto' }}>
+        <Box
+          sx={{
+            width: '100%',
+            height: '100%',
+            '& .MuiPaper-root': {
+              width: '100%',
+              overflow: 'hidden'
+            }
+          }}
+        >
           <MaterialReactTable
             columns={columns}
             data={data?.results ?? []}
@@ -319,49 +443,60 @@ export default function ApplicationTable() {
             onGlobalFilterChange={setGlobalFilter}
             onPaginationChange={setPagination}
             onSortingChange={setSorting}
-            // Features
-            enableColumnFilters
+            // Features - Simplified for better performance
+            enableColumnFilters={!isMobile} // Disabled on mobile
             enableGlobalFilter
             enablePagination
-            enableSorting
+            enableSorting={!isMobile} // Disabled on mobile for performance
             enableRowActions
-            enableRowSelection
+            enableRowSelection={false} // Disabled for performance
             positionActionsColumn='last'
             enableDensityToggle={false}
-            enableFullScreenToggle
-            enableColumnResizing
-            enableStickyHeader
-            enableColumnPinning
-            // Layout
-            layoutMode='grid'
-            // Custom toolbar
+            enableFullScreenToggle={false}
+            enableColumnResizing={false} // Disabled for performance
+            enableStickyHeader={!isMobile} // Only on desktop
+            enableColumnPinning={false} // Disabled for performance
+            enableHiding={false} // Disabled for performance
+            // Layout - Important for responsive
+            layoutMode={isMobile ? 'semantic' : 'grid'}
+            // Custom toolbar - Simplified
             renderTopToolbar={({ table }) => (
               <Box
                 sx={{
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'center',
-                  p: 2,
-                  flexWrap: 'wrap',
-                  gap: 2
+                  p: 1.5,
+                  flexDirection: isMobile ? 'column' : 'row',
+                  gap: 1
                 }}
               >
-                <Stack direction='row' spacing={1} flexWrap='wrap' useFlexGap>
-                  <MRT_ToggleFiltersButton table={table} />
-                  <Button
-                    variant='outlined'
-                    onClick={() =>
-                      window.open('/consultant/applications/export', '_blank')
-                    }
-                    startIcon={<Download />}
-                    size='small'
-                  >
-                    Export
-                  </Button>
-                </Stack>
-                <Box sx={{ minWidth: '300px' }}>
+                <Stack
+                  direction={isMobile ? 'column' : 'row'}
+                  spacing={1}
+                  sx={{ width: isMobile ? '100%' : 'auto' }}
+                >
                   <TextField
-                    placeholder='Global search across all fields...'
+                    select
+                    label='Payment Status'
+                    value={paymentStatusFilter}
+                    onChange={(e) => setPaymentStatusFilter(e.target.value)}
+                    size='small'
+                    sx={{ minWidth: 140, width: isMobile ? '100%' : 'auto' }}
+                  >
+                    <MenuItem value=''>All</MenuItem>
+                    <MenuItem value='not_paid'>Not Paid</MenuItem>
+                    <MenuItem value='paid'>Paid</MenuItem>
+                  </TextField>
+                </Stack>
+                <Box
+                  sx={{
+                    minWidth: isMobile ? '100%' : '250px',
+                    mt: isMobile ? 1 : 0
+                  }}
+                >
+                  <TextField
+                    placeholder='Search...'
                     value={globalFilter ?? ''}
                     onChange={(e) => setGlobalFilter(e.target.value)}
                     size='small'
@@ -394,67 +529,63 @@ export default function ApplicationTable() {
                 Edit
               </MenuItem>
             ]}
-            // Pagination options
+            // Pagination options - Simplified
             muiPaginationProps={{
-              rowsPerPageOptions: [10, 25, 50, 100],
-              showFirstButton: true,
-              showLastButton: true
+              rowsPerPageOptions: [15, 30, 50],
+              showFirstButton: false,
+              showLastButton: false
             }}
-            // Initial state
+            // Initial state - Simplified for performance
             initialState={{
               density: 'compact',
-              columnPinning: {
-                left: ['mrt-row-select'],
-                right: ['mrt-row-actions']
-              },
-              showColumnFilters: true // Show column filters by default
+              pagination: { pageSize: 15, pageIndex: 0 }
             }}
-            // Display column options
+            // Display column options - Simplified
             displayColumnDefOptions={{
-              'mrt-row-select': {
-                size: 50,
-                muiTableHeadCellProps: {
-                  align: 'center'
-                },
-                muiTableBodyCellProps: {
-                  align: 'center'
-                }
-              },
               'mrt-row-actions': {
                 header: 'Actions',
-                size: 100,
-                muiTableHeadCellProps: {
-                  align: 'center'
-                },
-                muiTableBodyCellProps: {
-                  align: 'center'
-                }
+                size: 80
               }
             }}
-            // Container styling
+            // Container styling - Key for responsive behavior
             muiTableContainerProps={{
               sx: {
-                maxHeight: 'calc(100vh - 400px)',
-                minHeight: '400px',
+                maxHeight: isMobile ? '60vh' : '70vh',
+                minHeight: isMobile ? 300 : 400,
                 width: '100%',
+                overflowX: 'auto',
+                overflowY: 'auto',
+                // Enhanced scrollbar styling
                 '&::-webkit-scrollbar': {
-                  height: '10px',
-                  width: '10px'
+                  height: '12px',
+                  width: '12px'
                 },
                 '&::-webkit-scrollbar-track': {
-                  background: 'rgba(0,0,0,0.1)'
+                  background: 'rgba(0,0,0,0.05)',
+                  borderRadius: '6px'
                 },
                 '&::-webkit-scrollbar-thumb': {
-                  background: 'rgba(0,0,0,0.5)',
-                  borderRadius: '5px'
+                  background: 'rgba(0,0,0,0.2)',
+                  borderRadius: '6px',
+                  '&:hover': {
+                    background: 'rgba(0,0,0,0.3)'
+                  }
+                },
+                // Force scrollbar visibility on mobile
+                '@media (max-width: 768px)': {
+                  '&::-webkit-scrollbar': {
+                    height: '8px',
+                    width: '8px'
+                  }
                 }
               }
             }}
-            // Table styling
+            // Table styling - Reduced minimum width after removing course column
             muiTableProps={{
               sx: {
-                tableLayout: 'fixed',
-                width: '100%'
+                width: '100%',
+                minWidth: isMobile ? '600px' : '900px', // Reduced from 800px/1200px
+                tableLayout: 'fixed'
               }
             }}
             // Paper styling
@@ -462,7 +593,9 @@ export default function ApplicationTable() {
               sx: {
                 boxShadow: 'none',
                 border: '1px solid rgba(0,0,0,0.1)',
-                width: '100%'
+                width: '100%',
+                maxWidth: '100%',
+                overflow: 'hidden'
               }
             }}
           />
