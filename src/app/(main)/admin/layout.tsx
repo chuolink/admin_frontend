@@ -110,7 +110,7 @@ export default async function AdminLayout({
     <KBar>
       <SidebarProvider defaultOpen={defaultOpen}>
         <AppSidebar navigation={navigation} />
-        <SidebarInset className='h-screen overflow-y-auto'>
+        <SidebarInset className='h-screen overflow-x-auto overflow-y-auto'>
           <Header />
           {/* page main content */}
           {children}

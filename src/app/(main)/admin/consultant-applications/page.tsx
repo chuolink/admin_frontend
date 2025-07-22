@@ -190,13 +190,13 @@ export default function ConsultantApplicationsPage() {
         </div> */}
 
         {/* Applications Table */}
-        <Card className='w-full overflow-hidden'>
-          <CardContent className='p-0'>
-            <div className='w-full overflow-x-auto'>
+        <div className='w-full'>
+          <Card className='w-full overflow-hidden'>
+            <CardContent className='w-full p-0'>
               <ApplicationTable />
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </PageContainer>
   );

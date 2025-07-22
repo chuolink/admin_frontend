@@ -29,6 +29,13 @@ export interface Consultant {
 export interface ConsultantApplication {
   id: string;
   consultant: string;
+  payment: {
+    id: string;
+    status: 'pending' | 'success' | 'failed' | 'cancelled';
+    gepg: string;
+    created_at: string;
+    updated_at: string;
+  };
   application: {
     id: string;
     app_id: string;

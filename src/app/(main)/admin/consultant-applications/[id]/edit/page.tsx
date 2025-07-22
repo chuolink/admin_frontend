@@ -98,6 +98,7 @@ interface ApplicationPayment {
 interface PaymentResponse {
   id: string;
   application: string;
+  admission_fee_paid: number;
   gepg: string;
   status: 'pending' | 'success' | 'failed' | 'cancelled';
   amount: number;
@@ -1824,6 +1825,17 @@ export default function EditApplicationPage() {
                                             </Button>
                                           )}
                                       </div>
+                                    </div>
+                                    {/* Student Paid section */}
+                                    <div className='flex flex-col items-start'>
+                                      <span className='text-xs font-semibold text-blue-500'>
+                                        Student Paid
+                                      </span>
+                                      <span className='text-xs font-bold text-blue-600'>
+                                        {formatCurrency(
+                                          payment.admission_fee_paid ?? 0
+                                        )}
+                                      </span>
                                     </div>
                                   </div>
                                   <div className='mt-2 grid grid-cols-1 gap-2 md:grid-cols-2'>

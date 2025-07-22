@@ -105,6 +105,7 @@ interface PaymentResponse {
   id: string;
   application: string;
   gepg: string;
+  admission_fee_paid: number;
   status: 'pending' | 'success' | 'failed' | 'cancelled';
   created_at: string;
   updated_at: string;
@@ -1547,6 +1548,17 @@ export default function EditApplicationPage() {
                                       >
                                         {payment.status.toUpperCase()}
                                       </Badge>
+                                    </div>
+                                    {/* Amount Paid section */}
+                                    <div className='flex flex-col items-start'>
+                                      <span className='text-xs font-semibold text-blue-500'>
+                                        Student Paid
+                                      </span>
+                                      <span className='text-xs font-bold text-blue-600'>
+                                        {formatCurrency(
+                                          payment.admission_fee_paid ?? 0
+                                        )}
+                                      </span>
                                     </div>
                                   </div>
                                   <div className='text-muted-foreground mt-2 text-sm'>
