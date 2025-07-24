@@ -31,6 +31,7 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { useTheme } from 'next-themes';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { ConsultantApplication } from '@/types/consultant';
+import { useStateStore, type StateStore } from '@/stores/useStateStore';
 
 export default function ApplicationTable() {
   const { resolvedTheme } = useTheme();
@@ -51,7 +52,13 @@ export default function ApplicationTable() {
     pageIndex: 0,
     pageSize: 15 // Reduced from 25 for faster loading
   });
-  const [paymentStatusFilter, setPaymentStatusFilter] = useState<string>('');
+  // Use global state for paymentStatusFilter
+  const paymentStatusFilter = useStateStore(
+    (s: StateStore) => s.paymentStatusFilter
+  );
+  const setPaymentStatusFilter = useStateStore(
+    (s: StateStore) => s.setPaymentStatusFilter
+  );
 
   // Simplified query params for better performance
   const queryParams = useMemo(() => {

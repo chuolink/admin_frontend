@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { Consultant } from '@/types/consultant';
 
-interface StateStore {
+export interface StateStore {
   consultant: Consultant | null;
   setConsultant: (consultant: Consultant) => void;
   phoneAndEmailVerify: {
@@ -16,6 +16,9 @@ interface StateStore {
   setPhoneAndEmailVerify: (
     phoneAndEmailVerify: StateStore['phoneAndEmailVerify']
   ) => void;
+  // Add payment status filter for consultant applications
+  paymentStatusFilter: string;
+  setPaymentStatusFilter: (filter: string) => void;
 }
 
 export const useStateStore = create<StateStore>((set) => ({
@@ -30,5 +33,8 @@ export const useStateStore = create<StateStore>((set) => ({
     isRequired: false,
     onClose: () => {}
   },
-  setPhoneAndEmailVerify: (phoneAndEmailVerify) => set({ phoneAndEmailVerify })
+  setPhoneAndEmailVerify: (phoneAndEmailVerify) => set({ phoneAndEmailVerify }),
+  // Payment status filter state
+  paymentStatusFilter: '',
+  setPaymentStatusFilter: (filter) => set({ paymentStatusFilter: filter })
 }));
