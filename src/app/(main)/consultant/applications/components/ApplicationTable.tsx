@@ -91,6 +91,8 @@ export default function ApplicationTable() {
       params['not_paid'] = 'true';
     } else if (paymentStatusFilter === 'paid') {
       params['not_paid'] = 'false';
+    } else if (paymentStatusFilter === 'pending') {
+      params['not_paid'] = 'pending';
     }
     return params;
   }, [columnFilters, globalFilter, sorting, pagination, paymentStatusFilter]);
@@ -493,6 +495,7 @@ export default function ApplicationTable() {
                     <MenuItem value=''>All</MenuItem>
                     <MenuItem value='not_paid'>Not Paid</MenuItem>
                     <MenuItem value='paid'>Paid</MenuItem>
+                    <MenuItem value='pending'>Pending Control Number</MenuItem>
                   </TextField>
                 </Stack>
                 <Box
