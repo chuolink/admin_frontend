@@ -17,8 +17,8 @@ export interface Consultation {
   id: string;
   lead: string | null;
   student: string | null;
-  consultant: string;
-  consultant_name?: string;
+  staff_member: string;
+  staff_member_name?: string;
   consultation_type: ConsultationType;
   status: ConsultationStatus;
   scheduled_at: string;

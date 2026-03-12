@@ -327,11 +327,13 @@ export default function PipelineDetailPage() {
           <Card>
             <CardHeader className='flex flex-row items-center gap-2 space-y-0 pb-2'>
               <User className='text-muted-foreground h-4 w-4' />
-              <CardTitle className='text-sm font-medium'>Consultant</CardTitle>
+              <CardTitle className='text-sm font-medium'>
+                Assigned Staff
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <p className='font-medium'>
-                {pipeline.consultant_name ?? 'Unassigned'}
+                {pipeline.assigned_staff_name ?? 'Unassigned'}
               </p>
             </CardContent>
           </Card>

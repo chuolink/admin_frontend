@@ -151,7 +151,7 @@ export default function ConsultationsPage() {
     if (statusFilter !== 'all' && c.status !== statusFilter) return false;
     if (
       searchQuery &&
-      !c.consultant_name?.toLowerCase().includes(searchQuery.toLowerCase()) &&
+      !c.staff_member_name?.toLowerCase().includes(searchQuery.toLowerCase()) &&
       !c.summary?.toLowerCase().includes(searchQuery.toLowerCase())
     )
       return false;
@@ -245,7 +245,7 @@ export default function ConsultationsPage() {
           <div className='relative flex-1'>
             <Search className='text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2' />
             <Input
-              placeholder='Search by consultant or summary...'
+              placeholder='Search by staff member or summary...'
               className='pl-9'
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -272,7 +272,7 @@ export default function ConsultationsPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Date</TableHead>
-                  <TableHead>Consultant</TableHead>
+                  <TableHead>Staff Member</TableHead>
                   <TableHead>Type</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Outcome</TableHead>
@@ -306,7 +306,7 @@ export default function ConsultationsPage() {
                         )}
                       </TableCell>
                       <TableCell className='font-medium'>
-                        {item.consultant_name ?? item.consultant}
+                        {item.staff_member_name ?? item.staff_member}
                       </TableCell>
                       <TableCell>
                         <Badge variant='outline'>

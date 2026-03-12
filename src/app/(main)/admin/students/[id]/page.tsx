@@ -342,10 +342,10 @@ export default function StudentDetailsPage() {
                   <div className='grid grid-cols-1 gap-2 md:grid-cols-2'>
                     <div className='space-y-1'>
                       <p className='text-muted-foreground text-xs font-medium'>
-                        Consultant
+                        Assigned Staff
                       </p>
                       <p className='text-sm font-medium'>
-                        {pipeline.consultant_name ?? 'Unassigned'}
+                        {pipeline.assigned_staff_name ?? 'Unassigned'}
                       </p>
                     </div>
                     <div className='space-y-1'>

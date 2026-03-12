@@ -91,7 +91,9 @@ export interface StudentPipeline {
   student: string;
   student_name?: string;
   current_phase: PipelinePhase;
-  assigned_consultant: string | null;
+  assigned_staff: string | null;
+  assigned_staff_name?: string;
+  /** @deprecated Use assigned_staff_name — kept for backward compat */
   consultant_name?: string;
   assigned_admission_manager: string | null;
   started_at: string;
