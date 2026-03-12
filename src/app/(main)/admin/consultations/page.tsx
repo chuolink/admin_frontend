@@ -1,18 +1,46 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import useClientApi from '@/lib/axios/clientSide';
 import PageContainer from '@/components/layout/page-container';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import {
   CalendarCheck,
   CalendarPlus,
   CheckCircle,
   XCircle,
-  Plus
+  Plus,
+  Search,
+  MoreVertical,
+  Pencil
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter
+} from '@/components/ui/dialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
 import {
   Table,
   TableBody,
@@ -22,14 +50,47 @@ import {
   TableRow
 } from '@/components/ui/table';
 import {
+  type Consultation,
   type ConsultationsResponse,
+  type ConsultationType,
+  type ConsultationStatus,
+  type ConsultationOutcome,
   CONSULTATION_TYPE_OPTIONS,
   CONSULTATION_STATUS_OPTIONS
 } from '@/features/consultations/types';
 import { format } from 'date-fns';
+import { toast } from 'sonner';
+
+const OUTCOME_OPTIONS: { label: string; value: ConsultationOutcome }[] = [
+  { label: 'Interested', value: 'INTERESTED' },
+  { label: 'Needs Time', value: 'NEEDS_TIME' },
+  { label: 'Not Interested', value: 'NOT_INTERESTED' },
+  { label: 'Converted', value: 'CONVERTED' }
+];
+
+interface ConsultationFormData {
+  consultation_type: ConsultationType;
+  scheduled_at: string;
+  summary: string;
+  recommended_courses: string;
+  recommended_universities: string;
+}
+
+const emptyForm: ConsultationFormData = {
+  consultation_type: 'IN_PERSON',
+  scheduled_at: '',
+  summary: '',
+  recommended_courses: '',
+  recommended_universities: ''
+};
 
 export default function ConsultationsPage() {
   const { api } = useClientApi();
+  const queryClient = useQueryClient();
+  const [createOpen, setCreateOpen] = useState(false);
+  const [form, setForm] = useState<ConsultationFormData>(emptyForm);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
 
   const { data, isLoading } = useQuery<ConsultationsResponse>({
     queryKey: ['consultations'],
@@ -41,16 +102,68 @@ export default function ConsultationsPage() {
     enabled: !!api
   });
 
-  const items = data?.results ?? [];
+  const createConsultation = useMutation({
+    mutationFn: async (data: ConsultationFormData) => {
+      if (!api) throw new Error('API not initialized');
+      const response = await api.post('/admin/consultations/', data);
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['consultations'] });
+      setCreateOpen(false);
+      setForm(emptyForm);
+      toast.success('Consultation scheduled');
+    },
+    onError: () => toast.error('Failed to schedule consultation')
+  });
+
+  const updateStatus = useMutation({
+    mutationFn: async ({
+      id,
+      status,
+      outcome
+    }: {
+      id: string;
+      status?: ConsultationStatus;
+      outcome?: ConsultationOutcome;
+    }) => {
+      if (!api) throw new Error('API not initialized');
+      const payload: Record<string, string> = {};
+      if (status) payload.status = status;
+      if (outcome) payload.outcome = outcome;
+      const response = await api.patch(`/admin/consultations/${id}/`, payload);
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['consultations'] });
+      toast.success('Consultation updated');
+    },
+    onError: () => toast.error('Failed to update consultation')
+  });
+
+  const allItems = data?.results ?? [];
   const total = data?.count ?? 0;
-  const scheduled = items.filter((c) => c.status === 'SCHEDULED').length;
-  const completed = items.filter((c) => c.status === 'COMPLETED').length;
-  const noShows = items.filter((c) => c.status === 'NO_SHOW').length;
+  const scheduled = allItems.filter((c) => c.status === 'SCHEDULED').length;
+  const completed = allItems.filter((c) => c.status === 'COMPLETED').length;
+  const noShows = allItems.filter((c) => c.status === 'NO_SHOW').length;
+
+  const items = allItems.filter((c) => {
+    if (statusFilter !== 'all' && c.status !== statusFilter) return false;
+    if (
+      searchQuery &&
+      !c.consultant_name?.toLowerCase().includes(searchQuery.toLowerCase()) &&
+      !c.summary?.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+      return false;
+    return true;
+  });
 
   const typeLabel = (val: string) =>
     CONSULTATION_TYPE_OPTIONS.find((o) => o.value === val)?.label ?? val;
   const statusLabel = (val: string) =>
     CONSULTATION_STATUS_OPTIONS.find((o) => o.value === val)?.label ?? val;
+  const outcomeLabel = (val: string) =>
+    OUTCOME_OPTIONS.find((o) => o.value === val)?.label ?? val;
 
   const statusVariant: Record<
     string,
@@ -73,7 +186,12 @@ export default function ConsultationsPage() {
               Schedule and track student consultations
             </p>
           </div>
-          <Button>
+          <Button
+            onClick={() => {
+              setForm(emptyForm);
+              setCreateOpen(true);
+            }}
+          >
             <Plus className='mr-2 h-4 w-4' />
             Schedule Consultation
           </Button>
@@ -122,6 +240,32 @@ export default function ConsultationsPage() {
           </Card>
         </div>
 
+        {/* Filters */}
+        <div className='flex gap-3'>
+          <div className='relative flex-1'>
+            <Search className='text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2' />
+            <Input
+              placeholder='Search by consultant or summary...'
+              className='pl-9'
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className='w-[200px]'>
+              <SelectValue placeholder='Filter by status' />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value='all'>All Statuses</SelectItem>
+              {CONSULTATION_STATUS_OPTIONS.map((opt) => (
+                <SelectItem key={opt.value} value={opt.value}>
+                  {opt.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
         <Card>
           <CardContent className='p-0'>
             <Table>
@@ -133,22 +277,23 @@ export default function ConsultationsPage() {
                   <TableHead>Status</TableHead>
                   <TableHead>Outcome</TableHead>
                   <TableHead>Summary</TableHead>
+                  <TableHead className='w-[60px]'>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {isLoading ? (
                   <TableRow>
-                    <TableCell colSpan={6} className='py-8 text-center'>
+                    <TableCell colSpan={7} className='py-8 text-center'>
                       Loading consultations...
                     </TableCell>
                   </TableRow>
                 ) : items.length === 0 ? (
                   <TableRow>
                     <TableCell
-                      colSpan={6}
+                      colSpan={7}
                       className='text-muted-foreground py-8 text-center'
                     >
-                      No consultations yet. Schedule your first consultation.
+                      No consultations found.
                     </TableCell>
                   </TableRow>
                 ) : (
@@ -175,9 +320,81 @@ export default function ConsultationsPage() {
                           {statusLabel(item.status)}
                         </Badge>
                       </TableCell>
-                      <TableCell>{item.outcome ?? '—'}</TableCell>
+                      <TableCell>
+                        {item.outcome ? outcomeLabel(item.outcome) : '—'}
+                      </TableCell>
                       <TableCell className='max-w-[200px] truncate'>
                         {item.summary || '—'}
+                      </TableCell>
+                      <TableCell>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant='ghost'
+                              size='icon'
+                              className='h-7 w-7'
+                            >
+                              <MoreVertical className='h-3.5 w-3.5' />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align='end'>
+                            {item.status === 'SCHEDULED' && (
+                              <>
+                                <DropdownMenuItem
+                                  onClick={() =>
+                                    updateStatus.mutate({
+                                      id: item.id,
+                                      status: 'IN_PROGRESS'
+                                    })
+                                  }
+                                >
+                                  Start Consultation
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  onClick={() =>
+                                    updateStatus.mutate({
+                                      id: item.id,
+                                      status: 'NO_SHOW'
+                                    })
+                                  }
+                                  className='text-destructive'
+                                >
+                                  Mark No Show
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  onClick={() =>
+                                    updateStatus.mutate({
+                                      id: item.id,
+                                      status: 'CANCELLED'
+                                    })
+                                  }
+                                  className='text-destructive'
+                                >
+                                  Cancel
+                                </DropdownMenuItem>
+                              </>
+                            )}
+                            {item.status === 'IN_PROGRESS' && (
+                              <>
+                                <DropdownMenuSeparator />
+                                {OUTCOME_OPTIONS.map((opt) => (
+                                  <DropdownMenuItem
+                                    key={opt.value}
+                                    onClick={() =>
+                                      updateStatus.mutate({
+                                        id: item.id,
+                                        status: 'COMPLETED',
+                                        outcome: opt.value
+                                      })
+                                    }
+                                  >
+                                    Complete — {opt.label}
+                                  </DropdownMenuItem>
+                                ))}
+                              </>
+                            )}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </TableCell>
                     </TableRow>
                   ))
@@ -187,6 +404,99 @@ export default function ConsultationsPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Schedule Consultation Dialog */}
+      <Dialog open={createOpen} onOpenChange={setCreateOpen}>
+        <DialogContent className='max-w-md'>
+          <DialogHeader>
+            <DialogTitle>Schedule Consultation</DialogTitle>
+          </DialogHeader>
+          <div className='space-y-4'>
+            <div className='grid grid-cols-2 gap-3'>
+              <div>
+                <Label>Type</Label>
+                <Select
+                  value={form.consultation_type}
+                  onValueChange={(val) =>
+                    setForm((f) => ({
+                      ...f,
+                      consultation_type: val as ConsultationType
+                    }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {CONSULTATION_TYPE_OPTIONS.map((opt) => (
+                      <SelectItem key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Scheduled Date & Time</Label>
+                <Input
+                  type='datetime-local'
+                  value={form.scheduled_at}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, scheduled_at: e.target.value }))
+                  }
+                />
+              </div>
+            </div>
+            <div>
+              <Label>Recommended Courses</Label>
+              <Input
+                placeholder='e.g. Computer Science, Medicine...'
+                value={form.recommended_courses}
+                onChange={(e) =>
+                  setForm((f) => ({
+                    ...f,
+                    recommended_courses: e.target.value
+                  }))
+                }
+              />
+            </div>
+            <div>
+              <Label>Recommended Universities</Label>
+              <Input
+                placeholder='e.g. Altai State University...'
+                value={form.recommended_universities}
+                onChange={(e) =>
+                  setForm((f) => ({
+                    ...f,
+                    recommended_universities: e.target.value
+                  }))
+                }
+              />
+            </div>
+            <div>
+              <Label>Summary / Notes</Label>
+              <Textarea
+                value={form.summary}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, summary: e.target.value }))
+                }
+                rows={3}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant='outline' onClick={() => setCreateOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={() => createConsultation.mutate(form)}
+              disabled={!form.scheduled_at || createConsultation.isPending}
+            >
+              {createConsultation.isPending ? 'Scheduling...' : 'Schedule'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </PageContainer>
   );
 }

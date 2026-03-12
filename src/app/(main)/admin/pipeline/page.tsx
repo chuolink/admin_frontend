@@ -1,16 +1,35 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import useClientApi from '@/lib/axios/clientSide';
 import PageContainer from '@/components/layout/page-container';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter
+} from '@/components/ui/dialog';
 import {
   Kanban,
   Users,
   FileCheck,
   AlertTriangle,
-  ArrowRight
+  ArrowRight,
+  Plus,
+  Search
 } from 'lucide-react';
 import {
   type StudentPipeline,
@@ -21,9 +40,15 @@ import {
 } from '@/features/pipeline/types';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
+import { toast } from 'sonner';
 
 export default function PipelinePage() {
   const { api } = useClientApi();
+  const queryClient = useQueryClient();
+  const [createOpen, setCreateOpen] = useState(false);
+  const [studentId, setStudentId] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [phaseFilter, setPhaseFilter] = useState<string>('all');
 
   const { data, isLoading } = useQuery<PipelinesResponse>({
     queryKey: ['pipelines'],
@@ -35,15 +60,45 @@ export default function PipelinePage() {
     enabled: !!api
   });
 
-  const pipelines = data?.results ?? [];
+  const createPipeline = useMutation({
+    mutationFn: async (studentId: string) => {
+      if (!api) throw new Error('API not initialized');
+      const response = await api.post('/admin/pipelines/', {
+        student: studentId
+      });
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['pipelines'] });
+      setCreateOpen(false);
+      setStudentId('');
+      toast.success('Pipeline created');
+    },
+    onError: () => toast.error('Failed to create pipeline')
+  });
+
+  const allPipelines = data?.results ?? [];
   const total = data?.count ?? 0;
-  const preApp = pipelines.filter(
+
+  // Apply filters
+  const pipelines = allPipelines.filter((p) => {
+    if (phaseFilter !== 'all' && p.current_phase !== phaseFilter) return false;
+    if (
+      searchQuery &&
+      !p.student_name?.toLowerCase().includes(searchQuery.toLowerCase()) &&
+      !p.university_name?.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+      return false;
+    return true;
+  });
+
+  const preApp = allPipelines.filter(
     (p) => p.current_phase === 'PRE_APPLICATION'
   ).length;
-  const postApp = pipelines.filter(
+  const postApp = allPipelines.filter(
     (p) => p.current_phase === 'POST_APPLICATION'
   ).length;
-  const blocked = pipelines.filter((p) =>
+  const blocked = allPipelines.filter((p) =>
     p.stages?.some((s) => s.status === 'BLOCKED')
   ).length;
 
@@ -59,12 +114,18 @@ export default function PipelinePage() {
   return (
     <PageContainer className='w-full'>
       <div className='w-full space-y-6'>
-        <div>
-          <h1 className='text-3xl font-bold'>Pipeline</h1>
-          <p className='text-muted-foreground'>
-            Student processing pipeline — track every step from consultation to
-            departure
-          </p>
+        <div className='flex items-center justify-between'>
+          <div>
+            <h1 className='text-3xl font-bold'>Pipeline</h1>
+            <p className='text-muted-foreground'>
+              Student processing pipeline — track every step from consultation
+              to departure
+            </p>
+          </div>
+          <Button onClick={() => setCreateOpen(true)}>
+            <Plus className='mr-2 h-4 w-4' />
+            New Pipeline
+          </Button>
         </div>
 
         <div className='grid grid-cols-1 gap-4 md:grid-cols-4'>
@@ -114,6 +175,33 @@ export default function PipelinePage() {
               <p className='text-muted-foreground text-xs'>Need attention</p>
             </CardContent>
           </Card>
+        </div>
+
+        {/* Filters */}
+        <div className='flex gap-3'>
+          <div className='relative flex-1'>
+            <Search className='text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2' />
+            <Input
+              placeholder='Search students or universities...'
+              className='pl-9'
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+          <Select value={phaseFilter} onValueChange={setPhaseFilter}>
+            <SelectTrigger className='w-[200px]'>
+              <SelectValue placeholder='Filter by phase' />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value='all'>All Phases</SelectItem>
+              <SelectItem value='CONSULTATION'>Consultation</SelectItem>
+              <SelectItem value='PRE_APPLICATION'>Pre-Application</SelectItem>
+              <SelectItem value='POST_APPLICATION'>Post-Application</SelectItem>
+              <SelectItem value='ORIENTATION'>Orientation</SelectItem>
+              <SelectItem value='DEPARTED'>Departed</SelectItem>
+              <SelectItem value='MONITORING'>Monitoring</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Kanban Board */}
@@ -181,12 +269,44 @@ export default function PipelinePage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Create Pipeline Dialog */}
+      <Dialog open={createOpen} onOpenChange={setCreateOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create New Pipeline</DialogTitle>
+          </DialogHeader>
+          <div className='space-y-4'>
+            <div>
+              <label className='text-sm font-medium'>Student ID</label>
+              <Input
+                placeholder='Enter student ID...'
+                value={studentId}
+                onChange={(e) => setStudentId(e.target.value)}
+              />
+              <p className='text-muted-foreground mt-1 text-xs'>
+                The student must already exist in the system.
+              </p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant='outline' onClick={() => setCreateOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={() => createPipeline.mutate(studentId)}
+              disabled={!studentId.trim() || createPipeline.isPending}
+            >
+              {createPipeline.isPending ? 'Creating...' : 'Create Pipeline'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </PageContainer>
   );
 }
 
 function PipelineCard({ pipeline }: { pipeline: StudentPipeline }) {
-  const activeStage = pipeline.stages?.find((s) => s.status === 'IN_PROGRESS');
   const completedCount =
     pipeline.stages?.filter((s) => s.status === 'COMPLETED').length ?? 0;
   const hasBlocked = pipeline.stages?.some((s) => s.status === 'BLOCKED');

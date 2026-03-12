@@ -13,8 +13,6 @@ import {
   LayoutDashboard,
   Kanban,
   UserSearch,
-  Phone,
-  CalendarCheck,
   Users,
   FileText,
   FolderCheck,
@@ -22,7 +20,8 @@ import {
   Wallet,
   UserCog,
   Globe,
-  Settings
+  Settings,
+  ClipboardList
 } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -43,6 +42,11 @@ const navGroups: NavGroup[] = [
         title: 'Pipeline',
         url: '/admin/pipeline',
         icon: Kanban
+      },
+      {
+        title: 'Tasks',
+        url: '/admin/tasks',
+        icon: ClipboardList
       }
     ]
   },
@@ -53,16 +57,6 @@ const navGroups: NavGroup[] = [
         title: 'Leads',
         url: '/admin/leads',
         icon: UserSearch
-      },
-      {
-        title: 'Sales Calls',
-        url: '/admin/sales-calls',
-        icon: Phone
-      },
-      {
-        title: 'Consultations',
-        url: '/admin/consultations',
-        icon: CalendarCheck
       }
     ]
   },

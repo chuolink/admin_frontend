@@ -193,6 +193,68 @@ export const PIPELINE_STAGES: {
   { key: 'DEPARTURE', label: 'Departure', phase: 'post', number: 16 }
 ];
 
+export type JourneyEventType =
+  | 'STAGE_STARTED'
+  | 'STAGE_COMPLETED'
+  | 'STAGE_BLOCKED'
+  | 'DOCUMENT_UPLOADED'
+  | 'DOCUMENT_VERIFIED'
+  | 'DOCUMENT_REJECTED'
+  | 'PAYMENT_RECEIVED'
+  | 'NOTE_ADDED'
+  | 'CALL_LOGGED'
+  | 'CONSULTATION_COMPLETED'
+  | 'ASSIGNMENT_CHANGED'
+  | 'PHASE_CHANGED'
+  | 'OTHER';
+
+export interface JourneyEvent {
+  id: string;
+  student: string;
+  pipeline: string;
+  event_type: JourneyEventType;
+  title: string;
+  description: string;
+  performed_by: string | null;
+  performed_by_name?: string;
+  student_name?: string;
+  metadata?: Record<string, unknown>;
+  created_at: string;
+}
+
+export interface JourneyEventsResponse {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: JourneyEvent[];
+}
+
+export interface PipelinePayment {
+  id: string;
+  pipeline: string;
+  payment_type: string;
+  status: 'PENDING' | 'PAID' | 'OVERDUE';
+  amount: string;
+  currency: 'TZS' | 'USD';
+  transaction_id: string;
+  payment_date: string | null;
+  notes: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export const PAYMENT_TYPE_OPTIONS = [
+  { label: 'Admission Fee', value: 'ADMISSION_FEE' },
+  { label: 'Passport Fee', value: 'PASSPORT_FEE' },
+  { label: 'Police Clearance Fee', value: 'POLICE_CLEARANCE_FEE' },
+  { label: 'Medical Fee', value: 'MEDICAL_FEE' },
+  { label: 'NOC Fee', value: 'NOC_FEE' },
+  { label: 'Embassy Fee', value: 'EMBASSY_FEE' },
+  { label: 'Flight Fee', value: 'FLIGHT_FEE' },
+  { label: 'Service Fee', value: 'SERVICE_FEE' },
+  { label: 'Other', value: 'OTHER' }
+];
+
 export const STAGE_STATUS_COLOR: Record<StageStatus, string> = {
   NOT_STARTED: 'bg-muted text-muted-foreground',
   IN_PROGRESS: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',

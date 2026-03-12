@@ -1,33 +1,39 @@
 'use client';
 
-import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useRouter } from 'next/navigation';
-import { useParams } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import useClientApi from '@/lib/axios/clientSide';
 import PageContainer from '@/components/layout/page-container';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { formatCurrency } from '@/lib/utils';
 import {
-  User,
-  Mail,
-  Phone,
-  Calendar,
-  MapPin,
   Briefcase,
-  GraduationCap,
-  CircleDollarSign,
-  Activity,
   Heart,
   Bell,
-  Share2
+  Kanban,
+  CheckCircle,
+  Circle,
+  AlertTriangle,
+  Clock,
+  SkipForward,
+  ArrowRight,
+  FileText,
+  CreditCard,
+  ExternalLink
 } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Separator } from '@/components/ui/separator';
 import { Progress } from '@/components/ui/progress';
+import {
+  type StudentPipeline,
+  type PipelinesResponse,
+  PIPELINE_STAGES,
+  STAGE_STATUS_COLOR
+} from '@/features/pipeline/types';
+import { cn } from '@/lib/utils';
+import Link from 'next/link';
 
 interface StudentResults {
   o_level_result?: {
@@ -108,6 +114,14 @@ interface StudentDetails {
   passport?: string;
 }
 
+const statusIcon: Record<string, React.ReactNode> = {
+  NOT_STARTED: <Circle className='text-muted-foreground h-3 w-3' />,
+  IN_PROGRESS: <Clock className='h-3 w-3 text-blue-500' />,
+  COMPLETED: <CheckCircle className='h-3 w-3 text-green-500' />,
+  BLOCKED: <AlertTriangle className='h-3 w-3 text-red-500' />,
+  SKIPPED: <SkipForward className='h-3 w-3 text-yellow-500' />
+};
+
 export default function StudentDetailsPage() {
   const router = useRouter();
   const params = useParams();
@@ -125,8 +139,21 @@ export default function StudentDetailsPage() {
       const response = await api.get(`/admin/students/${studentId}/`);
       return response.data;
     },
-    enabled: !!studentId
+    enabled: !!studentId && !!api
   });
+
+  // Fetch pipeline for this student
+  const { data: pipelineData } = useQuery<PipelinesResponse>({
+    queryKey: ['student-pipeline', studentId],
+    queryFn: async () => {
+      if (!api) throw new Error('API not initialized');
+      const response = await api.get(`/admin/pipelines/?student=${studentId}`);
+      return response.data;
+    },
+    enabled: !!api && !!studentId
+  });
+
+  const pipeline = pipelineData?.results?.[0] ?? null;
 
   if (isLoading) {
     return (
@@ -148,6 +175,21 @@ export default function StudentDetailsPage() {
     );
   }
 
+  const completedStages =
+    pipeline?.stages?.filter((s) => s.status === 'COMPLETED').length ?? 0;
+  const pipelineProgress = pipeline
+    ? Math.round((completedStages / 16) * 100)
+    : 0;
+
+  const phaseLabel: Record<string, string> = {
+    CONSULTATION: 'Consultation',
+    PRE_APPLICATION: 'Pre-Application',
+    POST_APPLICATION: 'Post-Application',
+    ORIENTATION: 'Orientation',
+    DEPARTED: 'Departed',
+    MONITORING: 'Monitoring'
+  };
+
   return (
     <PageContainer>
       <div className='space-y-6'>
@@ -160,6 +202,14 @@ export default function StudentDetailsPage() {
             </p>
           </div>
           <div className='flex gap-2'>
+            {pipeline && (
+              <Link href={`/admin/pipeline/${pipeline.id}`}>
+                <Button variant='outline'>
+                  <Kanban className='mr-2 h-4 w-4' />
+                  View Pipeline
+                </Button>
+              </Link>
+            )}
             <Button
               variant='outline'
               onClick={() => router.push(`/admin/students/${studentId}/edit`)}
@@ -187,37 +237,56 @@ export default function StudentDetailsPage() {
               </Badge>
             </CardContent>
           </Card>
+          {pipeline ? (
+            <Card>
+              <CardHeader className='pb-2'>
+                <CardTitle className='text-sm font-medium'>
+                  Pipeline Phase
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Badge variant='outline'>
+                  {phaseLabel[pipeline.current_phase] ?? pipeline.current_phase}
+                </Badge>
+              </CardContent>
+            </Card>
+          ) : (
+            <Card>
+              <CardHeader className='pb-2'>
+                <CardTitle className='text-sm font-medium'>
+                  Subscription
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Badge
+                  variant={
+                    student.subscription.status === 'active'
+                      ? 'default'
+                      : 'secondary'
+                  }
+                >
+                  {student.subscription.type === 'inactive'
+                    ? 'Inactive'
+                    : student.subscription.type}
+                </Badge>
+              </CardContent>
+            </Card>
+          )}
           <Card>
             <CardHeader className='pb-2'>
               <CardTitle className='text-sm font-medium'>
-                Subscription
+                {pipeline ? 'Pipeline Progress' : 'Profile Progress'}
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <Badge
-                variant={
-                  student.subscription.status === 'active'
-                    ? 'default'
-                    : 'secondary'
-                }
-              >
-                {student.subscription.type === 'inactive'
-                  ? 'Inactive'
-                  : student.subscription.type}{' '}
-                - {'subscription'}
-              </Badge>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className='pb-2'>
-              <CardTitle className='text-sm font-medium'>
-                Profile Progress
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Progress value={student.profile_complete} className='mb-1' />
+              <Progress
+                value={pipeline ? pipelineProgress : student.profile_complete}
+                className='mb-1'
+              />
               <p className='text-muted-foreground text-sm'>
-                {student.profile_complete}%
+                {pipeline
+                  ? `${completedStages}/16 stages`
+                  : `${student.profile_complete}%`}
               </p>
             </CardContent>
           </Card>
@@ -234,26 +303,187 @@ export default function StudentDetailsPage() {
           <Card>
             <CardHeader className='pb-2'>
               <CardTitle className='text-sm font-medium'>
-                Total Earnings
+                Applications
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className='text-lg font-semibold'>
-                {formatCurrency(student?.earnings || 0)}
-              </p>
+              <p className='text-lg font-semibold'>{student.no_abroad_apps}</p>
             </CardContent>
           </Card>
         </div>
 
-        {/* Detailed Information Tabs */}
-        <Tabs defaultValue='profile' className='space-y-4'>
+        {/* Tabs */}
+        <Tabs
+          defaultValue={pipeline ? 'pipeline' : 'profile'}
+          className='space-y-4'
+        >
           <TabsList>
+            {pipeline && <TabsTrigger value='pipeline'>Pipeline</TabsTrigger>}
             <TabsTrigger value='profile'>Profile</TabsTrigger>
-            <TabsTrigger value='activity'>Activity</TabsTrigger>
             <TabsTrigger value='financial'>Financial</TabsTrigger>
+            <TabsTrigger value='activity'>Activity</TabsTrigger>
             <TabsTrigger value='referrals'>Referrals</TabsTrigger>
           </TabsList>
 
+          {/* Pipeline Tab */}
+          {pipeline && (
+            <TabsContent value='pipeline' className='space-y-4'>
+              <Card>
+                <CardHeader className='flex flex-row items-center justify-between'>
+                  <CardTitle>Pipeline Journey</CardTitle>
+                  <Link href={`/admin/pipeline/${pipeline.id}`}>
+                    <Button variant='outline' size='sm'>
+                      Full Details
+                      <ExternalLink className='ml-1 h-3 w-3' />
+                    </Button>
+                  </Link>
+                </CardHeader>
+                <CardContent>
+                  <div className='grid grid-cols-1 gap-2 md:grid-cols-2'>
+                    <div className='space-y-1'>
+                      <p className='text-muted-foreground text-xs font-medium'>
+                        Consultant
+                      </p>
+                      <p className='text-sm font-medium'>
+                        {pipeline.consultant_name ?? 'Unassigned'}
+                      </p>
+                    </div>
+                    <div className='space-y-1'>
+                      <p className='text-muted-foreground text-xs font-medium'>
+                        University
+                      </p>
+                      <p className='text-sm font-medium'>
+                        {pipeline.university_name ?? 'Not selected'}
+                        {pipeline.country_name && ` — ${pipeline.country_name}`}
+                      </p>
+                    </div>
+                    <div className='space-y-1'>
+                      <p className='text-muted-foreground text-xs font-medium'>
+                        Started
+                      </p>
+                      <p className='text-sm font-medium'>
+                        {format(new Date(pipeline.started_at), 'MMM d, yyyy')}
+                      </p>
+                    </div>
+                    <div className='space-y-1'>
+                      <p className='text-muted-foreground text-xs font-medium'>
+                        Progress
+                      </p>
+                      <p className='text-sm font-medium'>
+                        {completedStages} of 16 stages complete (
+                        {pipelineProgress}%)
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Stage Progress */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Stage Progress</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className='space-y-4'>
+                    <div>
+                      <h4 className='text-muted-foreground mb-2 text-xs font-semibold'>
+                        Pre-Application
+                      </h4>
+                      <div className='space-y-1'>
+                        {PIPELINE_STAGES.filter((s) => s.phase === 'pre').map(
+                          (stage) => {
+                            const ps = pipeline.stages?.find(
+                              (p) => p.stage_type === stage.key
+                            );
+                            const status = ps?.status ?? 'NOT_STARTED';
+                            return (
+                              <div
+                                key={stage.key}
+                                className='flex items-center gap-2 py-1'
+                              >
+                                {statusIcon[status]}
+                                <span className='text-muted-foreground w-4 font-mono text-xs'>
+                                  {stage.number}.
+                                </span>
+                                <span
+                                  className={cn(
+                                    'flex-1 text-sm',
+                                    status === 'NOT_STARTED' &&
+                                      'text-muted-foreground'
+                                  )}
+                                >
+                                  {stage.label}
+                                </span>
+                                <Badge
+                                  variant='outline'
+                                  className={cn(
+                                    'text-xs',
+                                    STAGE_STATUS_COLOR[
+                                      status as keyof typeof STAGE_STATUS_COLOR
+                                    ]
+                                  )}
+                                >
+                                  {status.replace('_', ' ')}
+                                </Badge>
+                              </div>
+                            );
+                          }
+                        )}
+                      </div>
+                    </div>
+                    <div>
+                      <h4 className='text-muted-foreground mb-2 text-xs font-semibold'>
+                        Post-Application
+                      </h4>
+                      <div className='space-y-1'>
+                        {PIPELINE_STAGES.filter((s) => s.phase === 'post').map(
+                          (stage) => {
+                            const ps = pipeline.stages?.find(
+                              (p) => p.stage_type === stage.key
+                            );
+                            const status = ps?.status ?? 'NOT_STARTED';
+                            return (
+                              <div
+                                key={stage.key}
+                                className='flex items-center gap-2 py-1'
+                              >
+                                {statusIcon[status]}
+                                <span className='text-muted-foreground w-4 font-mono text-xs'>
+                                  {stage.number}.
+                                </span>
+                                <span
+                                  className={cn(
+                                    'flex-1 text-sm',
+                                    status === 'NOT_STARTED' &&
+                                      'text-muted-foreground'
+                                  )}
+                                >
+                                  {stage.label}
+                                </span>
+                                <Badge
+                                  variant='outline'
+                                  className={cn(
+                                    'text-xs',
+                                    STAGE_STATUS_COLOR[
+                                      status as keyof typeof STAGE_STATUS_COLOR
+                                    ]
+                                  )}
+                                >
+                                  {status.replace('_', ' ')}
+                                </Badge>
+                              </div>
+                            );
+                          }
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          )}
+
+          {/* Profile Tab */}
           <TabsContent value='profile' className='space-y-4'>
             <Card>
               <CardHeader>
@@ -318,151 +548,119 @@ export default function StudentDetailsPage() {
                     <p className='font-medium'>{student.about_us}</p>
                   </div>
                 )}
-                {/* Passport section */}
                 {student.passport && (
                   <div className='space-y-1'>
                     <p className='text-muted-foreground text-sm font-medium'>
                       Passport
                     </p>
-                    <div>
-                      <a
-                        href={student.passport}
-                        target='_blank'
-                        rel='noopener noreferrer'
-                      >
-                        <img
-                          src={student.passport}
-                          alt='Passport'
-                          style={{
-                            maxWidth: '180px',
-                            borderRadius: '8px',
-                            border: '1px solid #eee'
-                          }}
-                        />
-                      </a>
-                    </div>
+                    <a
+                      href={student.passport}
+                      target='_blank'
+                      rel='noopener noreferrer'
+                    >
+                      <img
+                        src={student.passport}
+                        alt='Passport'
+                        className='max-w-[180px] rounded-lg border'
+                      />
+                    </a>
                   </div>
                 )}
-                {/* Results section */}
                 {student.results && (
                   <div className='mt-6 space-y-4'>
                     <h2 className='text-lg font-semibold'>Student Results</h2>
-                    {/* O-Level Results */}
-                    <div className='space-y-2'>
-                      <h3 className='font-semibold'>O-Level Results</h3>
-                      {student.results.o_level_result ? (
-                        <>
-                          <div>
-                            <span className='font-medium'>School:</span>{' '}
-                            {student.results.o_level_result.school || 'N/A'}
-                          </div>
-                          <div>
-                            <span className='font-medium'>
-                              Registration No:
-                            </span>{' '}
-                            {student.results.o_level_result.reg_no || 'N/A'}
-                          </div>
-                          <div>
-                            <span className='font-medium'>Division:</span>{' '}
-                            {student.results.o_level_result.division || 'N/A'}
-                          </div>
-                          <div>
-                            <span className='font-medium'>Points:</span>{' '}
-                            {student.results.o_level_result.points ?? 'N/A'}
-                          </div>
-                          {student.results.o_level_result.transcript && (
-                            <div>
-                              <span className='font-medium'>Transcript:</span>{' '}
-                              <a
-                                href={student.results.o_level_result.transcript}
-                                target='_blank'
-                                rel='noopener noreferrer'
-                                className='text-blue-600 underline'
-                              >
-                                View O-Level Transcript
-                              </a>
-                            </div>
-                          )}
-                          <div>
-                            <span className='font-medium'>
-                              Subjects & Grades:
-                            </span>
-                            <ul className='ml-6 list-disc'>
-                              {student.results.o_level_grades?.map((grade) => (
-                                <li key={grade.id}>
-                                  {grade.subject?.name}: {grade.grade?.grade}
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        </>
-                      ) : (
-                        <p className='text-muted-foreground text-sm'>
-                          No O-Level results available.
-                        </p>
-                      )}
-                    </div>
-                    {/* A-Level Results */}
-                    <div className='space-y-2'>
-                      <h3 className='font-semibold'>A-Level Results</h3>
-                      {student.results.a_level_result ? (
-                        <>
-                          <div>
-                            <span className='font-medium'>School:</span>{' '}
-                            {student.results.a_level_result.school || 'N/A'}
-                          </div>
-                          <div>
-                            <span className='font-medium'>
-                              Registration No:
-                            </span>{' '}
-                            {student.results.a_level_result.reg_no || 'N/A'}
-                          </div>
-                          <div>
-                            <span className='font-medium'>Division:</span>{' '}
-                            {student.results.a_level_result.division || 'N/A'}
-                          </div>
-                          <div>
-                            <span className='font-medium'>Points:</span>{' '}
-                            {student.results.a_level_result.points ?? 'N/A'}
-                          </div>
-                          {student.results.a_level_result.transcript && (
-                            <div>
-                              <span className='font-medium'>Transcript:</span>{' '}
-                              <a
-                                href={student.results.a_level_result.transcript}
-                                target='_blank'
-                                rel='noopener noreferrer'
-                                className='text-blue-600 underline'
-                              >
-                                View A-Level Transcript
-                              </a>
-                            </div>
-                          )}
-                          <div>
-                            <span className='font-medium'>
-                              Subjects & Grades:
-                            </span>
-                            <ul className='ml-6 list-disc'>
-                              {student.results.a_level_grades?.map((grade) => (
-                                <li key={grade.id}>
-                                  {grade.subject?.name}: {grade.grade?.grade}
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        </>
-                      ) : (
-                        <p className='text-muted-foreground text-sm'>
-                          No A-Level results available.
-                        </p>
-                      )}
-                    </div>
+                    <ResultsSection
+                      title='O-Level Results'
+                      result={student.results.o_level_result}
+                      grades={student.results.o_level_grades}
+                    />
+                    <ResultsSection
+                      title='A-Level Results'
+                      result={student.results.a_level_result}
+                      grades={student.results.a_level_grades}
+                    />
                   </div>
                 )}
               </CardContent>
             </Card>
           </TabsContent>
 
+          {/* Financial Tab */}
+          <TabsContent value='financial' className='space-y-4'>
+            <Card>
+              <CardHeader>
+                <CardTitle>Payment Summary</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className='grid grid-cols-1 gap-4 md:grid-cols-3'>
+                  <div className='space-y-1'>
+                    <p className='text-muted-foreground text-sm font-medium'>
+                      Total Payments
+                    </p>
+                    <p className='text-2xl font-bold'>
+                      {formatCurrency(student.payments.total_amount)}
+                    </p>
+                    <p className='text-muted-foreground text-xs'>
+                      {student.payments.total_count} transactions
+                    </p>
+                  </div>
+                  <div className='space-y-1'>
+                    <p className='text-muted-foreground text-sm font-medium'>
+                      Current Balance
+                    </p>
+                    <p className='text-2xl font-bold'>
+                      {formatCurrency(student?.balance || 0)}
+                    </p>
+                  </div>
+                  <div className='space-y-1'>
+                    <p className='text-muted-foreground text-sm font-medium'>
+                      Total Earnings
+                    </p>
+                    <p className='text-2xl font-bold'>
+                      {formatCurrency(student?.earnings || 0)}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            {student.payments.recent_payments.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Recent Payments</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className='space-y-4'>
+                    {student.payments.recent_payments.map((payment: any) => (
+                      <div
+                        key={payment.id}
+                        className='flex items-center justify-between'
+                      >
+                        <div>
+                          <p className='font-medium'>
+                            {formatCurrency(payment.amount)}
+                          </p>
+                          <p className='text-muted-foreground text-sm'>
+                            {format(parseISO(payment.created_at), 'PP')}
+                          </p>
+                        </div>
+                        <Badge
+                          variant={
+                            payment.status === 'completed'
+                              ? 'default'
+                              : 'secondary'
+                          }
+                        >
+                          {payment.status}
+                        </Badge>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+
+          {/* Activity Tab */}
           <TabsContent value='activity' className='space-y-4'>
             <div className='grid grid-cols-1 gap-4 md:grid-cols-3'>
               <Card>
@@ -512,81 +710,7 @@ export default function StudentDetailsPage() {
             </div>
           </TabsContent>
 
-          <TabsContent value='financial' className='space-y-4'>
-            <Card>
-              <CardHeader>
-                <CardTitle>Payment Summary</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className='grid grid-cols-1 gap-4 md:grid-cols-3'>
-                  <div className='space-y-1'>
-                    <p className='text-muted-foreground text-sm font-medium'>
-                      Total Payments
-                    </p>
-                    <p className='text-2xl font-bold'>
-                      {formatCurrency(student.payments.total_amount)}
-                    </p>
-                    <p className='text-muted-foreground text-xs'>
-                      {student.payments.total_count} transactions
-                    </p>
-                  </div>
-                  <div className='space-y-1'>
-                    <p className='text-muted-foreground text-sm font-medium'>
-                      Current Balance
-                    </p>
-                    <p className='text-2xl font-bold'>
-                      {formatCurrency(student?.balance || 0)}
-                    </p>
-                  </div>
-                  <div className='space-y-1'>
-                    <p className='text-muted-foreground text-sm font-medium'>
-                      Total Earnings
-                    </p>
-                    <p className='text-2xl font-bold'>
-                      {formatCurrency(student?.earnings || 0)}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {student.payments.recent_payments.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Recent Payments</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className='space-y-4'>
-                    {student.payments.recent_payments.map((payment: any) => (
-                      <div
-                        key={payment.id}
-                        className='flex items-center justify-between'
-                      >
-                        <div>
-                          <p className='font-medium'>
-                            {formatCurrency(payment.amount)}
-                          </p>
-                          <p className='text-muted-foreground text-sm'>
-                            {format(parseISO(payment.created_at), 'PP')}
-                          </p>
-                        </div>
-                        <Badge
-                          variant={
-                            payment.status === 'completed'
-                              ? 'default'
-                              : 'secondary'
-                          }
-                        >
-                          {payment.status}
-                        </Badge>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-          </TabsContent>
-
+          {/* Referrals Tab */}
           <TabsContent value='referrals' className='space-y-4'>
             <Card>
               <CardHeader>
@@ -617,5 +741,79 @@ export default function StudentDetailsPage() {
         </Tabs>
       </div>
     </PageContainer>
+  );
+}
+
+function ResultsSection({
+  title,
+  result,
+  grades
+}: {
+  title: string;
+  result?: {
+    school?: string;
+    division?: string;
+    points?: number | null;
+    reg_no?: string;
+    transcript?: string;
+  };
+  grades?: {
+    id: string;
+    subject: { id: string; name: string };
+    grade: { id: string; grade: string };
+  }[];
+}) {
+  if (!result) {
+    return (
+      <div className='space-y-2'>
+        <h3 className='font-semibold'>{title}</h3>
+        <p className='text-muted-foreground text-sm'>
+          No {title.toLowerCase()} available.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className='space-y-2'>
+      <h3 className='font-semibold'>{title}</h3>
+      <div className='grid grid-cols-2 gap-2 text-sm'>
+        <div>
+          <span className='font-medium'>School:</span> {result.school || 'N/A'}
+        </div>
+        <div>
+          <span className='font-medium'>Reg No:</span> {result.reg_no || 'N/A'}
+        </div>
+        <div>
+          <span className='font-medium'>Division:</span>{' '}
+          {result.division || 'N/A'}
+        </div>
+        <div>
+          <span className='font-medium'>Points:</span> {result.points ?? 'N/A'}
+        </div>
+      </div>
+      {result.transcript && (
+        <a
+          href={result.transcript}
+          target='_blank'
+          rel='noopener noreferrer'
+          className='text-sm text-blue-600 underline'
+        >
+          View Transcript
+        </a>
+      )}
+      {grades && grades.length > 0 && (
+        <div>
+          <span className='text-sm font-medium'>Subjects & Grades:</span>
+          <ul className='ml-6 list-disc text-sm'>
+            {grades.map((g) => (
+              <li key={g.id}>
+                {g.subject?.name}: {g.grade?.grade}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
   );
 }
