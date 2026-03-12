@@ -75,7 +75,8 @@ export interface User {
   profile_img: string | null;
   birth_date: string | null;
   is_active: boolean;
-  subscription: String | null;
+  subscription: string | null;
+  status: string | null;
   is_registered: boolean;
   created_at: string;
   updated_at: string;

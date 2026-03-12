@@ -24,9 +24,6 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from '@/components/ui/tooltip';
-import { Icons } from '@/components/icons';
-import { usePathname } from 'next/navigation';
-import Link from 'next/link';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 const SIDEBAR_COOKIE_NAME = 'sidebar_state';
@@ -155,17 +152,10 @@ function SidebarProvider({
   );
 }
 
-interface NavigationItem {
-  name: string;
-  href: string;
-  icon: keyof typeof Icons;
-}
-
 interface SidebarProps extends React.ComponentProps<'div'> {
   side?: 'left' | 'right';
   variant?: 'sidebar' | 'floating' | 'inset';
   collapsible?: 'offcanvas' | 'icon' | 'none';
-  navigation: NavigationItem[];
 }
 
 function Sidebar({
@@ -173,12 +163,10 @@ function Sidebar({
   variant = 'sidebar',
   collapsible = 'offcanvas',
   className,
-  navigation,
   children,
   ...props
 }: SidebarProps) {
   const { isMobile, state, openMobile, setOpenMobile } = useSidebar();
-  const pathname = usePathname();
 
   if (collapsible === 'none') {
     return (
@@ -214,29 +202,7 @@ function Sidebar({
             <SheetTitle>Sidebar</SheetTitle>
             <SheetDescription>Displays the mobile sidebar.</SheetDescription>
           </SheetHeader>
-          <div className='flex h-full flex-col'>
-            <div className='flex-1 overflow-y-auto'>
-              <nav className='grid gap-1 p-2'>
-                {navigation.map((item) => {
-                  const Icon = Icons[item.icon];
-                  const isActive = pathname === item.href;
-                  return (
-                    <Button
-                      key={item.href}
-                      variant={isActive ? 'secondary' : 'ghost'}
-                      className='w-full justify-start'
-                      asChild
-                    >
-                      <Link href={item.href}>
-                        <Icon className='mr-2 h-4 w-4' />
-                        {item.name}
-                      </Link>
-                    </Button>
-                  );
-                })}
-              </nav>
-            </div>
-          </div>
+          <div className='flex h-full w-full flex-col'>{children}</div>
         </SheetContent>
       </Sheet>
     );
@@ -246,35 +212,40 @@ function Sidebar({
     <div
       data-slot='sidebar'
       data-state={state}
-      className={cn(
-        'bg-sidebar text-sidebar-foreground flex h-full flex-col',
-        state === 'expanded'
-          ? 'w-(--sidebar-width)'
-          : 'w-(--sidebar-width-icon)',
-        className
-      )}
-      {...props}
+      data-collapsible={state === 'collapsed' ? collapsible : ''}
+      data-variant={variant}
+      data-side={side}
+      className='group peer hidden md:block'
     >
-      <div className='flex-1 overflow-y-auto'>
-        <nav className='grid gap-1 p-2'>
-          {navigation.map((item) => {
-            const Icon = Icons[item.icon];
-            const isActive = pathname === item.href;
-            return (
-              <Button
-                key={item.href}
-                variant={isActive ? 'secondary' : 'ghost'}
-                className='w-full justify-start'
-                asChild
-              >
-                <Link href={item.href}>
-                  <Icon className='mr-2 h-4 w-4' />
-                  {state === 'expanded' && item.name}
-                </Link>
-              </Button>
-            );
-          })}
-        </nav>
+      <div
+        className={cn(
+          'relative h-svh w-(--sidebar-width) bg-transparent transition-[width] duration-200 ease-linear',
+          'group-data-[collapsible=offcanvas]:w-0',
+          'group-data-[side=right]:rotate-180',
+          variant === 'floating' || variant === 'inset'
+            ? 'group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+theme(spacing.4))]'
+            : 'group-data-[collapsible=icon]:w-(--sidebar-width-icon)'
+        )}
+      />
+      <div
+        className={cn(
+          'fixed inset-y-0 z-10 hidden h-svh w-(--sidebar-width) transition-[left,right,width] duration-200 ease-linear md:flex',
+          side === 'left'
+            ? 'left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]'
+            : 'right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]',
+          variant === 'floating' || variant === 'inset'
+            ? 'p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+theme(spacing.4)+2px)]'
+            : 'group-data-[collapsible=icon]:w-(--sidebar-width-icon) group-data-[side=left]:border-r group-data-[side=right]:border-l',
+          className
+        )}
+        {...props}
+      >
+        <div
+          data-sidebar='sidebar'
+          className='bg-sidebar group-data-[variant=floating]:border-sidebar-border flex h-full w-full flex-col group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:shadow-sm'
+        >
+          {children}
+        </div>
       </div>
     </div>
   );

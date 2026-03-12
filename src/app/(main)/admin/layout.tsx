@@ -1,95 +1,131 @@
-import {
-  Sidebar,
-  SidebarInset,
-  SidebarProvider
-} from '@/components/ui/sidebar';
-import { Icons } from '@/components/icons';
+import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import { authOptions } from '@/lib/authOptions';
 import type { Metadata } from 'next';
 import { getServerSession } from 'next-auth';
-
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { cn } from '@/lib/utils';
-import {
-  IconDashboard,
-  IconUsers,
-  IconCreditCard,
-  IconBuildingBank,
-  IconBell,
-  IconMail,
-  IconFileText,
-  IconWallet,
-  IconUsersGroup
-} from '@tabler/icons-react';
 import { ReactNode } from 'react';
 import KBar from '@/components/kbar';
 import Header from '@/components/layout/header';
 import AppSidebar from '@/components/layout/app-sidebar';
+import type { NavGroup } from '@/components/layout/types';
+import {
+  LayoutDashboard,
+  Kanban,
+  UserSearch,
+  Phone,
+  CalendarCheck,
+  Users,
+  FileText,
+  FolderCheck,
+  CreditCard,
+  Wallet,
+  UserCog,
+  Globe,
+  Settings
+} from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'Chuolink Portal',
   description: 'Search, Discover, Apply'
 };
 
-type NavigationItem = {
-  name: string;
-  href: string;
-  icon: keyof typeof Icons;
-};
-
-const navigation: NavigationItem[] = [
+const navGroups: NavGroup[] = [
   {
-    name: 'Overview',
-    href: '/admin/overview',
-    icon: 'dashboard'
+    title: 'General',
+    items: [
+      {
+        title: 'Dashboard',
+        url: '/admin/overview',
+        icon: LayoutDashboard
+      },
+      {
+        title: 'Pipeline',
+        url: '/admin/pipeline',
+        icon: Kanban
+      }
+    ]
   },
   {
-    name: 'Students',
-    href: '/admin/students',
-    icon: 'users'
+    title: 'CRM',
+    items: [
+      {
+        title: 'Leads',
+        url: '/admin/leads',
+        icon: UserSearch
+      },
+      {
+        title: 'Sales Calls',
+        url: '/admin/sales-calls',
+        icon: Phone
+      },
+      {
+        title: 'Consultations',
+        url: '/admin/consultations',
+        icon: CalendarCheck
+      }
+    ]
   },
   {
-    name: 'Applications',
-    href: '/admin/applications',
-    icon: 'file-text'
+    title: 'Students',
+    items: [
+      {
+        title: 'All Students',
+        url: '/admin/students',
+        icon: Users
+      },
+      {
+        title: 'Applications',
+        url: '/admin/applications',
+        icon: FileText
+      },
+      {
+        title: 'Documents',
+        url: '/admin/documents',
+        icon: FolderCheck
+      }
+    ]
   },
   {
-    name: 'Consultants',
-    href: '/admin/consultants',
-    icon: 'users-group'
+    title: 'Finance',
+    items: [
+      {
+        title: 'Payments',
+        url: '/admin/payments',
+        icon: CreditCard
+      },
+      {
+        title: 'Withdrawals',
+        url: '/admin/withdrawals',
+        icon: Wallet
+      }
+    ]
   },
   {
-    name: 'Consultants Applications',
-    href: '/admin/consultant-applications',
-    icon: 'file-text'
+    title: 'Configuration',
+    items: [
+      {
+        title: 'Consultants',
+        url: '/admin/consultants',
+        icon: UserCog
+      },
+      {
+        title: 'Countries',
+        url: '/admin/countries',
+        icon: Globe
+      }
+    ]
   },
   {
-    name: 'Payments',
-    href: '/admin/payments',
-    icon: 'credit-card'
-  },
-  {
-    name: 'Withdrawals',
-    href: '/admin/withdrawals',
-    icon: 'wallet'
-  },
-  {
-    name: 'Countries',
-    href: '/admin/countries',
-    icon: 'map'
+    title: 'Settings',
+    items: [
+      {
+        title: 'Profile',
+        url: '/admin/settings',
+        icon: Settings
+      }
+    ]
   }
-
-  // {
-  //   name: 'Referrals',
-  //   href: '/admin/referrals',
-  //   icon: 'users-group'
-  // },
-  // {
-  //   name: 'Settings',
-  //   href: '/admin/settings',
-  //   icon: 'settings'
-  // }
 ];
 
 export default async function AdminLayout({
@@ -97,7 +133,6 @@ export default async function AdminLayout({
 }: {
   children: ReactNode;
 }) {
-  // Persisting the sidebar state in the cookie.
   const cookieStore = await cookies();
   const defaultOpen = cookieStore.get('sidebar_state')?.value === 'true';
   const sess = await getServerSession(authOptions);
@@ -109,12 +144,10 @@ export default async function AdminLayout({
   return (
     <KBar>
       <SidebarProvider defaultOpen={defaultOpen}>
-        <AppSidebar navigation={navigation} />
-        <SidebarInset className='h-screen overflow-x-auto overflow-y-auto'>
-          <Header />
-          {/* page main content */}
+        <AppSidebar navGroups={navGroups} />
+        <SidebarInset>
+          <Header fixed />
           {children}
-          {/* page main content ends */}
         </SidebarInset>
       </SidebarProvider>
     </KBar>

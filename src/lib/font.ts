@@ -3,6 +3,7 @@ import {
   Geist_Mono,
   Instrument_Sans,
   Inter,
+  Manrope,
   Mulish,
   Noto_Sans_Mono
 } from 'next/font/google';
@@ -39,11 +40,17 @@ const fontInter = Inter({
   variable: '--font-inter'
 });
 
+const fontManrope = Manrope({
+  subsets: ['latin'],
+  variable: '--font-manrope'
+});
+
 export const fontVariables = cn(
   fontSans.variable,
   fontMono.variable,
   fontInstrument.variable,
   fontNotoMono.variable,
   fontMullish.variable,
-  fontInter.variable
+  fontInter.variable,
+  fontManrope.variable
 );

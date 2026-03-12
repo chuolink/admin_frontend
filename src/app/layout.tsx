@@ -1,26 +1,21 @@
 import Providers from '@/components/layout/providers';
 import { Providers as NewProviders } from '@/providers';
-import { Inter } from 'next/font/google';
 import { Toaster } from '@/components/ui/sonner';
 import { fontVariables } from '@/lib/font';
 import ThemeProvider from '@/components/layout/ThemeToggle/theme-provider';
 import { cn } from '@/lib/utils';
 import type { Metadata, Viewport } from 'next';
-import { cookies } from 'next/headers';
 import NextTopLoader from 'nextjs-toploader';
 import { NuqsAdapter } from 'nuqs/adapters/next/app';
 import SessionContext from '@/context/ClientSideAuthContext';
 import './globals.css';
 import './theme.css';
 import SessionWrapper from '@/context/SessionWrapper';
-import { ActiveThemeProvider } from '@/components/active-theme';
 
 const META_THEME_COLORS = {
   light: '#ffffff',
-  dark: '#09090b'
+  dark: '#0f172a'
 };
-
-const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: 'Chuolink Portal',
@@ -36,10 +31,6 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const cookieStore = await cookies();
-  const activeThemeValue = cookieStore.get('active_theme')?.value;
-  const isScaled = activeThemeValue?.endsWith('-scaled');
-
   return (
     <html lang='en' suppressHydrationWarning>
       <head>
@@ -58,10 +49,7 @@ export default async function RootLayout({
       <body
         className={cn(
           'bg-background overflow-hidden overscroll-none font-sans antialiased',
-          activeThemeValue ? `theme-${activeThemeValue}` : '',
-          isScaled ? 'theme-scaled' : '',
-          fontVariables,
-          inter.className
+          fontVariables
         )}
       >
         <NextTopLoader showSpinner={false} />
@@ -77,7 +65,7 @@ export default async function RootLayout({
               <SessionWrapper>
                 <NewProviders>
                   <Toaster />
-                  <ActiveThemeProvider>{children}</ActiveThemeProvider>
+                  {children}
                 </NewProviders>
               </SessionWrapper>
             </SessionContext>

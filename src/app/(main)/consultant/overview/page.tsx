@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import useClientApi from '@/lib/axios/clientSide';
+import PageContainer from '@/components/layout/page-container';
 import {
   Card,
   CardHeader,
@@ -13,7 +13,6 @@ import {
   CardContent
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Response } from '@/types/consultant';
 import {
   FileText,
   CheckCircle,
@@ -21,25 +20,21 @@ import {
   Clock,
   Banknote,
   TrendingUp,
-  TrendingDown,
-  AlertCircle
+  AlertCircle,
+  Users,
+  Phone,
+  CalendarCheck,
+  UserSearch,
+  Kanban,
+  ArrowRight
 } from 'lucide-react';
-import { ConsultantStats, Consultant } from '@/types/consultant';
-import OnboardingModal from '@/features/consultant/components/onboarding-modal';
-import { useSession } from 'next-auth/react';
-import { useStateStore } from '@/stores/useStateStore';
-
-interface SessionUser {
-  name?: string | null;
-  email?: string | null;
-}
+import { PIPELINE_STAGES } from '@/features/pipeline/types';
+import { cn } from '@/lib/utils';
+import Link from 'next/link';
 
 export default function ConsultantOverview() {
-  const { data: session } = useSession();
   const { api } = useClientApi();
-  const { consultant } = useStateStore();
 
-  // Format currency to TZS
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-TZ', {
       style: 'currency',
@@ -49,218 +44,290 @@ export default function ConsultantOverview() {
     }).format(amount);
   };
 
-  // Then, fetch stats using the consultant ID
-  const { data: stats, isLoading: isLoadingStats } = useQuery({
-    queryKey: ['consultant-stats', consultant?.id],
+  const { data: stats, isLoading } = useQuery({
+    queryKey: ['consultant-stats'],
     queryFn: async () => {
-      if (!api || !consultant?.id)
-        throw new Error('API not initialized or consultant not found');
-      const response = await api.get(
-        `/consultant/overview/${consultant.id}/stats/`
-      );
-      return response.data as ConsultantStats;
+      if (!api) throw new Error('API not initialized');
+      const response = await api.get('/consultant/dashboard/stats/');
+      return response.data;
     },
-    enabled: !!consultant?.id // Only run this query if we have a consultant ID
+    enabled: !!api
   });
 
-  if (isLoadingStats) {
+  if (isLoading) {
     return (
-      <div className='flex h-96 items-center justify-center'>
-        <p>Loading statistics...</p>
-      </div>
+      <PageContainer className='w-full'>
+        <p className='text-muted-foreground py-12 text-center'>
+          Loading dashboard...
+        </p>
+      </PageContainer>
     );
   }
 
-  const userName = (session?.user as SessionUser)?.name || '';
-  const userEmail = (session?.user as SessionUser)?.email || '';
-
-  // Calculate trends (you can replace these with actual trend calculations)
-  const applicationTrend =
-    (stats?.total_applications ?? 0) > 0 ? '+12.5%' : '0%';
-  const earningsTrend = (stats?.total_earnings ?? 0) > 0 ? '+8.3%' : '0%';
-  const withdrawalTrend = (stats?.total_withdrawals ?? 0) > 0 ? '-5.2%' : '0%';
-  const pendingTrend = (stats?.pending_applications ?? 0) > 0 ? '+15.7%' : '0%';
+  const {
+    total_applications = 0,
+    pending_applications = 0,
+    approved_applications = 0,
+    rejected_applications = 0,
+    waiting_applications = 0,
+    completed_applications = 0,
+    total_earnings = 0,
+    // New CRM/pipeline stats
+    my_leads = 0,
+    new_leads = 0,
+    my_pipeline_students = 0,
+    my_calls_this_week = 0,
+    upcoming_consultations = 0,
+    overdue_follow_ups = 0,
+    pipeline_summary = []
+  } = stats ?? {};
 
   return (
-    <div className='w-full space-y-6'>
-      <div className='*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs md:grid-cols-2 lg:grid-cols-4'>
-        <Card className='@container/card'>
-          <CardHeader>
-            <CardDescription>Total Applications</CardDescription>
-            <CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
-              {stats?.total_applications || 0}
-            </CardTitle>
-            <CardAction>
-              <Badge variant='outline'>
-                <TrendingUp className='mr-1 h-4 w-4' />
-                {applicationTrend}
-              </Badge>
-            </CardAction>
-          </CardHeader>
-          <CardFooter className='flex-col items-start gap-1.5 text-sm'>
-            <div className='line-clamp-1 flex gap-2 font-medium'>
-              Total applications assigned <FileText className='size-4' />
-            </div>
-            <div className='text-muted-foreground'>
-              All applications in your queue
-            </div>
-          </CardFooter>
-        </Card>
+    <PageContainer className='w-full'>
+      <div className='w-full space-y-6'>
+        <div>
+          <h1 className='text-3xl font-bold'>Dashboard</h1>
+          <p className='text-muted-foreground'>Your activity overview</p>
+        </div>
 
-        <Card className='@container/card'>
-          <CardHeader>
-            <CardDescription>Pending Review</CardDescription>
-            <CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
-              {stats?.pending_applications || 0}
-            </CardTitle>
-            <CardAction>
-              <Badge variant='outline'>
-                <AlertCircle className='mr-1 h-4 w-4' />
-                {pendingTrend}
-              </Badge>
-            </CardAction>
-          </CardHeader>
-          <CardFooter className='flex-col items-start gap-1.5 text-sm'>
-            <div className='line-clamp-1 flex gap-2 font-medium'>
-              Awaiting your review <Clock className='size-4' />
-            </div>
-            <div className='text-muted-foreground'>
-              Applications to be approved/rejected
-            </div>
-            <div className='mt-2 grid w-full grid-cols-2 gap-2'>
+        {/* Application Stats */}
+        <div className='grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4'>
+          <Card className='@container/card'>
+            <CardHeader>
+              <CardDescription>Total Applications</CardDescription>
+              <CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
+                {total_applications}
+              </CardTitle>
+              <CardAction>
+                <Badge variant='outline'>
+                  <FileText className='mr-1 h-4 w-4' />
+                  All
+                </Badge>
+              </CardAction>
+            </CardHeader>
+            <CardFooter className='flex-col items-start gap-1 text-sm'>
+              <div className='text-muted-foreground'>
+                Applications in your queue
+              </div>
+            </CardFooter>
+          </Card>
+
+          <Card className='@container/card'>
+            <CardHeader>
+              <CardDescription>Pending Review</CardDescription>
+              <CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
+                {pending_applications}
+              </CardTitle>
+              <CardAction>
+                <Badge variant='outline'>
+                  <AlertCircle className='mr-1 h-4 w-4' />
+                  Action
+                </Badge>
+              </CardAction>
+            </CardHeader>
+            <CardFooter className='flex-col items-start gap-1 text-sm'>
+              <div className='grid w-full grid-cols-2 gap-2'>
+                <div className='flex items-center gap-1.5 text-green-600 dark:text-green-400'>
+                  <CheckCircle className='size-4' />
+                  <span>{approved_applications} Approved</span>
+                </div>
+                <div className='flex items-center gap-1.5 text-red-600 dark:text-red-400'>
+                  <XCircle className='size-4' />
+                  <span>{rejected_applications} Rejected</span>
+                </div>
+              </div>
+            </CardFooter>
+          </Card>
+
+          <Card className='@container/card'>
+            <CardHeader>
+              <CardDescription>Completed</CardDescription>
+              <CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
+                {completed_applications}
+              </CardTitle>
+              <CardAction>
+                <Badge variant='outline'>
+                  <CheckCircle className='mr-1 h-4 w-4' />
+                  Done
+                </Badge>
+              </CardAction>
+            </CardHeader>
+            <CardFooter className='flex-col items-start gap-1 text-sm'>
               <div className='flex items-center gap-1.5 text-green-600 dark:text-green-400'>
-                <CheckCircle className='size-4' />
-                <span>{stats?.approved_applications || 0} Approved</span>
+                <Banknote className='size-4' />
+                <span>Earnings: {formatCurrency(total_earnings)}</span>
               </div>
-              <div className='flex items-center gap-1.5 text-red-600 dark:text-red-400'>
-                <XCircle className='size-4' />
-                <span>{stats?.rejected_applications || 0} Rejected</span>
+            </CardFooter>
+          </Card>
+
+          <Card>
+            <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+              <CardTitle className='text-sm font-medium'>My Pipeline</CardTitle>
+              <Kanban className='text-muted-foreground h-4 w-4' />
+            </CardHeader>
+            <CardContent>
+              <div className='text-2xl font-bold'>{my_pipeline_students}</div>
+              <p className='text-muted-foreground text-xs'>
+                Students in pipeline
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* CRM Quick Stats */}
+        <div className='grid grid-cols-2 gap-4 md:grid-cols-4'>
+          <Card>
+            <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+              <CardTitle className='text-xs font-medium'>My Leads</CardTitle>
+              <UserSearch className='text-muted-foreground h-3.5 w-3.5' />
+            </CardHeader>
+            <CardContent>
+              <div className='text-xl font-bold'>{my_leads}</div>
+              <p className='text-muted-foreground text-xs'>{new_leads} new</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+              <CardTitle className='text-xs font-medium'>
+                Calls (Week)
+              </CardTitle>
+              <Phone className='text-muted-foreground h-3.5 w-3.5' />
+            </CardHeader>
+            <CardContent>
+              <div className='text-xl font-bold'>{my_calls_this_week}</div>
+              <p className='text-muted-foreground text-xs'>Sales calls</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+              <CardTitle className='text-xs font-medium'>
+                Consultations
+              </CardTitle>
+              <CalendarCheck className='text-muted-foreground h-3.5 w-3.5' />
+            </CardHeader>
+            <CardContent>
+              <div className='text-xl font-bold'>{upcoming_consultations}</div>
+              <p className='text-muted-foreground text-xs'>Upcoming</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+              <CardTitle className='text-xs font-medium'>Follow-ups</CardTitle>
+              <Clock className='text-muted-foreground h-3.5 w-3.5' />
+            </CardHeader>
+            <CardContent>
+              <div className='text-xl font-bold'>{overdue_follow_ups}</div>
+              <p className='text-muted-foreground text-xs'>Overdue</p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Pipeline Summary + Quick Actions */}
+        <div className='grid grid-cols-1 gap-4 lg:grid-cols-2'>
+          <Card>
+            <CardHeader>
+              <CardTitle>Pipeline Summary</CardTitle>
+              <CardDescription>Your students by stage</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {pipeline_summary.length > 0 ? (
+                <div className='space-y-2'>
+                  {pipeline_summary.map(
+                    (item: { stage: string; count: number; label: string }) => (
+                      <div
+                        key={item.stage}
+                        className='flex items-center justify-between rounded-lg border p-2'
+                      >
+                        <span className='text-sm'>{item.label}</span>
+                        <Badge variant='outline'>{item.count}</Badge>
+                      </div>
+                    )
+                  )}
+                </div>
+              ) : (
+                <div className='flex items-center justify-center py-8'>
+                  <div className='space-y-2 text-center'>
+                    <Kanban className='text-muted-foreground mx-auto h-8 w-8' />
+                    <p className='text-muted-foreground text-sm'>
+                      No pipeline students assigned yet
+                    </p>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Quick Actions</CardTitle>
+              <CardDescription>Items needing your attention</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className='space-y-3'>
+                {pending_applications > 0 && (
+                  <QuickAction
+                    href='/consultant/applications'
+                    icon={<FileText className='h-4 w-4 text-amber-500' />}
+                    title={`${pending_applications} applications pending review`}
+                  />
+                )}
+                {overdue_follow_ups > 0 && (
+                  <QuickAction
+                    href='/consultant/leads'
+                    icon={<Clock className='h-4 w-4 text-red-500' />}
+                    title={`${overdue_follow_ups} overdue follow-ups`}
+                  />
+                )}
+                {upcoming_consultations > 0 && (
+                  <QuickAction
+                    href='/consultant/pipeline'
+                    icon={<CalendarCheck className='h-4 w-4 text-green-500' />}
+                    title={`${upcoming_consultations} upcoming consultations`}
+                  />
+                )}
+                {new_leads > 0 && (
+                  <QuickAction
+                    href='/consultant/leads'
+                    icon={<UserSearch className='h-4 w-4 text-indigo-500' />}
+                    title={`${new_leads} new leads to contact`}
+                  />
+                )}
+                {!pending_applications &&
+                  !overdue_follow_ups &&
+                  !upcoming_consultations &&
+                  !new_leads && (
+                    <div className='flex items-center gap-3 py-4'>
+                      <CheckCircle className='h-5 w-5 text-green-500' />
+                      <p className='text-muted-foreground text-sm'>
+                        All caught up! No urgent items.
+                      </p>
+                    </div>
+                  )}
               </div>
-            </div>
-          </CardFooter>
-        </Card>
-
-        <Card className='@container/card'>
-          <CardHeader>
-            <CardDescription>Waiting Verification</CardDescription>
-            <CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
-              {stats?.waiting_applications || 0}
-            </CardTitle>
-            <CardAction>
-              <Badge variant='outline'>
-                <Clock className='mr-1 h-4 w-4' />
-                {pendingTrend}
-              </Badge>
-            </CardAction>
-          </CardHeader>
-          <CardFooter className='flex-col items-start gap-1.5 text-sm'>
-            <div className='line-clamp-1 flex gap-2 font-medium'>
-              Under admin review <Clock className='size-4' />
-            </div>
-            <div className='text-muted-foreground'>
-              Applications pending admin verification
-            </div>
-          </CardFooter>
-        </Card>
-
-        <Card className='@container/card'>
-          <CardHeader>
-            <CardDescription>Completed Applications</CardDescription>
-            <CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
-              {stats?.completed_applications || 0}
-            </CardTitle>
-            <CardAction>
-              <Badge variant='outline'>
-                <CheckCircle className='mr-1 h-4 w-4' />
-                {applicationTrend}
-              </Badge>
-            </CardAction>
-          </CardHeader>
-          <CardFooter className='flex-col items-start gap-1.5 text-sm'>
-            <div className='line-clamp-1 flex gap-2 font-medium'>
-              Successfully completed <CheckCircle className='size-4' />
-            </div>
-            <div className='text-muted-foreground'>
-              Applications approved by admin
-            </div>
-            <div className='mt-2 flex items-center gap-1.5 text-green-600 dark:text-green-400'>
-              <Banknote className='size-4' />
-              <span>
-                Total Earnings: {formatCurrency(stats?.total_earnings || 0)}
-              </span>
-            </div>
-          </CardFooter>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
       </div>
+    </PageContainer>
+  );
+}
 
-      {/* <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Applications</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {stats?.recent_applications?.length ? (
-              <div className='space-y-4'>
-                {stats.recent_applications.map((app) => (
-                  <div
-                    key={app.id}
-                    className='flex items-center justify-between'
-                  >
-                    <div>
-                      <p className='font-medium'>{`${app.application.student.user.first_name} ${app.application.student.user.last_name}`}</p>
-                      <p className='text-muted-foreground text-sm'>
-                        {app.application.university.name}
-                      </p>
-                    </div>
-                    <div className='text-right'>
-                      <p className='font-medium'>
-                        ${app.application.budget || 0}
-                      </p>
-                      <p className='text-muted-foreground text-sm'>
-                        {app.status}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className='text-muted-foreground'>No recent applications</p>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Withdrawals</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {stats?.recent_withdrawals?.length ? (
-              <div className='space-y-4'>
-                {stats.recent_withdrawals.map((withdrawal) => (
-                  <div
-                    key={withdrawal.id}
-                    className='flex items-center justify-between'
-                  >
-                    <div>
-                      <p className='font-medium'>
-                        {new Date(withdrawal.created_at).toLocaleDateString()}
-                      </p>
-                      <p className='text-muted-foreground text-sm'>
-                        {withdrawal.status}
-                      </p>
-                    </div>
-                    <div className='text-right'>
-                      <p className='font-medium'>${withdrawal.amount}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className='text-muted-foreground'>No recent withdrawals</p>
-            )}
-          </CardContent>
-        </Card>
-      </div> */}
-    </div>
+function QuickAction({
+  href,
+  icon,
+  title
+}: {
+  href: string;
+  icon: React.ReactNode;
+  title: string;
+}) {
+  return (
+    <Link href={href}>
+      <div className='hover:bg-muted/50 flex cursor-pointer items-center gap-3 rounded-lg border p-3 transition-colors'>
+        {icon}
+        <p className='flex-1 text-sm font-medium'>{title}</p>
+        <ArrowRight className='text-muted-foreground h-4 w-4' />
+      </div>
+    </Link>
   );
 }

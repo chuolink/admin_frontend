@@ -7,19 +7,103 @@ import type { Metadata } from 'next';
 import { getServerSession } from 'next-auth';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { Icons } from '@/components/icons';
+import type { NavGroup } from '@/components/layout/types';
 import RegistrationProvider from './providers/RegistrationProvider';
+import {
+  LayoutDashboard,
+  Kanban,
+  UserSearch,
+  Phone,
+  Users,
+  FileText,
+  CreditCard,
+  Wallet,
+  User
+} from 'lucide-react';
+
 export const metadata: Metadata = {
   title: 'Chuolink Portal',
   description: 'Search, Discover, Apply'
 };
+
+const navGroups: NavGroup[] = [
+  {
+    title: 'General',
+    items: [
+      {
+        title: 'Dashboard',
+        url: '/consultant/overview',
+        icon: LayoutDashboard
+      },
+      {
+        title: 'My Pipeline',
+        url: '/consultant/pipeline',
+        icon: Kanban
+      }
+    ]
+  },
+  {
+    title: 'CRM',
+    items: [
+      {
+        title: 'My Leads',
+        url: '/consultant/leads',
+        icon: UserSearch
+      },
+      {
+        title: 'My Calls',
+        url: '/consultant/sales-calls',
+        icon: Phone
+      }
+    ]
+  },
+  {
+    title: 'Students',
+    items: [
+      {
+        title: 'My Students',
+        url: '/consultant/students',
+        icon: Users
+      },
+      {
+        title: 'Applications',
+        url: '/consultant/applications',
+        icon: FileText
+      }
+    ]
+  },
+  {
+    title: 'Finance',
+    items: [
+      {
+        title: 'Payments',
+        url: '/consultant/payments',
+        icon: CreditCard
+      },
+      {
+        title: 'Withdrawals',
+        url: '/consultant/withdrawals',
+        icon: Wallet
+      }
+    ]
+  },
+  {
+    title: 'Settings',
+    items: [
+      {
+        title: 'Profile',
+        url: '/consultant/profile',
+        icon: User
+      }
+    ]
+  }
+];
 
 export default async function ConsultantLayout({
   children
 }: {
   children: React.ReactNode;
 }) {
-  // Persisting the sidebar state in the cookie.
   const cookieStore = await cookies();
   const defaultOpen = cookieStore.get('sidebar_state')?.value === 'true';
   const sess = await getServerSession(authOptions);
@@ -28,50 +112,13 @@ export default async function ConsultantLayout({
     redirect('/admin/overview');
   }
 
-  type NavigationItem = {
-    name: string;
-    href: string;
-    icon: keyof typeof Icons;
-  };
-
-  const navigation: NavigationItem[] = [
-    {
-      name: 'Overview',
-      href: '/consultant/overview',
-      icon: 'dashboard'
-    },
-    {
-      name: 'Applications',
-      href: '/consultant/applications',
-      icon: 'file-text'
-    },
-    {
-      name: 'Payments',
-      href: '/consultant/payments',
-      icon: 'credit-card'
-    },
-    {
-      name: 'Withdrawals',
-      href: '/consultant/withdrawals',
-      icon: 'wallet'
-    },
-
-    {
-      name: 'Profile',
-      href: '/consultant/profile',
-      icon: 'user'
-    }
-  ];
-
   return (
     <KBar>
       <SidebarProvider defaultOpen={defaultOpen}>
-        <AppSidebar navigation={navigation} />
+        <AppSidebar navGroups={navGroups} />
         <SidebarInset>
-          <Header />
-          {/* page main content */}
+          <Header fixed />
           <RegistrationProvider>{children}</RegistrationProvider>
-          {/* page main content ends */}
         </SidebarInset>
       </SidebarProvider>
     </KBar>

@@ -1,9 +1,5 @@
 'use client';
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger
-} from '@/components/ui/collapsible';
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,79 +13,41 @@ import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
-  SidebarGroup,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
   SidebarRail
 } from '@/components/ui/sidebar';
 import { UserAvatarProfile } from '@/components/user-avatar-profile';
-import { navItems } from '@/constants/data';
-import { useMediaQuery } from '@/hooks/use-media-query';
-
-import {
-  IconBell,
-  IconChevronRight,
-  IconChevronsDown,
-  IconCreditCard,
-  IconLogout,
-  IconPhotoUp,
-  IconUserCircle
-} from '@tabler/icons-react';
+import { ChevronsUpDown, LogOut, User as UserIcon, Bell } from 'lucide-react';
 import { signOut, useSession } from 'next-auth/react';
-import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import * as React from 'react';
-import { Icons } from '../icons';
 import { OrgSwitcher } from '../org-switcher';
+import { NavGroup } from './nav-group';
+import type { NavGroup as NavGroupType } from './types';
 import { User } from 'next-auth';
 
-export const company = {
-  name: 'Acme Inc',
-  logo: IconPhotoUp,
-  plan: 'Enterprise'
-};
-
 const tenants = [
-  { id: '1', name: 'Acme Inc' },
-  { id: '2', name: 'Beta Corp' },
-  { id: '3', name: 'Gamma Ltd' }
+  { id: '1', name: 'Chuolink' },
+  { id: '2', name: 'Africa Unilink' }
 ];
 
-interface NavigationItem {
-  name: string;
-  href: string;
-  icon: keyof typeof Icons;
-}
-
 interface AppSidebarProps {
-  navigation: NavigationItem[];
+  navGroups: NavGroupType[];
 }
 
-export default function AppSidebar({ navigation }: AppSidebarProps) {
-  const pathname = usePathname();
-  const { isOpen } = useMediaQuery();
+export default function AppSidebar({ navGroups }: AppSidebarProps) {
   const { data: session } = useSession();
   const user = session?.user as User;
   const router = useRouter();
 
-  const handleSwitchTenant = (_tenantId: string) => {
-    // Tenant switching functionality would be implemented here
-  };
-
+  const handleSwitchTenant = (_tenantId: string) => {};
   const activeTenant = tenants[0];
 
-  React.useEffect(() => {
-    // Side effects based on sidebar state changes
-  }, [isOpen]);
-
   return (
-    <Sidebar collapsible='icon' navigation={navigation}>
+    <Sidebar collapsible='icon'>
       <SidebarHeader>
         <OrgSwitcher
           tenants={tenants}
@@ -98,28 +56,9 @@ export default function AppSidebar({ navigation }: AppSidebarProps) {
         />
       </SidebarHeader>
       <SidebarContent className='overflow-x-hidden'>
-        <SidebarGroup>
-          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
-          <SidebarMenu>
-            {navigation.map((item) => {
-              const Icon = Icons[item.icon as keyof typeof Icons] || Icons.logo;
-              return (
-                <SidebarMenuItem key={item.name}>
-                  <SidebarMenuButton
-                    asChild
-                    tooltip={item.name}
-                    isActive={pathname === item.href}
-                  >
-                    <Link href={item.href}>
-                      <Icon />
-                      <span>{item.name}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              );
-            })}
-          </SidebarMenu>
-        </SidebarGroup>
+        {navGroups.map((group) => (
+          <NavGroup key={group.title} {...group} />
+        ))}
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenu>
@@ -137,7 +76,7 @@ export default function AppSidebar({ navigation }: AppSidebarProps) {
                       user={user}
                     />
                   )}
-                  <IconChevronsDown className='ml-auto size-4' />
+                  <ChevronsUpDown className='ml-auto size-4' />
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent
@@ -162,21 +101,17 @@ export default function AppSidebar({ navigation }: AppSidebarProps) {
                   <DropdownMenuItem
                     onClick={() => router.push('/dashboard/profile')}
                   >
-                    <IconUserCircle className='mr-2 h-4 w-4' />
+                    <UserIcon className='mr-2 h-4 w-4' />
                     Profile
                   </DropdownMenuItem>
                   <DropdownMenuItem>
-                    <IconCreditCard className='mr-2 h-4 w-4' />
-                    Billing
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <IconBell className='mr-2 h-4 w-4' />
+                    <Bell className='mr-2 h-4 w-4' />
                     Notifications
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => signOut()}>
-                  <IconLogout className='mr-2 h-4 w-4' />
+                  <LogOut className='mr-2 h-4 w-4' />
                   Log out
                 </DropdownMenuItem>
               </DropdownMenuContent>

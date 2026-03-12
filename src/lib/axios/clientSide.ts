@@ -3,6 +3,7 @@ import createAxiosInstance from '../axiosInstance';
 import { useSessionWrapper } from '@/context/SessionWrapper';
 import { useMemo } from 'react';
 import { Session } from 'next-auth';
+import { signOut } from 'next-auth/react';
 
 export const useClientApi = () => {
   // Use the wrapper hook with required:true
@@ -13,15 +14,19 @@ export const useClientApi = () => {
     let val = {};
 
     const token = session?.backendTokens?.accessToken;
-    // const expiresAt = (session?.backendTokens.accessExpiresAt ||0) * 1000;
-    // const currentTime = Date.now();
-    // const timeDiff = (expiresAt - currentTime)/(60*1000);
-    // console.log(timeDiff, session?.expires);
 
     if (status === 'authenticated' && token) {
       // check if the token is expired
-      const api = createAxiosInstance(token as string);
-      val = { api, session, update };
+      try {
+        const api = createAxiosInstance(token as string);
+        val = { api, session, update };
+      } catch (error: any) {
+        console.log(error);
+        if (error.status === 401) {
+          signOut();
+        }
+        throw error;
+      }
     } else {
       val = { api: null, session: null, update };
     }
