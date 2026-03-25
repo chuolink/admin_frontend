@@ -31,7 +31,7 @@ jobs:
     - name: Handle environment files
       run: |
         rm -f .env
-        cp .env.prod .env
+        cp .env.production .env
 
     - name: Login to Container registry
       uses: docker/login-action@v2
@@ -67,7 +67,6 @@ jobs:
         cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:cache
         build-args: |
           ENV_FINGERPRINT=${{ hashFiles('.env.production') }}
-          ENV_FILE=.env.prod
 
   update-gitops:
     needs: build-publish-deploy
