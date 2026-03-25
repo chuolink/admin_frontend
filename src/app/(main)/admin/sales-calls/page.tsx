@@ -297,7 +297,7 @@ export default function SalesCallsPage() {
           <div className='space-y-4'>
             <div className='grid grid-cols-2 gap-3'>
               <div>
-                <Label>Call Type</Label>
+                <Label required>Call Type</Label>
                 <Select
                   value={form.call_type}
                   onValueChange={(val) =>
@@ -330,7 +330,7 @@ export default function SalesCallsPage() {
             </div>
             <div className='grid grid-cols-2 gap-3'>
               <div>
-                <Label>Purpose</Label>
+                <Label required>Purpose</Label>
                 <Select
                   value={form.purpose}
                   onValueChange={(val) =>
@@ -350,7 +350,7 @@ export default function SalesCallsPage() {
                 </Select>
               </div>
               <div>
-                <Label>Outcome</Label>
+                <Label required>Outcome</Label>
                 <Select
                   value={form.outcome}
                   onValueChange={(val) =>

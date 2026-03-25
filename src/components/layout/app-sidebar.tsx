@@ -26,7 +26,7 @@ import { useRouter } from 'next/navigation';
 import * as React from 'react';
 import { OrgSwitcher } from '../org-switcher';
 import { NavGroup } from './nav-group';
-import type { NavGroup as NavGroupType } from './types';
+import { adminNavGroups, consultantNavGroups } from './nav-config';
 import { User } from 'next-auth';
 
 const tenants = [
@@ -35,10 +35,11 @@ const tenants = [
 ];
 
 interface AppSidebarProps {
-  navGroups: NavGroupType[];
+  variant: 'admin' | 'consultant';
 }
 
-export default function AppSidebar({ navGroups }: AppSidebarProps) {
+export default function AppSidebar({ variant }: AppSidebarProps) {
+  const navGroups = variant === 'admin' ? adminNavGroups : consultantNavGroups;
   const { data: session } = useSession();
   const user = session?.user as User;
   const router = useRouter();
@@ -99,7 +100,7 @@ export default function AppSidebar({ navGroups }: AppSidebarProps) {
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
                   <DropdownMenuItem
-                    onClick={() => router.push('/dashboard/profile')}
+                    onClick={() => router.push('/admin/settings')}
                   >
                     <UserIcon className='mr-2 h-4 w-4' />
                     Profile

@@ -28,8 +28,6 @@ import {
   Kanban,
   ArrowRight
 } from 'lucide-react';
-import { PIPELINE_STAGES } from '@/features/pipeline/types';
-import { cn } from '@/lib/utils';
 import Link from 'next/link';
 
 export default function ConsultantOverview() {

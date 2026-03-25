@@ -76,6 +76,27 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/v1/admin/applications/{id}/start-pipeline/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * @description Create a pipeline for an existing application that doesn't have one.
+     *     This handles student-created applications (from the mobile app) that
+     *     need to be picked up by admin for processing.
+     */
+    post: operations['admin_applications_start_pipeline_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/v1/admin/applications/{id}/update_progress/': {
     parameters: {
       query?: never;
@@ -272,6 +293,23 @@ export interface paths {
     put?: never;
     /** @description Document verification queue — all uploaded documents across all students. */
     post: operations['admin_documents_reject_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/documents/{id}/upload/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** @description Admin uploads a document on behalf of the student. */
+    post: operations['admin_documents_upload_create'];
     delete?: never;
     options?: never;
     head?: never;
@@ -519,6 +557,80 @@ export interface paths {
     patch: operations['admin_leads_partial_update'];
     trace?: never;
   };
+  '/api/v1/admin/leads/{id}/create-application/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * @description Admin creates an application on behalf of the student (for students
+     *     who can't use the app). Creates application + pipeline in one step.
+     */
+    post: operations['admin_leads_create_application_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/leads/{id}/link-student/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** @description Link an existing app student to this lead. */
+    post: operations['admin_leads_link_student_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/leads/{id}/register-student/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * @description Create a User + StudentModel from the lead's contact info.
+     *     For students who don't have the app — admin registers on their behalf.
+     */
+    post: operations['admin_leads_register_student_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/leads/{id}/unlink-student/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** @description Remove the student link from this lead. */
+    post: operations['admin_leads_unlink_student_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/v1/admin/mobile-transactions/': {
     parameters: {
       query?: never;
@@ -597,6 +709,38 @@ export interface paths {
     options?: never;
     head?: never;
     patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/parent-links/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['admin_parent_links_list'];
+    put?: never;
+    post: operations['admin_parent_links_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/parent-links/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['admin_parent_links_retrieve'];
+    put: operations['admin_parent_links_update'];
+    post?: never;
+    delete: operations['admin_parent_links_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['admin_parent_links_partial_update'];
     trace?: never;
   };
   '/api/v1/admin/payments/': {
@@ -743,6 +887,23 @@ export interface paths {
     patch: operations['admin_pipelines_partial_update'];
     trace?: never;
   };
+  '/api/v1/admin/pipelines/{id}/commit/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** @description Commit to this application — marks it as the student's final choice. */
+    post: operations['admin_pipelines_commit_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/v1/admin/pipelines/{id}/journey/': {
     parameters: {
       query?: never;
@@ -754,6 +915,23 @@ export interface paths {
     get: operations['admin_pipelines_journey_retrieve'];
     put?: never;
     post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/pipelines/{id}/uncommit/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** @description Reverse the commitment — re-locks post-decision stages. */
+    post: operations['admin_pipelines_uncommit_create'];
     delete?: never;
     options?: never;
     head?: never;
@@ -807,6 +985,200 @@ export interface paths {
     options?: never;
     head?: never;
     patch: operations['admin_referrals_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/admin/reminders/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['admin_reminders_list'];
+    put?: never;
+    post: operations['admin_reminders_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/reminders/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['admin_reminders_retrieve'];
+    put: operations['admin_reminders_update'];
+    post?: never;
+    delete: operations['admin_reminders_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['admin_reminders_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/admin/reminders/{id}/send_now/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** @description Mark reminder as sent immediately. */
+    post: operations['admin_reminders_send_now_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/requirement-responses/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Admin queue of all requirement responses (for review). */
+    get: operations['admin_requirement_responses_list'];
+    put?: never;
+    /** @description Admin queue of all requirement responses (for review). */
+    post: operations['admin_requirement_responses_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/requirement-responses/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Admin queue of all requirement responses (for review). */
+    get: operations['admin_requirement_responses_retrieve'];
+    /** @description Admin queue of all requirement responses (for review). */
+    put: operations['admin_requirement_responses_update'];
+    post?: never;
+    /** @description Admin queue of all requirement responses (for review). */
+    delete: operations['admin_requirement_responses_destroy'];
+    options?: never;
+    head?: never;
+    /** @description Admin queue of all requirement responses (for review). */
+    patch: operations['admin_requirement_responses_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/admin/requirements/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * @description Admin can view/filter all requirements across all pipelines.
+     *     Supports approve/reject actions for reviewing student submissions.
+     */
+    get: operations['admin_requirements_list'];
+    put?: never;
+    /**
+     * @description Admin can view/filter all requirements across all pipelines.
+     *     Supports approve/reject actions for reviewing student submissions.
+     */
+    post: operations['admin_requirements_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/requirements/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * @description Admin can view/filter all requirements across all pipelines.
+     *     Supports approve/reject actions for reviewing student submissions.
+     */
+    get: operations['admin_requirements_retrieve'];
+    /**
+     * @description Admin can view/filter all requirements across all pipelines.
+     *     Supports approve/reject actions for reviewing student submissions.
+     */
+    put: operations['admin_requirements_update'];
+    post?: never;
+    /**
+     * @description Admin can view/filter all requirements across all pipelines.
+     *     Supports approve/reject actions for reviewing student submissions.
+     */
+    delete: operations['admin_requirements_destroy'];
+    options?: never;
+    head?: never;
+    /**
+     * @description Admin can view/filter all requirements across all pipelines.
+     *     Supports approve/reject actions for reviewing student submissions.
+     */
+    patch: operations['admin_requirements_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/admin/requirements/{id}/approve/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** @description Approve a requirement — marks the latest response as APPROVED. */
+    post: operations['admin_requirements_approve_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/requirements/{id}/reject/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** @description Reject a requirement — marks the latest response as REJECTED. */
+    post: operations['admin_requirements_reject_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/requirements/{id}/submit_on_behalf/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** @description Admin submits a response on behalf of the student. Auto-approved. */
+    post: operations['admin_requirements_submit_on_behalf_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
     trace?: never;
   };
   '/api/v1/admin/sales-calls/': {
@@ -873,6 +1245,121 @@ export interface paths {
     patch: operations['admin_staff_tasks_partial_update'];
     trace?: never;
   };
+  '/api/v1/admin/stage-instances/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['admin_stage_instances_list'];
+    put?: never;
+    post: operations['admin_stage_instances_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/stage-instances/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['admin_stage_instances_retrieve'];
+    put: operations['admin_stage_instances_update'];
+    post?: never;
+    delete: operations['admin_stage_instances_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['admin_stage_instances_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/admin/stage-instances/{id}/add-requirement/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** @description Add an ad-hoc requirement to this stage instance. */
+    post: operations['admin_stage_instances_add_requirement_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/stage-instances/{id}/complete/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** @description Mark a stage as completed. */
+    post: operations['admin_stage_instances_complete_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/stage-instances/{id}/skip/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** @description Skip a stage. */
+    post: operations['admin_stage_instances_skip_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/stage-templates/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['admin_stage_templates_list'];
+    put?: never;
+    post: operations['admin_stage_templates_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/stage-templates/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['admin_stage_templates_retrieve'];
+    put: operations['admin_stage_templates_update'];
+    post?: never;
+    delete: operations['admin_stage_templates_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['admin_stage_templates_partial_update'];
+    trace?: never;
+  };
   '/api/v1/admin/students/': {
     parameters: {
       query?: never;
@@ -903,6 +1390,38 @@ export interface paths {
     options?: never;
     head?: never;
     patch: operations['admin_students_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/admin/testimonials/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['admin_testimonials_list'];
+    put?: never;
+    post: operations['admin_testimonials_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/testimonials/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['admin_testimonials_retrieve'];
+    put: operations['admin_testimonials_update'];
+    post?: never;
+    delete: operations['admin_testimonials_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['admin_testimonials_partial_update'];
     trace?: never;
   };
   '/api/v1/admin/universities/': {
@@ -967,6 +1486,78 @@ export interface paths {
     options?: never;
     head?: never;
     patch: operations['admin_users_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/admin/vault-documents/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Admin view for all student vault documents — verify/reject documents. */
+    get: operations['admin_vault_documents_list'];
+    put?: never;
+    /** @description Admin view for all student vault documents — verify/reject documents. */
+    post: operations['admin_vault_documents_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/vault-documents/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Admin view for all student vault documents — verify/reject documents. */
+    get: operations['admin_vault_documents_retrieve'];
+    /** @description Admin view for all student vault documents — verify/reject documents. */
+    put: operations['admin_vault_documents_update'];
+    post?: never;
+    /** @description Admin view for all student vault documents — verify/reject documents. */
+    delete: operations['admin_vault_documents_destroy'];
+    options?: never;
+    head?: never;
+    /** @description Admin view for all student vault documents — verify/reject documents. */
+    patch: operations['admin_vault_documents_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/admin/vault-documents/{id}/reject/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** @description Admin view for all student vault documents — verify/reject documents. */
+    post: operations['admin_vault_documents_reject_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/vault-documents/{id}/verify/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** @description Admin view for all student vault documents — verify/reject documents. */
+    post: operations['admin_vault_documents_verify_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
     trace?: never;
   };
   '/api/v1/admin/withdrawals/': {
@@ -2342,6 +2933,1935 @@ export interface paths {
     patch: operations['course_university_partial_update'];
     trace?: never;
   };
+  '/api/v1/data-admin/alevel-combination-subjects/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_alevel_combination_subjects_list'];
+    put?: never;
+    post: operations['data_admin_alevel_combination_subjects_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/data-admin/alevel-combination-subjects/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_alevel_combination_subjects_retrieve'];
+    put: operations['data_admin_alevel_combination_subjects_update'];
+    post?: never;
+    delete: operations['data_admin_alevel_combination_subjects_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['data_admin_alevel_combination_subjects_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/data-admin/alevel-combinations/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_alevel_combinations_list'];
+    put?: never;
+    post: operations['data_admin_alevel_combinations_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/data-admin/alevel-combinations/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_alevel_combinations_retrieve'];
+    put: operations['data_admin_alevel_combinations_update'];
+    post?: never;
+    delete: operations['data_admin_alevel_combinations_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['data_admin_alevel_combinations_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/data-admin/alevel-grades/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_alevel_grades_list'];
+    put?: never;
+    post: operations['data_admin_alevel_grades_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/data-admin/alevel-grades/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_alevel_grades_retrieve'];
+    put: operations['data_admin_alevel_grades_update'];
+    post?: never;
+    delete: operations['data_admin_alevel_grades_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['data_admin_alevel_grades_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/data-admin/alevel-subjects/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_alevel_subjects_list'];
+    put?: never;
+    post: operations['data_admin_alevel_subjects_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/data-admin/alevel-subjects/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_alevel_subjects_retrieve'];
+    put: operations['data_admin_alevel_subjects_update'];
+    post?: never;
+    delete: operations['data_admin_alevel_subjects_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['data_admin_alevel_subjects_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/data-admin/career-courses/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_career_courses_list'];
+    put?: never;
+    post: operations['data_admin_career_courses_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/data-admin/career-courses/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_career_courses_retrieve'];
+    put: operations['data_admin_career_courses_update'];
+    post?: never;
+    delete: operations['data_admin_career_courses_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['data_admin_career_courses_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/data-admin/career-disciplines/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_career_disciplines_list'];
+    put?: never;
+    post: operations['data_admin_career_disciplines_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/data-admin/career-disciplines/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_career_disciplines_retrieve'];
+    put: operations['data_admin_career_disciplines_update'];
+    post?: never;
+    delete: operations['data_admin_career_disciplines_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['data_admin_career_disciplines_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/data-admin/career-salaries/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_career_salaries_list'];
+    put?: never;
+    post: operations['data_admin_career_salaries_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/data-admin/career-salaries/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_career_salaries_retrieve'];
+    put: operations['data_admin_career_salaries_update'];
+    post?: never;
+    delete: operations['data_admin_career_salaries_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['data_admin_career_salaries_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/data-admin/career-specifics/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_career_specifics_list'];
+    put?: never;
+    post: operations['data_admin_career_specifics_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/data-admin/career-specifics/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_career_specifics_retrieve'];
+    put: operations['data_admin_career_specifics_update'];
+    post?: never;
+    delete: operations['data_admin_career_specifics_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['data_admin_career_specifics_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/data-admin/career-trends/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_career_trends_list'];
+    put?: never;
+    post: operations['data_admin_career_trends_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/data-admin/career-trends/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_career_trends_retrieve'];
+    put: operations['data_admin_career_trends_update'];
+    post?: never;
+    delete: operations['data_admin_career_trends_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['data_admin_career_trends_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/data-admin/careers/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_careers_list'];
+    put?: never;
+    post: operations['data_admin_careers_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/data-admin/careers/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_careers_retrieve'];
+    put: operations['data_admin_careers_update'];
+    post?: never;
+    delete: operations['data_admin_careers_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['data_admin_careers_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/data-admin/consultant-applications/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_consultant_applications_list'];
+    put?: never;
+    post: operations['data_admin_consultant_applications_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/data-admin/consultant-applications/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_consultant_applications_retrieve'];
+    put: operations['data_admin_consultant_applications_update'];
+    post?: never;
+    delete: operations['data_admin_consultant_applications_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['data_admin_consultant_applications_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/data-admin/consultant-withdrawals/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_consultant_withdrawals_list'];
+    put?: never;
+    post: operations['data_admin_consultant_withdrawals_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/data-admin/consultant-withdrawals/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_consultant_withdrawals_retrieve'];
+    put: operations['data_admin_consultant_withdrawals_update'];
+    post?: never;
+    delete: operations['data_admin_consultant_withdrawals_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['data_admin_consultant_withdrawals_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/data-admin/consultants/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_consultants_list'];
+    put?: never;
+    post: operations['data_admin_consultants_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/data-admin/consultants/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_consultants_retrieve'];
+    put: operations['data_admin_consultants_update'];
+    post?: never;
+    delete: operations['data_admin_consultants_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['data_admin_consultants_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/data-admin/countries/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_countries_list'];
+    put?: never;
+    post: operations['data_admin_countries_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/data-admin/countries/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_countries_retrieve'];
+    put: operations['data_admin_countries_update'];
+    post?: never;
+    delete: operations['data_admin_countries_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['data_admin_countries_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/data-admin/country-benefits/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_country_benefits_list'];
+    put?: never;
+    post: operations['data_admin_country_benefits_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/data-admin/country-benefits/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_country_benefits_retrieve'];
+    put: operations['data_admin_country_benefits_update'];
+    post?: never;
+    delete: operations['data_admin_country_benefits_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['data_admin_country_benefits_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/data-admin/country-expenses/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_country_expenses_list'];
+    put?: never;
+    post: operations['data_admin_country_expenses_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/data-admin/country-expenses/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_country_expenses_retrieve'];
+    put: operations['data_admin_country_expenses_update'];
+    post?: never;
+    delete: operations['data_admin_country_expenses_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['data_admin_country_expenses_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/data-admin/country-faqs/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_country_faqs_list'];
+    put?: never;
+    post: operations['data_admin_country_faqs_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/data-admin/country-faqs/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_country_faqs_retrieve'];
+    put: operations['data_admin_country_faqs_update'];
+    post?: never;
+    delete: operations['data_admin_country_faqs_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['data_admin_country_faqs_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/data-admin/country-pictures/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_country_pictures_list'];
+    put?: never;
+    post: operations['data_admin_country_pictures_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/data-admin/country-pictures/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_country_pictures_retrieve'];
+    put: operations['data_admin_country_pictures_update'];
+    post?: never;
+    delete: operations['data_admin_country_pictures_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['data_admin_country_pictures_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/data-admin/country-reasons/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_country_reasons_list'];
+    put?: never;
+    post: operations['data_admin_country_reasons_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/data-admin/country-reasons/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_country_reasons_retrieve'];
+    put: operations['data_admin_country_reasons_update'];
+    post?: never;
+    delete: operations['data_admin_country_reasons_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['data_admin_country_reasons_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/data-admin/country-testimonials/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_country_testimonials_list'];
+    put?: never;
+    post: operations['data_admin_country_testimonials_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/data-admin/country-testimonials/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_country_testimonials_retrieve'];
+    put: operations['data_admin_country_testimonials_update'];
+    post?: never;
+    delete: operations['data_admin_country_testimonials_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['data_admin_country_testimonials_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/data-admin/course-disciplines/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_course_disciplines_list'];
+    put?: never;
+    post: operations['data_admin_course_disciplines_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/data-admin/course-disciplines/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_course_disciplines_retrieve'];
+    put: operations['data_admin_course_disciplines_update'];
+    post?: never;
+    delete: operations['data_admin_course_disciplines_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['data_admin_course_disciplines_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/data-admin/course-modules/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_course_modules_list'];
+    put?: never;
+    post: operations['data_admin_course_modules_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/data-admin/course-modules/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_course_modules_retrieve'];
+    put: operations['data_admin_course_modules_update'];
+    post?: never;
+    delete: operations['data_admin_course_modules_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['data_admin_course_modules_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/data-admin/course-offering-expenses/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_course_offering_expenses_list'];
+    put?: never;
+    post: operations['data_admin_course_offering_expenses_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/data-admin/course-offering-expenses/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_course_offering_expenses_retrieve'];
+    put: operations['data_admin_course_offering_expenses_update'];
+    post?: never;
+    delete: operations['data_admin_course_offering_expenses_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['data_admin_course_offering_expenses_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/data-admin/course-offerings/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * @description CRITICAL: Uses all_objects manager to include inactive offerings.
+     *     The default CourseUniversityModel.objects only returns active offerings.
+     */
+    get: operations['data_admin_course_offerings_list'];
+    put?: never;
+    /**
+     * @description CRITICAL: Uses all_objects manager to include inactive offerings.
+     *     The default CourseUniversityModel.objects only returns active offerings.
+     */
+    post: operations['data_admin_course_offerings_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/data-admin/course-offerings/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * @description CRITICAL: Uses all_objects manager to include inactive offerings.
+     *     The default CourseUniversityModel.objects only returns active offerings.
+     */
+    get: operations['data_admin_course_offerings_retrieve'];
+    /**
+     * @description CRITICAL: Uses all_objects manager to include inactive offerings.
+     *     The default CourseUniversityModel.objects only returns active offerings.
+     */
+    put: operations['data_admin_course_offerings_update'];
+    post?: never;
+    /**
+     * @description CRITICAL: Uses all_objects manager to include inactive offerings.
+     *     The default CourseUniversityModel.objects only returns active offerings.
+     */
+    delete: operations['data_admin_course_offerings_destroy'];
+    options?: never;
+    head?: never;
+    /**
+     * @description CRITICAL: Uses all_objects manager to include inactive offerings.
+     *     The default CourseUniversityModel.objects only returns active offerings.
+     */
+    patch: operations['data_admin_course_offerings_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/data-admin/course-pictures/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_course_pictures_list'];
+    put?: never;
+    post: operations['data_admin_course_pictures_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/data-admin/course-pictures/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_course_pictures_retrieve'];
+    put: operations['data_admin_course_pictures_update'];
+    post?: never;
+    delete: operations['data_admin_course_pictures_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['data_admin_course_pictures_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/data-admin/course-requirements/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_course_requirements_list'];
+    put?: never;
+    post: operations['data_admin_course_requirements_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/data-admin/course-requirements/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_course_requirements_retrieve'];
+    put: operations['data_admin_course_requirements_update'];
+    post?: never;
+    delete: operations['data_admin_course_requirements_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['data_admin_course_requirements_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/data-admin/course-semesters/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_course_semesters_list'];
+    put?: never;
+    post: operations['data_admin_course_semesters_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/data-admin/course-semesters/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_course_semesters_retrieve'];
+    put: operations['data_admin_course_semesters_update'];
+    post?: never;
+    delete: operations['data_admin_course_semesters_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['data_admin_course_semesters_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/data-admin/course-trends/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_course_trends_list'];
+    put?: never;
+    post: operations['data_admin_course_trends_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/data-admin/course-trends/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_course_trends_retrieve'];
+    put: operations['data_admin_course_trends_update'];
+    post?: never;
+    delete: operations['data_admin_course_trends_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['data_admin_course_trends_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/data-admin/course-videos/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_course_videos_list'];
+    put?: never;
+    post: operations['data_admin_course_videos_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/data-admin/course-videos/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_course_videos_retrieve'];
+    put: operations['data_admin_course_videos_update'];
+    post?: never;
+    delete: operations['data_admin_course_videos_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['data_admin_course_videos_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/data-admin/course-years/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_course_years_list'];
+    put?: never;
+    post: operations['data_admin_course_years_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/data-admin/course-years/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_course_years_retrieve'];
+    put: operations['data_admin_course_years_update'];
+    post?: never;
+    delete: operations['data_admin_course_years_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['data_admin_course_years_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/data-admin/courses/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_courses_list'];
+    put?: never;
+    post: operations['data_admin_courses_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/data-admin/courses/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_courses_retrieve'];
+    put: operations['data_admin_courses_update'];
+    post?: never;
+    delete: operations['data_admin_courses_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['data_admin_courses_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/data-admin/disciplines/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_disciplines_list'];
+    put?: never;
+    post: operations['data_admin_disciplines_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/data-admin/disciplines/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_disciplines_retrieve'];
+    put: operations['data_admin_disciplines_update'];
+    post?: never;
+    delete: operations['data_admin_disciplines_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['data_admin_disciplines_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/data-admin/expert-availability/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_expert_availability_list'];
+    put?: never;
+    post: operations['data_admin_expert_availability_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/data-admin/expert-availability/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_expert_availability_retrieve'];
+    put: operations['data_admin_expert_availability_update'];
+    post?: never;
+    delete: operations['data_admin_expert_availability_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['data_admin_expert_availability_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/data-admin/expert-bookings/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_expert_bookings_list'];
+    put?: never;
+    post: operations['data_admin_expert_bookings_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/data-admin/expert-bookings/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_expert_bookings_retrieve'];
+    put: operations['data_admin_expert_bookings_update'];
+    post?: never;
+    delete: operations['data_admin_expert_bookings_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['data_admin_expert_bookings_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/data-admin/expert-credentials/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_expert_credentials_list'];
+    put?: never;
+    post: operations['data_admin_expert_credentials_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/data-admin/expert-credentials/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_expert_credentials_retrieve'];
+    put: operations['data_admin_expert_credentials_update'];
+    post?: never;
+    delete: operations['data_admin_expert_credentials_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['data_admin_expert_credentials_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/data-admin/expert-expertise/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_expert_expertise_list'];
+    put?: never;
+    post: operations['data_admin_expert_expertise_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/data-admin/expert-expertise/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_expert_expertise_retrieve'];
+    put: operations['data_admin_expert_expertise_update'];
+    post?: never;
+    delete: operations['data_admin_expert_expertise_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['data_admin_expert_expertise_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/data-admin/expert-group-memberships/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_expert_group_memberships_list'];
+    put?: never;
+    post: operations['data_admin_expert_group_memberships_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/data-admin/expert-group-memberships/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_expert_group_memberships_retrieve'];
+    put: operations['data_admin_expert_group_memberships_update'];
+    post?: never;
+    delete: operations['data_admin_expert_group_memberships_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['data_admin_expert_group_memberships_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/data-admin/expert-group-posts/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_expert_group_posts_list'];
+    put?: never;
+    post: operations['data_admin_expert_group_posts_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/data-admin/expert-group-posts/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_expert_group_posts_retrieve'];
+    put: operations['data_admin_expert_group_posts_update'];
+    post?: never;
+    delete: operations['data_admin_expert_group_posts_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['data_admin_expert_group_posts_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/data-admin/expert-groups/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_expert_groups_list'];
+    put?: never;
+    post: operations['data_admin_expert_groups_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/data-admin/expert-groups/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_expert_groups_retrieve'];
+    put: operations['data_admin_expert_groups_update'];
+    post?: never;
+    delete: operations['data_admin_expert_groups_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['data_admin_expert_groups_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/data-admin/expert-reviews/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_expert_reviews_list'];
+    put?: never;
+    post: operations['data_admin_expert_reviews_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/data-admin/expert-reviews/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_expert_reviews_retrieve'];
+    put: operations['data_admin_expert_reviews_update'];
+    post?: never;
+    delete: operations['data_admin_expert_reviews_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['data_admin_expert_reviews_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/data-admin/experts/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_experts_list'];
+    put?: never;
+    post: operations['data_admin_experts_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/data-admin/experts/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_experts_retrieve'];
+    put: operations['data_admin_experts_update'];
+    post?: never;
+    delete: operations['data_admin_experts_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['data_admin_experts_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/data-admin/general-expenses/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_general_expenses_list'];
+    put?: never;
+    post: operations['data_admin_general_expenses_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/data-admin/general-expenses/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_general_expenses_retrieve'];
+    put: operations['data_admin_general_expenses_update'];
+    post?: never;
+    delete: operations['data_admin_general_expenses_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['data_admin_general_expenses_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/data-admin/mailing-list/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_mailing_list_list'];
+    put?: never;
+    post: operations['data_admin_mailing_list_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/data-admin/mailing-list/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_mailing_list_retrieve'];
+    put: operations['data_admin_mailing_list_update'];
+    post?: never;
+    delete: operations['data_admin_mailing_list_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['data_admin_mailing_list_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/data-admin/number-constants/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_number_constants_list'];
+    put?: never;
+    post: operations['data_admin_number_constants_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/data-admin/number-constants/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_number_constants_retrieve'];
+    put: operations['data_admin_number_constants_update'];
+    post?: never;
+    delete: operations['data_admin_number_constants_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['data_admin_number_constants_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/data-admin/olevel-grades/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_olevel_grades_list'];
+    put?: never;
+    post: operations['data_admin_olevel_grades_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/data-admin/olevel-grades/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_olevel_grades_retrieve'];
+    put: operations['data_admin_olevel_grades_update'];
+    post?: never;
+    delete: operations['data_admin_olevel_grades_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['data_admin_olevel_grades_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/data-admin/olevel-subjects/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_olevel_subjects_list'];
+    put?: never;
+    post: operations['data_admin_olevel_subjects_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/data-admin/olevel-subjects/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_olevel_subjects_retrieve'];
+    put: operations['data_admin_olevel_subjects_update'];
+    post?: never;
+    delete: operations['data_admin_olevel_subjects_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['data_admin_olevel_subjects_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/data-admin/parents/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_parents_list'];
+    put?: never;
+    post: operations['data_admin_parents_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/data-admin/parents/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_parents_retrieve'];
+    put: operations['data_admin_parents_update'];
+    post?: never;
+    delete: operations['data_admin_parents_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['data_admin_parents_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/data-admin/scholarship-images/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_scholarship_images_list'];
+    put?: never;
+    post: operations['data_admin_scholarship_images_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/data-admin/scholarship-images/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_scholarship_images_retrieve'];
+    put: operations['data_admin_scholarship_images_update'];
+    post?: never;
+    delete: operations['data_admin_scholarship_images_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['data_admin_scholarship_images_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/data-admin/scholarships/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_scholarships_list'];
+    put?: never;
+    post: operations['data_admin_scholarships_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/data-admin/scholarships/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_scholarships_retrieve'];
+    put: operations['data_admin_scholarships_update'];
+    post?: never;
+    delete: operations['data_admin_scholarships_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['data_admin_scholarships_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/data-admin/semesters/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_semesters_list'];
+    put?: never;
+    post: operations['data_admin_semesters_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/data-admin/semesters/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_semesters_retrieve'];
+    put: operations['data_admin_semesters_update'];
+    post?: never;
+    delete: operations['data_admin_semesters_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['data_admin_semesters_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/data-admin/stats/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Dashboard stats for the data admin panel. */
+    get: operations['data_admin_stats_retrieve'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/data-admin/subscriptions/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_subscriptions_list'];
+    put?: never;
+    post: operations['data_admin_subscriptions_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/data-admin/subscriptions/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_subscriptions_retrieve'];
+    put: operations['data_admin_subscriptions_update'];
+    post?: never;
+    delete: operations['data_admin_subscriptions_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['data_admin_subscriptions_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/data-admin/testimonials/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_testimonials_list'];
+    put?: never;
+    post: operations['data_admin_testimonials_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/data-admin/testimonials/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_testimonials_retrieve'];
+    put: operations['data_admin_testimonials_update'];
+    post?: never;
+    delete: operations['data_admin_testimonials_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['data_admin_testimonials_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/data-admin/universities/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_universities_list'];
+    put?: never;
+    post: operations['data_admin_universities_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/data-admin/universities/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_universities_retrieve'];
+    put: operations['data_admin_universities_update'];
+    post?: never;
+    delete: operations['data_admin_universities_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['data_admin_universities_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/data-admin/university-expenses/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_university_expenses_list'];
+    put?: never;
+    post: operations['data_admin_university_expenses_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/data-admin/university-expenses/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_university_expenses_retrieve'];
+    put: operations['data_admin_university_expenses_update'];
+    post?: never;
+    delete: operations['data_admin_university_expenses_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['data_admin_university_expenses_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/data-admin/university-locations/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_university_locations_list'];
+    put?: never;
+    post: operations['data_admin_university_locations_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/data-admin/university-locations/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_university_locations_retrieve'];
+    put: operations['data_admin_university_locations_update'];
+    post?: never;
+    delete: operations['data_admin_university_locations_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['data_admin_university_locations_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/data-admin/university-pictures/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_university_pictures_list'];
+    put?: never;
+    post: operations['data_admin_university_pictures_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/data-admin/university-pictures/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_university_pictures_retrieve'];
+    put: operations['data_admin_university_pictures_update'];
+    post?: never;
+    delete: operations['data_admin_university_pictures_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['data_admin_university_pictures_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/data-admin/university-rankings/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_university_rankings_list'];
+    put?: never;
+    post: operations['data_admin_university_rankings_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/data-admin/university-rankings/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_university_rankings_retrieve'];
+    put: operations['data_admin_university_rankings_update'];
+    post?: never;
+    delete: operations['data_admin_university_rankings_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['data_admin_university_rankings_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/data-admin/university-study-reasons/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_university_study_reasons_list'];
+    put?: never;
+    post: operations['data_admin_university_study_reasons_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/data-admin/university-study-reasons/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_university_study_reasons_retrieve'];
+    put: operations['data_admin_university_study_reasons_update'];
+    post?: never;
+    delete: operations['data_admin_university_study_reasons_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['data_admin_university_study_reasons_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/data-admin/university-videos/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_university_videos_list'];
+    put?: never;
+    post: operations['data_admin_university_videos_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/data-admin/university-videos/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['data_admin_university_videos_retrieve'];
+    put: operations['data_admin_university_videos_update'];
+    post?: never;
+    delete: operations['data_admin_university_videos_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['data_admin_university_videos_partial_update'];
+    trace?: never;
+  };
   '/api/v1/expenses/': {
     parameters: {
       query?: never;
@@ -2350,6 +4870,1092 @@ export interface paths {
       cookie?: never;
     };
     get: operations['expenses_retrieve'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/expert/availability/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['expert_availability_list'];
+    put?: never;
+    post: operations['expert_availability_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/expert/availability/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['expert_availability_retrieve'];
+    put: operations['expert_availability_update'];
+    post?: never;
+    delete: operations['expert_availability_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['expert_availability_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/expert/availability/public/{expert_id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Get a specific expert's availability (for students). */
+    get: operations['expert_availability_public_retrieve'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/expert/booking/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['expert_booking_list'];
+    put?: never;
+    post: operations['expert_booking_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/expert/booking/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['expert_booking_retrieve'];
+    put: operations['expert_booking_update'];
+    post?: never;
+    delete: operations['expert_booking_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['expert_booking_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/expert/booking/{id}/cancel/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** @description Cancel a booking. */
+    post: operations['expert_booking_cancel_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/expert/booking/{id}/confirm/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** @description Expert confirms a booking. */
+    post: operations['expert_booking_confirm_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/expert/booking/{id}/reschedule/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** @description Reschedule a booking — must be at least 30 min before the call. */
+    post: operations['expert_booking_reschedule_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/expert/call/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['expert_call_list'];
+    put?: never;
+    post: operations['expert_call_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/expert/call/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['expert_call_retrieve'];
+    put: operations['expert_call_update'];
+    post?: never;
+    delete: operations['expert_call_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['expert_call_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/expert/call/{id}/accept/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** @description Expert accepts — call goes active, timer starts. */
+    post: operations['expert_call_accept_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/expert/call/{id}/end/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** @description End an active call — calculate final billing and create earnings. */
+    post: operations['expert_call_end_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/expert/call/{id}/extensions/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description GET: List extensions. POST: Student requests extension. */
+    get: operations['expert_call_extensions_retrieve'];
+    put?: never;
+    /** @description GET: List extensions. POST: Student requests extension. */
+    post: operations['expert_call_extensions_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/expert/call/{id}/extensions/{ext_id}/approve/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** @description Expert approves an extension request — starts 60s payment window. */
+    post: operations['expert_call_extensions_approve_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/expert/call/{id}/extensions/{ext_id}/reject/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** @description Expert rejects an extension request. */
+    post: operations['expert_call_extensions_reject_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/expert/call/{id}/reject/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** @description Expert rejects an incoming call. */
+    post: operations['expert_call_reject_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/expert/call/{id}/token/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** @description Generate LiveKit JWT token for this call. */
+    post: operations['expert_call_token_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/expert/call/{id}/upload/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** @description Upload a file to share during an active call. */
+    post: operations['expert_call_upload_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/expert/call/book/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * @description Student books a call with custom duration (slider).
+     *     Creates call with status=SCHEDULED, captures rate at booking time.
+     *     Also creates a Booking record and notifies the expert.
+     */
+    post: operations['expert_call_book_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/expert/call/create_payment/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** @description Create a PaymentModel record for a call booking — required before M-Pesa. */
+    post: operations['expert_call_create_payment_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/expert/call/initiate/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** @description Legacy: Student initiates a call (real-time, no scheduling). */
+    post: operations['expert_call_initiate_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/expert/conversation/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['expert_conversation_list'];
+    put?: never;
+    post: operations['expert_conversation_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/expert/conversation/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['expert_conversation_retrieve'];
+    put: operations['expert_conversation_update'];
+    post?: never;
+    delete: operations['expert_conversation_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['expert_conversation_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/expert/conversation/{id}/mark_complete/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** @description Expert marks their answer as complete — closes thread. */
+    post: operations['expert_conversation_mark_complete_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/expert/conversation/{id}/start_answering/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** @description Expert starts composing their answer. */
+    post: operations['expert_conversation_start_answering_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/expert/conversation/{id}/submit_to_expert/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** @description Student submits their question — locks thread for expert. */
+    post: operations['expert_conversation_submit_to_expert_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/expert/conversation/{id}/typing/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** @description Publish typing indicator to the conversation channel. */
+    post: operations['expert_conversation_typing_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/expert/conversation/create_payment/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** @description Create a PaymentModel record for an expert message — required before initiating M-Pesa. */
+    post: operations['expert_conversation_create_payment_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/expert/conversation/unread/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Get total unread message count. */
+    get: operations['expert_conversation_unread_retrieve'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/expert/credential/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['expert_credential_list'];
+    put?: never;
+    post: operations['expert_credential_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/expert/credential/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['expert_credential_retrieve'];
+    put: operations['expert_credential_update'];
+    post?: never;
+    delete: operations['expert_credential_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['expert_credential_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/expert/dashboard/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['expert_dashboard_retrieve'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/expert/dashboard/analytics/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['expert_dashboard_analytics_retrieve'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/expert/earnings/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['expert_earnings_retrieve'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/expert/earnings/breakdown/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['expert_earnings_breakdown_retrieve'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/expert/earnings/transactions/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['expert_earnings_transactions_list'];
+    put?: never;
+    post: operations['expert_earnings_transactions_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/expert/earnings/transactions/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['expert_earnings_transactions_retrieve'];
+    put: operations['expert_earnings_transactions_update'];
+    post?: never;
+    delete: operations['expert_earnings_transactions_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['expert_earnings_transactions_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/expert/expertise/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['expert_expertise_list'];
+    put?: never;
+    post: operations['expert_expertise_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/expert/expertise/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['expert_expertise_retrieve'];
+    put: operations['expert_expertise_update'];
+    post?: never;
+    delete: operations['expert_expertise_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['expert_expertise_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/expert/group/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['expert_group_list'];
+    put?: never;
+    post: operations['expert_group_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/expert/group-post/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['expert_group_post_list'];
+    put?: never;
+    post: operations['expert_group_post_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/expert/group-post/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['expert_group_post_retrieve'];
+    put: operations['expert_group_post_update'];
+    post?: never;
+    delete: operations['expert_group_post_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['expert_group_post_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/expert/group/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['expert_group_retrieve'];
+    put: operations['expert_group_update'];
+    post?: never;
+    delete: operations['expert_group_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['expert_group_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/expert/group/{id}/create_payment/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** @description Create a PaymentModel record for a group subscription — required before M-Pesa. */
+    post: operations['expert_group_create_payment_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/expert/group/{id}/join/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** @description Student joins a group. */
+    post: operations['expert_group_join_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/expert/group/{id}/leave/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** @description Student leaves a group. */
+    post: operations['expert_group_leave_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/expert/group/{id}/members/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description List members of a group. */
+    get: operations['expert_group_members_retrieve'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/expert/message/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['expert_message_list'];
+    put?: never;
+    post: operations['expert_message_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/expert/message/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['expert_message_retrieve'];
+    put: operations['expert_message_update'];
+    post?: never;
+    delete: operations['expert_message_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['expert_message_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/expert/message/{id}/read/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** @description Mark a message as read. */
+    post: operations['expert_message_read_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/expert/message/mark-all-read/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** @description Mark all messages in a conversation as read. */
+    post: operations['expert_message_mark_all_read_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/expert/profile/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['expert_profile_list'];
+    put?: never;
+    post: operations['expert_profile_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/expert/profile/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['expert_profile_retrieve'];
+    put: operations['expert_profile_update'];
+    post?: never;
+    delete: operations['expert_profile_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['expert_profile_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/expert/profile/{id}/public_detail/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Public detail view of a single expert for students. */
+    get: operations['expert_profile_public_detail_retrieve'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/expert/profile/me/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Get or update current user's expert profile. Auto-creates if missing. */
+    get: operations['expert_profile_me_retrieve'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** @description Get or update current user's expert profile. Auto-creates if missing. */
+    patch: operations['expert_profile_me_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/expert/profile/public_list/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Public list of verified experts for students. */
+    get: operations['expert_profile_public_list_retrieve'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/expert/review/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['expert_review_list'];
+    put?: never;
+    post: operations['expert_review_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/expert/review/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['expert_review_retrieve'];
+    put: operations['expert_review_update'];
+    post?: never;
+    delete: operations['expert_review_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['expert_review_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/expert/verification/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** @description Admin endpoint to approve/reject verification. */
+    patch: operations['expert_verification_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/expert/verification/status/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Get current verification status. */
+    get: operations['expert_verification_status_retrieve'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/expert/verification/submit/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** @description Submit expert profile for verification. */
+    post: operations['expert_verification_submit_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/expert/withdrawal/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['expert_withdrawal_list'];
+    put?: never;
+    post: operations['expert_withdrawal_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/expert/withdrawal/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['expert_withdrawal_retrieve'];
+    put: operations['expert_withdrawal_update'];
+    post?: never;
+    delete: operations['expert_withdrawal_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['expert_withdrawal_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/expert/ws/subscribe/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * @description POST /api/v1/expert/ws/subscribe/ — returns a channel subscription JWT.
+     *
+     *     Body: { "channel": "chat:conv_abc123" }
+     *     Verifies the user is authorized to subscribe to the requested channel.
+     */
+    post: operations['expert_ws_subscribe_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/expert/ws/token/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description GET /api/v1/expert/ws/token/ — returns a Centrifugo connection JWT. */
+    get: operations['expert_ws_token_retrieve'];
     put?: never;
     post?: never;
     delete?: never;
@@ -2416,6 +6022,57 @@ export interface paths {
     get: operations['make_payment_retrieve'];
     put?: never;
     post: operations['make_payment_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/parent/dashboard/children/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Get all linked children with summary data. */
+    get: operations['parent_dashboard_children_retrieve'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/parent/dashboard/reminders/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Get reminders for all linked children. */
+    get: operations['parent_dashboard_reminders_retrieve'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/parent/verify/verify/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** @description Parent enters verification code to link to student. */
+    post: operations['parent_verify_verify_create'];
     delete?: never;
     options?: never;
     head?: never;
@@ -2525,6 +6182,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
+    /** @description Override list to annotate course_count (and eligible_count when eligibility params present). */
     get: operations['shared_discipline_list'];
     put?: never;
     post: operations['shared_discipline_create'];
@@ -2854,6 +6512,40 @@ export interface paths {
     patch: operations['shared_subscription_status_partial_update'];
     trace?: never;
   };
+  '/api/v1/shared/testimonials/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Public endpoint for testimonials (no auth required for reading). */
+    get: operations['shared_testimonials_list'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/shared/testimonials/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Public endpoint for testimonials (no auth required for reading). */
+    get: operations['shared_testimonials_retrieve'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/v1/shared/transaction/': {
     parameters: {
       query?: never;
@@ -3046,6 +6738,265 @@ export interface paths {
     patch: operations['student_combination_choice_partial_update'];
     trace?: never;
   };
+  '/api/v1/student/journey/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Student views their application stage instances (journey timeline). */
+    get: operations['student_journey_list'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/student/journey/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Student views their application stage instances (journey timeline). */
+    get: operations['student_journey_retrieve'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/student/journey/{id}/submit_data/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** @description Student submits data for an active stage (file upload, response, etc.). */
+    post: operations['student_journey_submit_data_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/student/journey/{id}/submit_requirement/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** @description Student submits a response for a specific requirement within this stage. */
+    post: operations['student_journey_submit_requirement_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/student/journey/action_items/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Get all pending/rejected requirements across stages for a student application. */
+    get: operations['student_journey_action_items_retrieve'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/student/journey/action_items_count/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Get count of pending/rejected requirements for badge rendering. */
+    get: operations['student_journey_action_items_count_retrieve'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/student/journey/by_application/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Get stages for a specific application — with nested requirements. */
+    get: operations['student_journey_by_application_retrieve'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/student/parent-links/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Student can view their linked parents and generate verification codes. */
+    get: operations['student_parent_links_list'];
+    put?: never;
+    /** @description Student can view their linked parents and generate verification codes. */
+    post: operations['student_parent_links_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/student/parent-links/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Student can view their linked parents and generate verification codes. */
+    get: operations['student_parent_links_retrieve'];
+    /** @description Student can view their linked parents and generate verification codes. */
+    put: operations['student_parent_links_update'];
+    post?: never;
+    /** @description Student can view their linked parents and generate verification codes. */
+    delete: operations['student_parent_links_destroy'];
+    options?: never;
+    head?: never;
+    /** @description Student can view their linked parents and generate verification codes. */
+    patch: operations['student_parent_links_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/student/parent-links/generate_code/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** @description Student generates a 6-digit code to share with parent. */
+    post: operations['student_parent_links_generate_code_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/student/parent-links/pending_verifications/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description List pending verification codes for this student. */
+    get: operations['student_parent_links_pending_verifications_retrieve'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/student/reminders/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Student views their reminders and marks them as read. */
+    get: operations['student_reminders_list'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/student/reminders/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Student views their reminders and marks them as read. */
+    get: operations['student_reminders_retrieve'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/student/reminders/{id}/mark_read/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** @description Student views their reminders and marks them as read. */
+    post: operations['student_reminders_mark_read_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/student/reminders/unread_count/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Student views their reminders and marks them as read. */
+    get: operations['student_reminders_unread_count_retrieve'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/v1/student/result/alevel_result/': {
     parameters: {
       query?: never;
@@ -3174,6 +7125,61 @@ export interface paths {
     patch: operations['student_result_olevel_transcript_partial_update'];
     trace?: never;
   };
+  '/api/v1/student/vault/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Student's document vault — upload, view, and replace documents. */
+    get: operations['student_vault_list'];
+    put?: never;
+    /** @description Student's document vault — upload, view, and replace documents. */
+    post: operations['student_vault_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/student/vault/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Student's document vault — upload, view, and replace documents. */
+    get: operations['student_vault_retrieve'];
+    /** @description Student's document vault — upload, view, and replace documents. */
+    put: operations['student_vault_update'];
+    post?: never;
+    /** @description Student's document vault — upload, view, and replace documents. */
+    delete: operations['student_vault_destroy'];
+    options?: never;
+    head?: never;
+    /** @description Student's document vault — upload, view, and replace documents. */
+    patch: operations['student_vault_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/student/vault/summary/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Return vault completion summary — how many docs uploaded/verified/missing. */
+    get: operations['student_vault_summary_retrieve'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/v1/summary/': {
     parameters: {
       query?: never;
@@ -3268,6 +7274,40 @@ export interface paths {
     options?: never;
     head?: never;
     patch: operations['university_application_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/university/application/{id}/update-courses/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** @description Update courses on a PENDING application. Accepts comma-separated course IDs. */
+    patch: operations['university_application_update_courses_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/university/application/check_eligibility/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Check if student can apply to a university (no active duplicate). */
+    get: operations['university_application_check_eligibility_retrieve'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
     trace?: never;
   };
   '/api/v1/university/images/': {
@@ -3398,6 +7438,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/v1/user/device/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** @description Register or update an FCM/Expo push token for the authenticated user. */
+    post: operations['user_device_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/v1/user/summary/': {
     parameters: {
       query?: never;
@@ -3492,6 +7549,34 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
+    ALevelCombinationDetail: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      combination: string;
+      category: components['schemas']['CategoryF26Enum'];
+      description: string;
+      codes: string;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    ALevelCombinationDetailRequest: {
+      combination: string;
+      category: components['schemas']['CategoryF26Enum'];
+      description: string;
+      codes: string;
+    };
+    ALevelCombinationList: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      readonly combination: string;
+      readonly category: components['schemas']['CategoryF26Enum'];
+      readonly description: string;
+      readonly codes: string;
+      /** Format: date-time */
+      readonly created_at: string;
+    };
     ALevelCombinationModel: {
       /** @description cuid-format identifier for this entity. */
       readonly id: string;
@@ -3511,6 +7596,38 @@ export interface components {
       description: string;
       codes: string;
     };
+    ALevelCombinationSubjectDetail: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** @description cuid-format identifier for this entity. */
+      combination: string;
+      readonly combination_name: string;
+      /** @description cuid-format identifier for this entity. */
+      subject: string;
+      readonly subject_name: string;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    ALevelCombinationSubjectDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      combination: string;
+      /** @description cuid-format identifier for this entity. */
+      subject: string;
+    };
+    ALevelCombinationSubjectList: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** @description cuid-format identifier for this entity. */
+      readonly combination: string;
+      readonly combination_name: string;
+      /** @description cuid-format identifier for this entity. */
+      readonly subject: string;
+      readonly subject_name: string;
+      /** Format: date-time */
+      readonly created_at: string;
+    };
     ALevelCombinationSubjectModel: {
       /** @description cuid-format identifier for this entity. */
       readonly id: string;
@@ -3525,6 +7642,43 @@ export interface components {
     ALevelCombinationSubjectModelRequest: {
       /** @description cuid-format identifier for this entity. */
       combination: string;
+    };
+    ALevelGradeDetail: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      grade: string;
+      /** Format: double */
+      point: number;
+      min: number;
+      max: number;
+      range: string;
+      description: string;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    ALevelGradeDetailRequest: {
+      grade: string;
+      /** Format: double */
+      point: number;
+      min: number;
+      max: number;
+      range: string;
+      description: string;
+    };
+    ALevelGradeList: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      readonly grade: string;
+      /** Format: double */
+      readonly point: number;
+      readonly min: number;
+      readonly max: number;
+      readonly range: string;
+      readonly description: string;
+      /** Format: date-time */
+      readonly created_at: string;
     };
     ALevelGradeModel: {
       /** @description cuid-format identifier for this entity. */
@@ -3584,11 +7738,45 @@ export interface components {
     ALevelResultModelRequest: {
       reg_no: string;
     };
+    ALevelSubjectDetail: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      name: string;
+      slug: string;
+      code: string;
+      necta_name: string;
+      type: components['schemas']['Type84fEnum'];
+      category: components['schemas']['CategoryF26Enum'];
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    ALevelSubjectDetailRequest: {
+      name: string;
+      slug: string;
+      code: string;
+      necta_name: string;
+      type: components['schemas']['Type84fEnum'];
+      category: components['schemas']['CategoryF26Enum'];
+    };
+    ALevelSubjectList: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      readonly name: string;
+      readonly slug: string;
+      readonly code: string;
+      readonly necta_name: string;
+      readonly type: components['schemas']['Type84fEnum'];
+      readonly category: components['schemas']['CategoryF26Enum'];
+      /** Format: date-time */
+      readonly created_at: string;
+    };
     ALevelSubjectModel: {
       /** @description cuid-format identifier for this entity. */
       readonly id: string;
       name: string;
-      type: components['schemas']['ALevelSubjectModelTypeEnum'];
+      type: components['schemas']['Type84fEnum'];
       necta_name: string;
       slug: string;
       category: components['schemas']['CategoryF26Enum'];
@@ -3600,18 +7788,12 @@ export interface components {
     };
     ALevelSubjectModelRequest: {
       name: string;
-      type: components['schemas']['ALevelSubjectModelTypeEnum'];
+      type: components['schemas']['Type84fEnum'];
       necta_name: string;
       slug: string;
       category: components['schemas']['CategoryF26Enum'];
       code: string;
     };
-    /**
-     * @description * `PRINCIPAL` - PRINCIPAL
-     *     * `ELECTIVE` - ELECTIVE
-     * @enum {string}
-     */
-    ALevelSubjectModelTypeEnum: 'PRINCIPAL' | 'ELECTIVE';
     AdminUser: {
       /** @description cuid-format identifier for this entity. */
       readonly id: string;
@@ -3718,6 +7900,8 @@ export interface components {
       /** @description cuid-format identifier for this entity. */
       application: string;
       name: string;
+      /** @description Short description shown to student, e.g. 'Your official acceptance from the university' */
+      description?: string | null;
       /** Format: uri */
       document: string;
       /** Format: date-time */
@@ -3729,6 +7913,8 @@ export interface components {
       /** @description cuid-format identifier for this entity. */
       application: string;
       name: string;
+      /** @description Short description shown to student, e.g. 'Your official acceptance from the university' */
+      description?: string | null;
       /** Format: binary */
       document: string;
     };
@@ -3747,6 +7933,27 @@ export interface components {
       /** @description cuid-format identifier for this entity. */
       application: string;
       info?: string | null;
+    };
+    /** @description Lightweight serializer for the applications list endpoint. */
+    ApplicationList: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** @description cuid-format identifier for this entity. */
+      readonly app_id: string;
+      readonly student: string;
+      readonly university: string;
+      readonly courses: string;
+      status?: components['schemas']['StatusC07Enum'];
+      budget?: number | null;
+      info?: string | null;
+      is_sent?: boolean;
+      /** Format: date-time */
+      when?: string | null;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+      readonly progress: string;
     };
     ApplicationPayment: {
       /** @description cuid-format identifier for this entity. */
@@ -3790,6 +7997,207 @@ export interface components {
       /** Format: date-time */
       when?: string | null;
     };
+    ApplicationStageInstance: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      readonly completed_by_name: string;
+      stage_order: number;
+      stage_name: string;
+      stage_type: components['schemas']['StageTypeC6fEnum'];
+      description?: string;
+      is_required?: boolean;
+      status?: components['schemas']['StatusD7dEnum'];
+      /** Format: date */
+      due_date?: string | null;
+      /** @description Student responses, uploaded file URLs, etc. */
+      data?: unknown;
+      document_types?: unknown;
+      /** Format: decimal */
+      payment_amount?: string | null;
+      payment_currency?: string;
+      /** Format: date-time */
+      scheduled_date?: string | null;
+      /** Format: date-time */
+      completed_at?: string | null;
+      /** @description How questions are presented: list (default) or wizard (one-at-a-time) */
+      answer_mode?: string;
+      /** @description Fee patterns linked to this stage instance. Copied from template on creation. */
+      linked_fees?: unknown;
+      /** @description If true, all required linked fees must be paid before the student can progress past this stage. */
+      payment_required_to_progress?: boolean;
+      notes?: string;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+      /** @description cuid-format identifier for this entity. */
+      application: string;
+      /** @description Links this stage to the unified pipeline. Bridges template-based stages with pipeline tracking. */
+      pipeline?: string | null;
+      /** @description cuid-format identifier for this entity. */
+      template?: string | null;
+      /** @description Staff member responsible for this stage. Admin can reassign to take over. */
+      assigned_to?: string | null;
+      /** @description cuid-format identifier for this entity. */
+      completed_by?: string | null;
+    };
+    /** @description Enhanced serializer with nested requirements for pipeline detail view. */
+    ApplicationStageInstanceDetail: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      readonly requirements: components['schemas']['StageRequirement'][];
+      readonly completed_by_name: string;
+      readonly assigned_to_name: string;
+      readonly requirements_summary: string;
+      stage_order: number;
+      stage_name: string;
+      stage_type: components['schemas']['StageTypeC6fEnum'];
+      description?: string;
+      is_required?: boolean;
+      status?: components['schemas']['StatusD7dEnum'];
+      /** Format: date */
+      due_date?: string | null;
+      /** @description Student responses, uploaded file URLs, etc. */
+      data?: unknown;
+      document_types?: unknown;
+      /** Format: decimal */
+      payment_amount?: string | null;
+      payment_currency?: string;
+      /** Format: date-time */
+      scheduled_date?: string | null;
+      /** Format: date-time */
+      completed_at?: string | null;
+      /** @description How questions are presented: list (default) or wizard (one-at-a-time) */
+      answer_mode?: string;
+      /** @description Fee patterns linked to this stage instance. Copied from template on creation. */
+      linked_fees?: unknown;
+      /** @description If true, all required linked fees must be paid before the student can progress past this stage. */
+      payment_required_to_progress?: boolean;
+      notes?: string;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+      /** @description cuid-format identifier for this entity. */
+      application: string;
+      /** @description Links this stage to the unified pipeline. Bridges template-based stages with pipeline tracking. */
+      pipeline?: string | null;
+      /** @description cuid-format identifier for this entity. */
+      template?: string | null;
+      /** @description Staff member responsible for this stage. Admin can reassign to take over. */
+      assigned_to?: string | null;
+      /** @description cuid-format identifier for this entity. */
+      completed_by?: string | null;
+    };
+    ApplicationStageInstanceRequest: {
+      stage_order: number;
+      stage_name: string;
+      stage_type: components['schemas']['StageTypeC6fEnum'];
+      description?: string;
+      is_required?: boolean;
+      status?: components['schemas']['StatusD7dEnum'];
+      /** Format: date */
+      due_date?: string | null;
+      /** @description Student responses, uploaded file URLs, etc. */
+      data?: unknown;
+      document_types?: unknown;
+      /** Format: decimal */
+      payment_amount?: string | null;
+      payment_currency?: string;
+      /** Format: date-time */
+      scheduled_date?: string | null;
+      /** Format: date-time */
+      completed_at?: string | null;
+      /** @description How questions are presented: list (default) or wizard (one-at-a-time) */
+      answer_mode?: string;
+      /** @description Fee patterns linked to this stage instance. Copied from template on creation. */
+      linked_fees?: unknown;
+      /** @description If true, all required linked fees must be paid before the student can progress past this stage. */
+      payment_required_to_progress?: boolean;
+      notes?: string;
+      /** @description cuid-format identifier for this entity. */
+      application: string;
+      /** @description Links this stage to the unified pipeline. Bridges template-based stages with pipeline tracking. */
+      pipeline?: string | null;
+      /** @description cuid-format identifier for this entity. */
+      template?: string | null;
+      /** @description Staff member responsible for this stage. Admin can reassign to take over. */
+      assigned_to?: string | null;
+      /** @description cuid-format identifier for this entity. */
+      completed_by?: string | null;
+    };
+    ApplicationStageTemplate: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      readonly country_name: string;
+      readonly created_by_name: string;
+      flow_type: components['schemas']['FlowTypeEnum'];
+      stage_order: number;
+      stage_name: string;
+      stage_type: components['schemas']['StageTypeC6fEnum'];
+      /** @description Instructions shown to the student for this stage. */
+      description?: string;
+      is_required?: boolean;
+      /** @description List of required document types if stage_type=DOCUMENT_UPLOAD. */
+      document_types?: unknown;
+      /**
+       * Format: decimal
+       * @description Default payment amount if stage_type=PAYMENT.
+       */
+      payment_amount?: string | null;
+      payment_currency?: string;
+      requires_scheduling?: boolean;
+      /** @description Auto-send notification when this stage becomes active. */
+      auto_notify?: boolean;
+      /** @description Default requirements auto-created for this stage. E.g. [{"response_type":"DOCUMENT","title":"Birth Certificate","is_required":true,"accepted_file_types":[".pdf",".jpg"],"description":"Upload a clear scan"}] */
+      requirements_config?: unknown;
+      /** @description How questions are presented: list (default) or wizard (one-at-a-time) */
+      answer_mode?: string;
+      /** @description Fee patterns linked to this stage. E.g. [{'pattern': 'passport fee', 'required': true, 'label': 'Passport Fee'}] */
+      linked_fees?: unknown;
+      /** @description If true, all required linked fees must be paid before the student can progress past this stage. */
+      payment_required_to_progress?: boolean;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+      /** @description Null = default for flow type; set for country-specific overrides. */
+      country?: string | null;
+      /** @description cuid-format identifier for this entity. */
+      created_by?: string | null;
+    };
+    ApplicationStageTemplateRequest: {
+      flow_type: components['schemas']['FlowTypeEnum'];
+      stage_order: number;
+      stage_name: string;
+      stage_type: components['schemas']['StageTypeC6fEnum'];
+      /** @description Instructions shown to the student for this stage. */
+      description?: string;
+      is_required?: boolean;
+      /** @description List of required document types if stage_type=DOCUMENT_UPLOAD. */
+      document_types?: unknown;
+      /**
+       * Format: decimal
+       * @description Default payment amount if stage_type=PAYMENT.
+       */
+      payment_amount?: string | null;
+      payment_currency?: string;
+      requires_scheduling?: boolean;
+      /** @description Auto-send notification when this stage becomes active. */
+      auto_notify?: boolean;
+      /** @description Default requirements auto-created for this stage. E.g. [{"response_type":"DOCUMENT","title":"Birth Certificate","is_required":true,"accepted_file_types":[".pdf",".jpg"],"description":"Upload a clear scan"}] */
+      requirements_config?: unknown;
+      /** @description How questions are presented: list (default) or wizard (one-at-a-time) */
+      answer_mode?: string;
+      /** @description Fee patterns linked to this stage. E.g. [{'pattern': 'passport fee', 'required': true, 'label': 'Passport Fee'}] */
+      linked_fees?: unknown;
+      /** @description If true, all required linked fees must be paid before the student can progress past this stage. */
+      payment_required_to_progress?: boolean;
+      /** @description Null = default for flow type; set for country-specific overrides. */
+      country?: string | null;
+      /** @description cuid-format identifier for this entity. */
+      created_by?: string | null;
+    };
     BankTransaction: {
       /** @description cuid-format identifier for this entity. */
       id?: string;
@@ -3829,12 +8237,242 @@ export interface components {
     };
     /** @enum {unknown} */
     BlankEnum: '';
+    Booking: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      readonly expert_name: string;
+      readonly student_name: string;
+      booking_type?: components['schemas']['BookingTypeEnum'];
+      status?: components['schemas']['Status177Enum'];
+      /** Format: date */
+      scheduled_date: string;
+      /** Format: time */
+      scheduled_time: string;
+      duration_minutes?: number;
+      notes?: string;
+      /** Format: decimal */
+      amount?: string;
+      readonly is_paid: boolean;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+      /** @description cuid-format identifier for this entity. */
+      expert: string;
+      /** @description cuid-format identifier for this entity. */
+      student: string;
+    };
+    BookingDetail: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** @description cuid-format identifier for this entity. */
+      expert: string;
+      readonly expert_name: string;
+      /** @description cuid-format identifier for this entity. */
+      student: string;
+      readonly student_name: string;
+      booking_type?: components['schemas']['BookingTypeEnum'];
+      status?: components['schemas']['Status177Enum'];
+      /** Format: date */
+      scheduled_date: string;
+      /** Format: time */
+      scheduled_time: string;
+      duration_minutes?: number;
+      notes?: string;
+      /** Format: decimal */
+      amount?: string;
+      is_paid?: boolean;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    BookingDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      expert: string;
+      /** @description cuid-format identifier for this entity. */
+      student: string;
+      booking_type?: components['schemas']['BookingTypeEnum'];
+      status?: components['schemas']['Status177Enum'];
+      /** Format: date */
+      scheduled_date: string;
+      /** Format: time */
+      scheduled_time: string;
+      duration_minutes?: number;
+      notes?: string;
+      /** Format: decimal */
+      amount?: string;
+      is_paid?: boolean;
+    };
+    BookingList: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** @description cuid-format identifier for this entity. */
+      readonly expert: string;
+      readonly expert_name: string;
+      /** @description cuid-format identifier for this entity. */
+      readonly student: string;
+      readonly student_name: string;
+      readonly booking_type: components['schemas']['BookingTypeEnum'];
+      readonly status: components['schemas']['Status177Enum'];
+      /** Format: date */
+      readonly scheduled_date: string;
+      /** Format: time */
+      readonly scheduled_time: string;
+      readonly duration_minutes: number;
+      /** Format: decimal */
+      readonly amount: string;
+      readonly is_paid: boolean;
+      /** Format: date-time */
+      readonly created_at: string;
+    };
+    BookingRequest: {
+      booking_type?: components['schemas']['BookingTypeEnum'];
+      status?: components['schemas']['Status177Enum'];
+      /** Format: date */
+      scheduled_date: string;
+      /** Format: time */
+      scheduled_time: string;
+      duration_minutes?: number;
+      notes?: string;
+      /** Format: decimal */
+      amount?: string;
+      /** @description cuid-format identifier for this entity. */
+      expert: string;
+      /** @description cuid-format identifier for this entity. */
+      student: string;
+    };
     /**
-     * @description * `OUTBOUND` - Outbound
-     *     * `INBOUND` - Inbound
+     * @description * `quick_check` - Quick Check
+     *     * `video_call` - Video Call
      * @enum {string}
      */
-    CallTypeEnum: 'OUTBOUND' | 'INBOUND';
+    BookingTypeEnum: 'quick_check' | 'video_call';
+    Call: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      readonly expert_name: string;
+      readonly student_name: string;
+      call_type?: components['schemas']['CallCallTypeEnum'];
+      readonly status: components['schemas']['CallStatusEnum'];
+      readonly livekit_room: string;
+      /** Format: date-time */
+      readonly started_at: string | null;
+      /** Format: date-time */
+      readonly ended_at: string | null;
+      readonly duration_seconds: number;
+      /** Format: decimal */
+      readonly amount_charged: string;
+      readonly is_paid: boolean;
+      /** @description Original booked duration in minutes */
+      booked_duration_minutes?: number;
+      /**
+       * Format: decimal
+       * @description Captured rate at booking time
+       */
+      readonly rate_per_min: string;
+      /** @description How many times the call was extended */
+      readonly total_extensions: number;
+      readonly total_extension_minutes: number;
+      /**
+       * Format: date-time
+       * @description When the call is scheduled for
+       */
+      scheduled_at?: string | null;
+      /**
+       * Format: date-time
+       * @description When grace period expires
+       */
+      readonly grace_period_end: string | null;
+      /** @description Initial payment reference */
+      readonly payment_reference: string | null;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+      /** @description cuid-format identifier for this entity. */
+      conversation?: string | null;
+      /** @description cuid-format identifier for this entity. */
+      expert: string;
+      /** @description cuid-format identifier for this entity. */
+      student: string;
+    };
+    /**
+     * @description * `video` - Video
+     *     * `audio` - Audio
+     * @enum {string}
+     */
+    CallCallTypeEnum: 'video' | 'audio';
+    CallRequest: {
+      call_type?: components['schemas']['CallCallTypeEnum'];
+      /** @description Original booked duration in minutes */
+      booked_duration_minutes?: number;
+      /**
+       * Format: date-time
+       * @description When the call is scheduled for
+       */
+      scheduled_at?: string | null;
+      /** @description cuid-format identifier for this entity. */
+      conversation?: string | null;
+      /** @description cuid-format identifier for this entity. */
+      expert: string;
+      /** @description cuid-format identifier for this entity. */
+      student: string;
+    };
+    /**
+     * @description * `scheduled` - Scheduled
+     *     * `active` - Active
+     *     * `grace_period` - Grace Period
+     *     * `extending` - Extending
+     *     * `payment_pending` - Payment Pending
+     *     * `extended` - Extended
+     *     * `completed` - Completed
+     *     * `cancelled` - Cancelled
+     *     * `no_show` - No Show
+     *     * `failed` - Failed
+     * @enum {string}
+     */
+    CallStatusEnum:
+      | 'scheduled'
+      | 'active'
+      | 'grace_period'
+      | 'extending'
+      | 'payment_pending'
+      | 'extended'
+      | 'completed'
+      | 'cancelled'
+      | 'no_show'
+      | 'failed';
+    CareerCourseDetail: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** @description cuid-format identifier for this entity. */
+      career: string;
+      /** @description cuid-format identifier for this entity. */
+      course: string;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    CareerCourseDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      career: string;
+      /** @description cuid-format identifier for this entity. */
+      course: string;
+    };
+    CareerCourseList: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** @description cuid-format identifier for this entity. */
+      readonly career: string;
+      readonly career_name: string;
+      /** @description cuid-format identifier for this entity. */
+      readonly course: string;
+      readonly course_name: string;
+      /** Format: date-time */
+      readonly created_at: string;
+    };
     CareerCourseModel: {
       /** @description cuid-format identifier for this entity. */
       readonly id: string;
@@ -3852,6 +8490,66 @@ export interface components {
       career: string;
       /** @description cuid-format identifier for this entity. */
       course: string;
+    };
+    CareerDetail: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      name: string;
+      slug?: string | null;
+      /** Format: uri */
+      img?: string | null;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    CareerDetailRequest: {
+      name: string;
+      slug?: string | null;
+      /** Format: binary */
+      img?: string | null;
+    };
+    CareerDisciplineDetail: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** @description cuid-format identifier for this entity. */
+      career: string;
+      /** @description cuid-format identifier for this entity. */
+      discipline: string;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    CareerDisciplineDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      career: string;
+      /** @description cuid-format identifier for this entity. */
+      discipline: string;
+    };
+    CareerDisciplineList: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** @description cuid-format identifier for this entity. */
+      readonly career: string;
+      readonly career_name: string;
+      /** @description cuid-format identifier for this entity. */
+      readonly discipline: string;
+      readonly discipline_name: string;
+      /** Format: date-time */
+      readonly created_at: string;
+    };
+    CareerList: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      readonly name: string;
+      readonly slug: string | null;
+      /** Format: uri */
+      readonly img: string | null;
+      readonly course_count: number;
+      readonly discipline_count: number;
+      /** Format: date-time */
+      readonly created_at: string;
     };
     CareerModel: {
       /** @description cuid-format identifier for this entity. */
@@ -3874,6 +8572,139 @@ export interface components {
       img?: string | null;
       slug?: string | null;
     };
+    CareerSalaryDetail: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** Format: double */
+      start_salary: number;
+      /** Format: double */
+      end_salary: number;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    CareerSalaryDetailRequest: {
+      /** Format: double */
+      start_salary: number;
+      /** Format: double */
+      end_salary: number;
+    };
+    CareerSalaryList: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** Format: double */
+      readonly start_salary: number;
+      /** Format: double */
+      readonly end_salary: number;
+      /** Format: date-time */
+      readonly created_at: string;
+    };
+    CareerSpecificDetail: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** @description cuid-format identifier for this entity. */
+      career: string;
+      version?: number;
+      introduction?: string | null;
+      responsibilities?: string | null;
+      skills?: string | null;
+      qualifications?: string | null;
+      career_map?: string | null;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    CareerSpecificDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      career: string;
+      version?: number;
+      introduction?: string | null;
+      responsibilities?: string | null;
+      skills?: string | null;
+      qualifications?: string | null;
+      career_map?: string | null;
+    };
+    CareerSpecificList: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** @description cuid-format identifier for this entity. */
+      readonly career: string;
+      readonly career_name: string;
+      readonly version: number;
+      /** Format: date-time */
+      readonly created_at: string;
+    };
+    CareerTrendDetail: {
+      readonly id: number;
+      /** @description cuid-format identifier for this entity. */
+      career: string;
+      readonly career_name: string;
+      category?: string | null;
+      /** Chances to be Employed in Formal Sector */
+      formal_employment_chances?: number | null;
+      /** Chances for Self Employment */
+      self_employment_chances?: number | null;
+      world_trend_demand?: number | null;
+      /** Local Market Demand (Tanzania) Approximate Estimates */
+      local_market_demand?: number | null;
+      /** Local Market Supply (Tanzania) Approximate Estimates */
+      local_market_supply?: number | null;
+      major_stakeholders?: string | null;
+      /** Side Hustles (Tanzania) */
+      side_hustles?: string | null;
+      /** Market Perspective (Tanzania) */
+      market_perspective?: string | null;
+      /** Relevant Courses Cross Reference */
+      relevant_courses?: string | null;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    CareerTrendDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      career: string;
+      category?: string | null;
+      /** Chances to be Employed in Formal Sector */
+      formal_employment_chances?: number | null;
+      /** Chances for Self Employment */
+      self_employment_chances?: number | null;
+      world_trend_demand?: number | null;
+      /** Local Market Demand (Tanzania) Approximate Estimates */
+      local_market_demand?: number | null;
+      /** Local Market Supply (Tanzania) Approximate Estimates */
+      local_market_supply?: number | null;
+      major_stakeholders?: string | null;
+      /** Side Hustles (Tanzania) */
+      side_hustles?: string | null;
+      /** Market Perspective (Tanzania) */
+      market_perspective?: string | null;
+      /** Relevant Courses Cross Reference */
+      relevant_courses?: string | null;
+    };
+    CareerTrendList: {
+      readonly id: number;
+      /** @description cuid-format identifier for this entity. */
+      readonly career: string;
+      readonly career_name: string;
+      readonly category: string | null;
+      /** Format: date-time */
+      readonly created_at: string;
+    };
+    /**
+     * @description * `ELECTIVE` - ELECTIVE
+     *     * `NON ELECTIVE` - NON ELECTIVE
+     * @enum {string}
+     */
+    Category55aEnum: 'ELECTIVE' | 'NON ELECTIVE';
+    /**
+     * @description * `PUBLIC` - PUBLIC
+     *     * `PRIVATE` - PRIVATE
+     * @enum {string}
+     */
+    Category64aEnum: 'PUBLIC' | 'PRIVATE';
     /**
      * @description * `course` - Course
      *     * `university` - University
@@ -3900,6 +8731,25 @@ export interface components {
      * @enum {string}
      */
     CategoryF26Enum: 'ARTS' | 'SCIENCE' | 'BUSINESS' | 'TECHNICAL';
+    /**
+     * @description * `INTERNATIONAL SCHOLARSHIP` - INTERNATIONAL SCHOLARSHIP
+     *     * `LOCAL SCHOLARSHIP` - LOCAL SCHOLARSHIP
+     *     * `COMMONWEALTH SCHOLARSHIP` - COMMONWEALTH SCHOLARSHIP
+     *     * `NATIONAL SCHOLARSHIP` - NATIONAL SCHOLARSHIP
+     * @enum {string}
+     */
+    CategoryFfcEnum:
+      | 'INTERNATIONAL SCHOLARSHIP'
+      | 'LOCAL SCHOLARSHIP'
+      | 'COMMONWEALTH SCHOLARSHIP'
+      | 'NATIONAL SCHOLARSHIP';
+    /**
+     * @description * `notification` - Push Notification
+     *     * `email` - Email
+     *     * `both` - Both
+     * @enum {string}
+     */
+    ChannelEnum: 'notification' | 'email' | 'both';
     ChatMessage: {
       /** @description cuid-format identifier for this entity. */
       readonly id: string;
@@ -3934,7 +8784,7 @@ export interface components {
       readonly id: string;
       readonly user: components['schemas']['User'];
       is_active?: boolean;
-      payment_type: components['schemas']['ConsultantPaymentTypeEnum'];
+      payment_type: components['schemas']['PaymentTypeA9cEnum'];
       payment_name?: string | null;
       payment_account_name?: string | null;
       /** Format: double */
@@ -3954,42 +8804,106 @@ export interface components {
       readonly paid_fee: string;
       readonly results: string;
       readonly payment: string;
-      status?: components['schemas']['ConsultantApplicationStatusEnum'];
+      status?: components['schemas']['Status2dfEnum'];
       is_paid?: boolean;
       /** Format: date-time */
       readonly created_at: string;
       /** Format: date-time */
       readonly updated_at: string;
     };
+    ConsultantApplicationDetail: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** @description cuid-format identifier for this entity. */
+      consultant: string;
+      readonly consultant_name: string;
+      /** @description cuid-format identifier for this entity. */
+      application: string;
+      readonly application_id: string;
+      status?: components['schemas']['Status2dfEnum'];
+      is_paid?: boolean;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    ConsultantApplicationDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      consultant: string;
+      /** @description cuid-format identifier for this entity. */
+      application: string;
+      status?: components['schemas']['Status2dfEnum'];
+      is_paid?: boolean;
+    };
+    ConsultantApplicationList: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** @description cuid-format identifier for this entity. */
+      readonly consultant: string;
+      readonly consultant_name: string;
+      /** @description cuid-format identifier for this entity. */
+      readonly application: string;
+      readonly application_id: string;
+      readonly status: components['schemas']['Status2dfEnum'];
+      readonly is_paid: boolean;
+      /** Format: date-time */
+      readonly created_at: string;
+    };
     ConsultantApplicationRequest: {
       /** @description cuid-format identifier for this entity. */
       id?: string;
-      status?: components['schemas']['ConsultantApplicationStatusEnum'];
+      status?: components['schemas']['Status2dfEnum'];
       is_paid?: boolean;
     };
-    /**
-     * @description * `PENDING` - Pending
-     *     * `APPROVED` - Approved
-     *     * `REJECTED` - Rejected
-     *     * `WAITING` - Waiting
-     *     * `COMPLETED` - Completed
-     * @enum {string}
-     */
-    ConsultantApplicationStatusEnum:
-      | 'PENDING'
-      | 'APPROVED'
-      | 'REJECTED'
-      | 'WAITING'
-      | 'COMPLETED';
-    /**
-     * @description * `BANK` - Bank
-     *     * `MOBILE` - Mobile
-     * @enum {string}
-     */
-    ConsultantPaymentTypeEnum: 'BANK' | 'MOBILE';
+    ConsultantDetail: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** @description cuid-format identifier for this entity. */
+      user: string;
+      /** Format: email */
+      readonly user_email: string;
+      readonly user_name: string;
+      is_active?: boolean;
+      payment_type: components['schemas']['PaymentTypeA9cEnum'];
+      payment_name?: string | null;
+      payment_account_name?: string | null;
+      /** Format: double */
+      earnings?: number;
+      payment_account_number?: string | null;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    ConsultantDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      user: string;
+      is_active?: boolean;
+      payment_type: components['schemas']['PaymentTypeA9cEnum'];
+      payment_name?: string | null;
+      payment_account_name?: string | null;
+      /** Format: double */
+      earnings?: number;
+      payment_account_number?: string | null;
+    };
+    ConsultantList: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** @description cuid-format identifier for this entity. */
+      readonly user: string;
+      /** Format: email */
+      readonly user_email: string;
+      readonly user_name: string;
+      readonly is_active: boolean;
+      readonly payment_type: components['schemas']['PaymentTypeA9cEnum'];
+      /** Format: double */
+      readonly earnings: number;
+      /** Format: date-time */
+      readonly created_at: string;
+    };
     ConsultantRequest: {
       is_active?: boolean;
-      payment_type: components['schemas']['ConsultantPaymentTypeEnum'];
+      payment_type: components['schemas']['PaymentTypeA9cEnum'];
       payment_name?: string | null;
       payment_account_name?: string | null;
       payment_account_number?: string | null;
@@ -4005,6 +8919,36 @@ export interface components {
       readonly updated_at: string;
       /** @description cuid-format identifier for this entity. */
       consultant: string;
+    };
+    ConsultantWithdrawalDetail: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** @description cuid-format identifier for this entity. */
+      consultant: string;
+      readonly consultant_name: string;
+      /** Format: double */
+      amount: number;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    ConsultantWithdrawalDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      consultant: string;
+      /** Format: double */
+      amount: number;
+    };
+    ConsultantWithdrawalList: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** @description cuid-format identifier for this entity. */
+      readonly consultant: string;
+      readonly consultant_name: string;
+      /** Format: double */
+      readonly amount: number;
+      /** Format: date-time */
+      readonly created_at: string;
     };
     ConsultantWithdrawalRequest: {
       /** @description cuid-format identifier for this entity. */
@@ -4046,20 +8990,22 @@ export interface components {
       /** @description cuid-format identifier for this entity. */
       student?: string | null;
       /** @description cuid-format identifier for this entity. */
-      consultant: string;
+      readonly consultant: string;
     };
     /**
      * @description * `INTERESTED` - Interested
-     *     * `NEEDS_TIME` - Needs Time
+     *     * `NEEDS_TIME` - Needs More Time
      *     * `NOT_INTERESTED` - Not Interested
-     *     * `CONVERTED` - Converted
+     *     * `READY_TO_APPLY` - Ready to Apply
+     *     * `FOLLOW_UP_NEEDED` - Follow-up Needed
      * @enum {string}
      */
     ConsultationOutcomeEnum:
       | 'INTERESTED'
       | 'NEEDS_TIME'
       | 'NOT_INTERESTED'
-      | 'CONVERTED';
+      | 'READY_TO_APPLY'
+      | 'FOLLOW_UP_NEEDED';
     ConsultationRequest: {
       consultation_type: components['schemas']['ConsultationTypeEnum'];
       status?: components['schemas']['ConsultationStatusEnum'];
@@ -4082,8 +9028,6 @@ export interface components {
       lead?: string | null;
       /** @description cuid-format identifier for this entity. */
       student?: string | null;
-      /** @description cuid-format identifier for this entity. */
-      consultant: string;
     };
     /**
      * @description * `SCHEDULED` - Scheduled
@@ -4106,6 +9050,175 @@ export interface components {
      * @enum {string}
      */
     ConsultationTypeEnum: 'IN_PERSON' | 'PHONE' | 'VIDEO';
+    Conversation: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      readonly expert: components['schemas']['ConversationExpert'];
+      readonly expert_name: string;
+      readonly student_name: string;
+      readonly last_message: string;
+      readonly unread_count: string;
+      readonly expert_photo: string;
+      readonly student_photo: string;
+      is_active?: boolean;
+      /** Format: date-time */
+      readonly last_message_at: string | null;
+      readonly thread_status: components['schemas']['ThreadStatusEnum'];
+      /**
+       * Format: decimal
+       * @description The message_rate paid for this thread
+       */
+      readonly payment_amount: string | null;
+      /** @description M-Pesa/Snippe payment reference */
+      readonly payment_reference: string | null;
+      readonly is_paid: boolean;
+      /**
+       * Format: date-time
+       * @description When student tapped Send to Expert
+       */
+      readonly submitted_at: string | null;
+      /**
+       * Format: date-time
+       * @description When expert tapped Mark Complete
+       */
+      readonly completed_at: string | null;
+      /**
+       * Format: date-time
+       * @description When student rated the conversation
+       */
+      readonly rated_at: string | null;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+      /** @description cuid-format identifier for this entity. */
+      readonly student: string;
+    };
+    /** @description Lightweight expert info nested inside conversation responses. */
+    ConversationExpert: {
+      /** @description cuid-format identifier for this entity. */
+      id?: string;
+      first_name: string;
+      last_name: string;
+      /** @default Expert Mentor */
+      title: string;
+      /** Format: uri */
+      profile_photo?: string | null;
+      readonly is_verified: string;
+      /** Format: decimal */
+      message_rate?: string;
+      /** Format: decimal */
+      call_rate_per_min?: string;
+      /** @description If False, expert only accepts audio calls */
+      video_calls_enabled?: boolean;
+    };
+    /** @description Lightweight expert info nested inside conversation responses. */
+    ConversationExpertRequest: {
+      /** @description cuid-format identifier for this entity. */
+      id?: string;
+      first_name: string;
+      last_name: string;
+      /** @default Expert Mentor */
+      title: string;
+      /** Format: binary */
+      profile_photo?: string | null;
+      /** Format: decimal */
+      message_rate?: string;
+      /** Format: decimal */
+      call_rate_per_min?: string;
+      /** @description If False, expert only accepts audio calls */
+      video_calls_enabled?: boolean;
+    };
+    ConversationRequest: {
+      /** @description cuid-format identifier for this entity. */
+      expert_id: string;
+      is_active?: boolean;
+    };
+    CountryBenefitDetail: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** @description cuid-format identifier for this entity. */
+      country: string;
+      readonly country_name: string;
+      title: string;
+      description: string;
+      /** Format: uri */
+      image?: string;
+      order?: number;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    CountryBenefitDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      country: string;
+      title: string;
+      description: string;
+      /** Format: uri */
+      image?: string;
+      order?: number;
+    };
+    CountryBenefitList: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** @description cuid-format identifier for this entity. */
+      readonly country: string;
+      readonly country_name: string;
+      readonly title: string;
+      readonly description: string;
+      /** Format: uri */
+      readonly image: string;
+      readonly order: number;
+      /** Format: date-time */
+      readonly created_at: string;
+    };
+    CountryBenefitModel: {
+      /** @description cuid-format identifier for this entity. */
+      id?: string;
+      title: string;
+      description: string;
+      /** Format: uri */
+      image?: string;
+      order?: number;
+    };
+    CountryBenefitModelRequest: {
+      /** @description cuid-format identifier for this entity. */
+      id?: string;
+      title: string;
+      description: string;
+      /** Format: uri */
+      image?: string;
+      order?: number;
+    };
+    CountryDetail: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      name: string;
+      slug?: string | null;
+      code: string;
+      order?: number;
+      description?: string | null;
+      no_of_universities?: number;
+      no_of_students?: number;
+      scholarship_only?: boolean;
+      location: components['schemas']['CountryLocation'];
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    CountryDetailRequest: {
+      name: string;
+      slug?: string | null;
+      code: string;
+      order?: number;
+      description?: string | null;
+      no_of_universities?: number;
+      no_of_students?: number;
+      scholarship_only?: boolean;
+      location: components['schemas']['CountryLocationRequest'];
+    };
     CountryExpense: {
       /** @description cuid-format identifier for this entity. */
       id?: string;
@@ -4118,10 +9231,76 @@ export interface components {
       /** @description cuid-format identifier for this entity. */
       country: string;
       readonly country_name: string;
+      /** @description Pipeline stage this fee is linked to (e.g. 'Police Clearance'). */
+      linked_stage?: string | null;
       /** Format: date-time */
       readonly created_at: string;
       /** Format: date-time */
       readonly updated_at: string;
+    };
+    CountryExpenseDetail: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** @description cuid-format identifier for this entity. */
+      country: string;
+      name: string;
+      iname: string;
+      currency?: components['schemas']['CurrencyE3dEnum'];
+      is_default?: boolean;
+      /** Format: double */
+      offer?: number;
+      tag?: string | null;
+      /** @description Pipeline stage this fee is linked to (e.g. 'Police Clearance'). */
+      linked_stage?: string | null;
+      description?: string | null;
+      /** Format: double */
+      start_amount: number;
+      /** Format: double */
+      end_amount: number;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    CountryExpenseDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      country: string;
+      name: string;
+      iname: string;
+      currency?: components['schemas']['CurrencyE3dEnum'];
+      is_default?: boolean;
+      /** Format: double */
+      offer?: number;
+      tag?: string | null;
+      /** @description Pipeline stage this fee is linked to (e.g. 'Police Clearance'). */
+      linked_stage?: string | null;
+      description?: string | null;
+      /** Format: double */
+      start_amount: number;
+      /** Format: double */
+      end_amount: number;
+    };
+    CountryExpenseList: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** @description cuid-format identifier for this entity. */
+      readonly country: string;
+      readonly country_name: string;
+      readonly name: string;
+      readonly iname: string;
+      readonly currency: components['schemas']['CurrencyE3dEnum'];
+      readonly is_default: boolean;
+      /** Format: double */
+      readonly offer: number;
+      readonly tag: string | null;
+      /** @description Pipeline stage this fee is linked to (e.g. 'Police Clearance'). */
+      readonly linked_stage: string | null;
+      /** Format: double */
+      readonly start_amount: number;
+      /** Format: double */
+      readonly end_amount: number;
+      /** Format: date-time */
+      readonly created_at: string;
     };
     CountryExpenseRequest: {
       /** @description cuid-format identifier for this entity. */
@@ -4134,6 +9313,37 @@ export interface components {
       end_amount: number;
       /** @description cuid-format identifier for this entity. */
       country: string;
+      /** @description Pipeline stage this fee is linked to (e.g. 'Police Clearance'). */
+      linked_stage?: string | null;
+    };
+    CountryFAQDetail: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** @description cuid-format identifier for this entity. */
+      country: string;
+      question: string;
+      answer: string;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    CountryFAQDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      country: string;
+      question: string;
+      answer: string;
+    };
+    CountryFAQList: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** @description cuid-format identifier for this entity. */
+      readonly country: string;
+      readonly country_name: string;
+      readonly question: string;
+      readonly answer: string;
+      /** Format: date-time */
+      readonly created_at: string;
     };
     CountryLikeModel: {
       /** @description cuid-format identifier for this entity. */
@@ -4146,6 +9356,44 @@ export interface components {
     CountryLikeModelRequest: {
       /** @description cuid-format identifier for this entity. */
       country: string;
+    };
+    CountryList: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      readonly name: string;
+      readonly slug: string | null;
+      readonly code: string;
+      readonly order: number;
+      readonly no_of_universities: number;
+      readonly no_of_students: number;
+      readonly scholarship_only: boolean;
+      readonly university_count: number;
+      readonly expense_count: number;
+      readonly faq_count: number;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    /** @description Writable serializer used as a nested field inside CountryDetailSerializer. */
+    CountryLocation: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** Format: double */
+      latitude: number;
+      /** Format: double */
+      longitude: number;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    /** @description Writable serializer used as a nested field inside CountryDetailSerializer. */
+    CountryLocationRequest: {
+      /** Format: double */
+      latitude: number;
+      /** Format: double */
+      longitude: number;
     };
     CountryModel: {
       /** @description cuid-format identifier for this entity. */
@@ -4160,6 +9408,11 @@ export interface components {
       scholarship_only?: boolean;
       no_of_students?: number;
       readonly is_like: string;
+      readonly benefits: components['schemas']['CountryBenefitModel'][];
+      readonly reasons: components['schemas']['CountryReasonModel'][];
+      readonly country_testimonials: components['schemas']['CountryTestimonialModel'][];
+      readonly faqs: string;
+      readonly pictures: string;
       /** Format: date-time */
       readonly created_at: string;
       /** Format: date-time */
@@ -4173,6 +9426,142 @@ export interface components {
       no_of_universities?: number;
       scholarship_only?: boolean;
       no_of_students?: number;
+    };
+    CountryPictureDetail: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** @description cuid-format identifier for this entity. */
+      country: string;
+      name: string;
+      /** Format: uri */
+      image: string;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    CountryPictureDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      country: string;
+      name: string;
+      /** Format: binary */
+      image: string;
+    };
+    CountryPictureList: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** @description cuid-format identifier for this entity. */
+      readonly country: string;
+      readonly country_name: string;
+      readonly name: string;
+      /** Format: uri */
+      readonly image: string;
+      /** Format: date-time */
+      readonly created_at: string;
+    };
+    CountryReasonDetail: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** @description cuid-format identifier for this entity. */
+      country: string;
+      readonly country_name: string;
+      text: string;
+      order?: number;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    CountryReasonDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      country: string;
+      text: string;
+      order?: number;
+    };
+    CountryReasonList: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** @description cuid-format identifier for this entity. */
+      readonly country: string;
+      readonly country_name: string;
+      readonly text: string;
+      readonly order: number;
+      /** Format: date-time */
+      readonly created_at: string;
+    };
+    CountryReasonModel: {
+      /** @description cuid-format identifier for this entity. */
+      id?: string;
+      text: string;
+      order?: number;
+    };
+    CountryReasonModelRequest: {
+      /** @description cuid-format identifier for this entity. */
+      id?: string;
+      text: string;
+      order?: number;
+    };
+    CountryTestimonialDetail: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** @description cuid-format identifier for this entity. */
+      country: string;
+      readonly country_name: string;
+      name: string;
+      subtitle?: string;
+      /** Format: uri */
+      image?: string;
+      /** @description Testimonial text content */
+      content: string;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    CountryTestimonialDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      country: string;
+      name: string;
+      subtitle?: string;
+      /** Format: uri */
+      image?: string;
+      /** @description Testimonial text content */
+      content: string;
+    };
+    CountryTestimonialList: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** @description cuid-format identifier for this entity. */
+      readonly country: string;
+      readonly country_name: string;
+      readonly name: string;
+      readonly subtitle: string;
+      /** Format: uri */
+      readonly image: string;
+      /** @description Testimonial text content */
+      readonly content: string;
+      /** Format: date-time */
+      readonly created_at: string;
+    };
+    CountryTestimonialModel: {
+      /** @description cuid-format identifier for this entity. */
+      id?: string;
+      name: string;
+      subtitle?: string;
+      /** Format: uri */
+      image?: string;
+      /** @description Testimonial text content */
+      content: string;
+    };
+    CountryTestimonialModelRequest: {
+      /** @description cuid-format identifier for this entity. */
+      id?: string;
+      name: string;
+      subtitle?: string;
+      /** Format: uri */
+      image?: string;
+      /** @description Testimonial text content */
+      content: string;
     };
     Course: {
       /** @description cuid-format identifier for this entity. */
@@ -4188,6 +9577,80 @@ export interface components {
       /** Format: date-time */
       readonly updated_at: string;
     };
+    CourseDetail: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      name: string;
+      slug: string;
+      code?: string | null;
+      version?: number;
+      /** @description cuid-format identifier for this entity. */
+      category?: string | null;
+      combination?: string | null;
+      short_description?: string | null;
+      long_description?: string | null;
+      is_active?: boolean;
+      order?: number;
+      /** Format: uri */
+      video_url?: string | null;
+      /** Format: uri */
+      img_url?: string | null;
+      description?: string | null;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    CourseDetailRequest: {
+      name: string;
+      slug: string;
+      code?: string | null;
+      version?: number;
+      /** @description cuid-format identifier for this entity. */
+      category?: string | null;
+      combination?: string | null;
+      short_description?: string | null;
+      long_description?: string | null;
+      is_active?: boolean;
+      order?: number;
+      /** Format: uri */
+      video_url?: string | null;
+      /** Format: binary */
+      img_url?: string | null;
+      description?: string | null;
+    };
+    CourseDisciplineDetail: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** @description cuid-format identifier for this entity. */
+      course: string;
+      readonly course_name: string;
+      /** @description cuid-format identifier for this entity. */
+      discipline: string;
+      readonly discipline_name: string;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    CourseDisciplineDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      course: string;
+      /** @description cuid-format identifier for this entity. */
+      discipline: string;
+    };
+    CourseDisciplineList: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** @description cuid-format identifier for this entity. */
+      readonly course: string;
+      readonly course_name: string;
+      /** @description cuid-format identifier for this entity. */
+      readonly discipline: string;
+      readonly discipline_name: string;
+      /** Format: date-time */
+      readonly created_at: string;
+    };
     CourseExpense: {
       /** @description cuid-format identifier for this entity. */
       id?: string;
@@ -4201,6 +9664,8 @@ export interface components {
       uni_course: string;
       readonly course_name: string;
       readonly university_name: string;
+      /** @description Pipeline stage this fee is linked to (e.g. 'Police Clearance'). */
+      linked_stage?: string | null;
       /** Format: date-time */
       readonly created_at: string;
       /** Format: date-time */
@@ -4217,6 +9682,23 @@ export interface components {
       end_amount: number;
       /** @description cuid-format identifier for this entity. */
       uni_course: string;
+      /** @description Pipeline stage this fee is linked to (e.g. 'Police Clearance'). */
+      linked_stage?: string | null;
+    };
+    CourseList: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      readonly name: string;
+      readonly slug: string;
+      readonly code: string | null;
+      /** @description cuid-format identifier for this entity. */
+      readonly category: string | null;
+      readonly category_name: string;
+      readonly is_active: boolean;
+      readonly order: number;
+      readonly combination: string | null;
+      /** Format: date-time */
+      readonly created_at: string;
     };
     CourseModel: {
       /** @description cuid-format identifier for this entity. */
@@ -4250,6 +9732,60 @@ export interface components {
       short_description?: string | null;
       long_description?: string | null;
     };
+    CourseModuleDetail: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** @description cuid-format identifier for this entity. */
+      course_semister: string;
+      readonly course_semister_label: string;
+      title?: string | null;
+      code?: string | null;
+      version?: number;
+      description?: string | null;
+      category?:
+        | (
+            | components['schemas']['Category55aEnum']
+            | components['schemas']['BlankEnum']
+            | components['schemas']['NullEnum']
+          )
+        | null;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    CourseModuleDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      course_semister: string;
+      title?: string | null;
+      code?: string | null;
+      version?: number;
+      description?: string | null;
+      category?:
+        | (
+            | components['schemas']['Category55aEnum']
+            | components['schemas']['BlankEnum']
+            | components['schemas']['NullEnum']
+          )
+        | null;
+    };
+    CourseModuleList: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** @description cuid-format identifier for this entity. */
+      readonly course_semister: string;
+      readonly course_semister_label: string;
+      readonly title: string | null;
+      readonly code: string | null;
+      readonly category:
+        | (
+            | components['schemas']['Category55aEnum']
+            | components['schemas']['NullEnum']
+          )
+        | null;
+      /** Format: date-time */
+      readonly created_at: string;
+    };
     CourseModuleModel: {
       /** @description cuid-format identifier for this entity. */
       readonly id: string;
@@ -4259,7 +9795,7 @@ export interface components {
       readonly description: string | null;
       readonly category:
         | (
-            | components['schemas']['CourseModuleModelCategoryEnum']
+            | components['schemas']['Category55aEnum']
             | components['schemas']['NullEnum']
           )
         | null;
@@ -4269,12 +9805,39 @@ export interface components {
       /** Format: date-time */
       readonly updated_at: string;
     };
-    /**
-     * @description * `ELECTIVE` - ELECTIVE
-     *     * `NON ELECTIVE` - NON ELECTIVE
-     * @enum {string}
-     */
-    CourseModuleModelCategoryEnum: 'ELECTIVE' | 'NON ELECTIVE';
+    CoursePictureDetail: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** @description cuid-format identifier for this entity. */
+      course: string;
+      readonly course_name: string;
+      name: string;
+      /** Format: uri */
+      image: string;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    CoursePictureDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      course: string;
+      name: string;
+      /** Format: binary */
+      image: string;
+    };
+    CoursePictureList: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** @description cuid-format identifier for this entity. */
+      readonly course: string;
+      readonly course_name: string;
+      readonly name: string;
+      /** Format: uri */
+      readonly image: string;
+      /** Format: date-time */
+      readonly created_at: string;
+    };
     CourseRequest: {
       /** @description cuid-format identifier for this entity. */
       id?: string;
@@ -4284,6 +9847,78 @@ export interface components {
       /** @description cuid-format identifier for this entity. */
       category?: string | null;
       is_active?: boolean;
+    };
+    CourseRequirements: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** @description cuid-format identifier for this entity. */
+      uni_course: string;
+      combinations?: string | null;
+      detailed_requirement?: string | null;
+      admission_points?: number | null;
+      requirement?: string | null;
+      requirement_json?: unknown;
+      version?: number;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    /** @description Used when nested inside CourseUniversityDetailSerializer (no uni_course FK). */
+    CourseRequirementsNested: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      combinations?: string | null;
+      detailed_requirement?: string | null;
+      admission_points?: number | null;
+      requirement?: string | null;
+      requirement_json?: unknown;
+      version?: number;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    /** @description Used when nested inside CourseUniversityDetailSerializer (no uni_course FK). */
+    CourseRequirementsNestedRequest: {
+      combinations?: string | null;
+      detailed_requirement?: string | null;
+      admission_points?: number | null;
+      requirement?: string | null;
+      requirement_json?: unknown;
+      version?: number;
+    };
+    CourseSemisterDetail: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** @description cuid-format identifier for this entity. */
+      course_year: string;
+      readonly course_year_label: string;
+      /** @description cuid-format identifier for this entity. */
+      semister: string;
+      readonly semister_name: string;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    CourseSemisterDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      course_year: string;
+      /** @description cuid-format identifier for this entity. */
+      semister: string;
+    };
+    CourseSemisterList: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** @description cuid-format identifier for this entity. */
+      readonly course_year: string;
+      readonly course_year_label: string;
+      /** @description cuid-format identifier for this entity. */
+      readonly semister: string;
+      readonly semister_name: string;
+      /** Format: date-time */
+      readonly created_at: string;
     };
     CourseSemisterModel: {
       /** @description cuid-format identifier for this entity. */
@@ -4332,6 +9967,87 @@ export interface components {
       /** @description cuid-format identifier for this entity. */
       course: string;
     };
+    CourseTrendDetail: {
+      readonly id: number;
+      /** @description cuid-format identifier for this entity. */
+      course: string;
+      readonly course_name: string;
+      sector_relevance?: number | null;
+      employment_demand?: number | null;
+      self_employment_potential?: number | null;
+      formal_employment_demand?: number | null;
+      /** Geographical Relevance (Tanzania & East Africa) */
+      geographical_relevance?: number | null;
+      economic_trends_alignment?: number | null;
+      /** Technological Advancements Alignment */
+      technological_advancement_alignment?: number | null;
+      /** Government and Educational Policy Support */
+      government_policy_support?: number | null;
+      skill_gap_industry_need?: number | null;
+      /** Career Progression and Stability */
+      career_progression_stability?: number | null;
+      /** Income and Salary Potential */
+      income_salary_potential?: number | null;
+      alignment_with_sdgs?: number | null;
+      educational_infrastructure_quality?: number | null;
+      /** Cultural Acceptance and Social Value */
+      cultural_acceptance?: number | null;
+      /** Predictability Duration Accuracy (in years) */
+      predictability_duration?: string | null;
+      /**
+       * Overall Realistic Potential (%)
+       * Format: double
+       */
+      overall_potential?: number | null;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    CourseTrendDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      course: string;
+      sector_relevance?: number | null;
+      employment_demand?: number | null;
+      self_employment_potential?: number | null;
+      formal_employment_demand?: number | null;
+      /** Geographical Relevance (Tanzania & East Africa) */
+      geographical_relevance?: number | null;
+      economic_trends_alignment?: number | null;
+      /** Technological Advancements Alignment */
+      technological_advancement_alignment?: number | null;
+      /** Government and Educational Policy Support */
+      government_policy_support?: number | null;
+      skill_gap_industry_need?: number | null;
+      /** Career Progression and Stability */
+      career_progression_stability?: number | null;
+      /** Income and Salary Potential */
+      income_salary_potential?: number | null;
+      alignment_with_sdgs?: number | null;
+      educational_infrastructure_quality?: number | null;
+      /** Cultural Acceptance and Social Value */
+      cultural_acceptance?: number | null;
+      /** Predictability Duration Accuracy (in years) */
+      predictability_duration?: string | null;
+      /**
+       * Overall Realistic Potential (%)
+       * Format: double
+       */
+      overall_potential?: number | null;
+    };
+    CourseTrendList: {
+      readonly id: number;
+      /** @description cuid-format identifier for this entity. */
+      readonly course: string;
+      readonly course_name: string;
+      /**
+       * Overall Realistic Potential (%)
+       * Format: double
+       */
+      readonly overall_potential: number | null;
+      /** Format: date-time */
+      readonly created_at: string;
+    };
     CourseTrendRequest: {
       sector_relevance?: number | null;
       employment_demand?: number | null;
@@ -4363,9 +10079,142 @@ export interface components {
       /** @description cuid-format identifier for this entity. */
       course: string;
     };
+    CourseUniversityDetail: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      name: string;
+      unclear_name?: string | null;
+      /** @description cuid-format identifier for this entity. */
+      course: string;
+      /** @description cuid-format identifier for this entity. */
+      university: string;
+      /** Format: double */
+      offer?: number;
+      min_capacity?: number | null;
+      max_capacity?: number | null;
+      /** Format: double */
+      duration?: number | null;
+      /** Format: double */
+      fee?: number;
+      is_active?: boolean;
+      requirements?: components['schemas']['CourseRequirementsNested'] | null;
+      course_expenses?: components['schemas']['CourseUniversityExpensesNested'][];
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    CourseUniversityDetailRequest: {
+      name: string;
+      unclear_name?: string | null;
+      /** @description cuid-format identifier for this entity. */
+      course: string;
+      /** @description cuid-format identifier for this entity. */
+      university: string;
+      /** Format: double */
+      offer?: number;
+      min_capacity?: number | null;
+      max_capacity?: number | null;
+      /** Format: double */
+      duration?: number | null;
+      /** Format: double */
+      fee?: number;
+      is_active?: boolean;
+      requirements?:
+        | components['schemas']['CourseRequirementsNestedRequest']
+        | null;
+      course_expenses?: components['schemas']['CourseUniversityExpensesNestedRequest'][];
+    };
+    CourseUniversityExpenses: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** @description cuid-format identifier for this entity. */
+      uni_course: string;
+      currency?: components['schemas']['CurrencyE3dEnum'];
+      iname: string;
+      name: string;
+      /** Format: double */
+      offer?: number;
+      is_default?: boolean;
+      tag?: string | null;
+      /** @description Pipeline stage this fee is linked to (e.g. 'Police Clearance'). */
+      linked_stage?: string | null;
+      description?: string | null;
+      /** Format: double */
+      start_amount: number;
+      /** Format: double */
+      end_amount: number;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    /** @description Used when nested inside CourseUniversityDetailSerializer (no uni_course FK). */
+    CourseUniversityExpensesNested: {
+      id?: string;
+      currency?: components['schemas']['CurrencyE3dEnum'];
+      iname: string;
+      name: string;
+      /** Format: double */
+      offer?: number;
+      is_default?: boolean;
+      tag?: string | null;
+      /** @description Pipeline stage this fee is linked to (e.g. 'Police Clearance'). */
+      linked_stage?: string | null;
+      description?: string | null;
+      /** Format: double */
+      start_amount: number;
+      /** Format: double */
+      end_amount: number;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    /** @description Used when nested inside CourseUniversityDetailSerializer (no uni_course FK). */
+    CourseUniversityExpensesNestedRequest: {
+      id?: string;
+      currency?: components['schemas']['CurrencyE3dEnum'];
+      iname: string;
+      name: string;
+      /** Format: double */
+      offer?: number;
+      is_default?: boolean;
+      tag?: string | null;
+      /** @description Pipeline stage this fee is linked to (e.g. 'Police Clearance'). */
+      linked_stage?: string | null;
+      description?: string | null;
+      /** Format: double */
+      start_amount: number;
+      /** Format: double */
+      end_amount: number;
+    };
+    CourseUniversityList: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      readonly name: string;
+      /** @description cuid-format identifier for this entity. */
+      readonly course: string;
+      readonly course_name: string;
+      /** @description cuid-format identifier for this entity. */
+      readonly university: string;
+      readonly university_name: string;
+      /** Format: double */
+      readonly duration: number | null;
+      /** Format: double */
+      readonly fee: number;
+      readonly is_active: boolean;
+      /** Format: double */
+      readonly offer: number;
+      readonly has_requirements: boolean;
+      readonly expense_count: number;
+      /** Format: date-time */
+      readonly created_at: string;
+    };
     CourseUniversityModel: {
       /** @description cuid-format identifier for this entity. */
       readonly id: string;
+      readonly name: string;
       readonly course: components['schemas']['Nested'];
       readonly requirement: string;
       readonly expenses: string;
@@ -4383,6 +10232,71 @@ export interface components {
     CourseUniversityModelRequest: {
       max_capacity?: number | null;
       min_capacity?: number | null;
+    };
+    CourseVideoDetail: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** @description cuid-format identifier for this entity. */
+      course: string;
+      readonly course_name: string;
+      name: string;
+      /** Format: uri */
+      video: string;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    CourseVideoDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      course: string;
+      name: string;
+      /** Format: binary */
+      video: string;
+    };
+    CourseVideoList: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** @description cuid-format identifier for this entity. */
+      readonly course: string;
+      readonly course_name: string;
+      readonly name: string;
+      /** Format: uri */
+      readonly video: string;
+      /** Format: date-time */
+      readonly created_at: string;
+    };
+    CourseYearDetail: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** @description cuid-format identifier for this entity. */
+      uni_course: string;
+      readonly uni_course_name: string;
+      year: number;
+      objective?: string | null;
+      description?: string | null;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    CourseYearDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      uni_course: string;
+      year: number;
+      objective?: string | null;
+      description?: string | null;
+    };
+    CourseYearList: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** @description cuid-format identifier for this entity. */
+      readonly uni_course: string;
+      readonly uni_course_name: string;
+      readonly year: number;
+      readonly objective: string | null;
+      /** Format: date-time */
+      readonly created_at: string;
     };
     CourseYearModel: {
       /** @description cuid-format identifier for this entity. */
@@ -4412,11 +10326,19 @@ export interface components {
       is_like?: boolean;
     };
     /**
-     * @description * `TZS` - TZS
-     *     * `USD` - USD
+     * @description * `degree` - Degree
+     *     * `certification` - Certification
+     *     * `license` - License
+     *     * `other` - Other
      * @enum {string}
      */
-    CurrencyEnum: 'TZS' | 'USD';
+    CredentialTypeEnum: 'degree' | 'certification' | 'license' | 'other';
+    /**
+     * @description * `TZS` - Tzs
+     *     * `USD` - Usd
+     * @enum {string}
+     */
+    CurrencyE3dEnum: 'TZS' | 'USD';
     /**
      * @description * `CONSULTATION` - Consultation
      *     * `PRE_APPLICATION` - Pre-Application
@@ -4451,6 +10373,54 @@ export interface components {
       | 'country'
       | 'scholarship'
       | 'general';
+    /**
+     * @description * `monday` - Monday
+     *     * `tuesday` - Tuesday
+     *     * `wednesday` - Wednesday
+     *     * `thursday` - Thursday
+     *     * `friday` - Friday
+     *     * `saturday` - Saturday
+     *     * `sunday` - Sunday
+     * @enum {string}
+     */
+    DayEnum:
+      | 'monday'
+      | 'tuesday'
+      | 'wednesday'
+      | 'thursday'
+      | 'friday'
+      | 'saturday'
+      | 'sunday';
+    DisciplineDetail: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      name: string;
+      slug: string;
+      /** Format: uri */
+      image: string;
+      description?: string | null;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    DisciplineDetailRequest: {
+      name: string;
+      slug: string;
+      /** Format: binary */
+      image: string;
+      description?: string | null;
+    };
+    DisciplineList: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      readonly name: string;
+      readonly slug: string;
+      /** Format: uri */
+      readonly image: string;
+      /** Format: date-time */
+      readonly created_at: string;
+    };
     DisciplineModel: {
       /** @description cuid-format identifier for this entity. */
       readonly id: string;
@@ -4476,7 +10446,8 @@ export interface components {
       readonly stage_label: string;
       readonly pipeline_id: string;
       readonly verified_by_name: string;
-      document_type: components['schemas']['DocumentTypeEnum'];
+      readonly document_file_url: string;
+      document_type: components['schemas']['DocumentTypeA7eEnum'];
       status?: components['schemas']['StatusFd3Enum'];
       /** Format: uri */
       document_file?: string | null;
@@ -4493,7 +10464,7 @@ export interface components {
     };
     /** @description Flat serializer for the admin document verification queue. */
     DocumentQueueRequest: {
-      document_type: components['schemas']['DocumentTypeEnum'];
+      document_type: components['schemas']['DocumentTypeA7eEnum'];
       status?: components['schemas']['StatusFd3Enum'];
       /** Format: binary */
       document_file?: string | null;
@@ -4508,7 +10479,8 @@ export interface components {
       /** @description cuid-format identifier for this entity. */
       readonly id: string;
       readonly verified_by_name: string;
-      document_type: components['schemas']['DocumentTypeEnum'];
+      readonly document_file_url: string;
+      document_type: components['schemas']['DocumentTypeA7eEnum'];
       status?: components['schemas']['StatusFd3Enum'];
       /** Format: uri */
       document_file?: string | null;
@@ -4524,7 +10496,7 @@ export interface components {
       verified_by?: string | null;
     };
     DocumentRequirementRequest: {
-      document_type: components['schemas']['DocumentTypeEnum'];
+      document_type: components['schemas']['DocumentTypeA7eEnum'];
       status?: components['schemas']['StatusFd3Enum'];
       /** Format: binary */
       document_file?: string | null;
@@ -4535,6 +10507,38 @@ export interface components {
       /** @description cuid-format identifier for this entity. */
       verified_by?: string | null;
     };
+    /**
+     * @description * `PASSPORT` - Passport
+     *     * `PASSPORT_PHOTO` - Passport Size Photo
+     *     * `BLUE_BG_PHOTO` - Blue Background Photo
+     *     * `BIRTH_CERT` - Birth Certificate
+     *     * `NIDA` - NIDA Card
+     *     * `FORM_FOUR_CERT` - Form Four Certificate
+     *     * `FORM_SIX_CERT` - Form Six Certificate
+     *     * `FORM_SIX_LEAVING_CERT` - Form Six Leaving Certificate
+     *     * `RECOMMENDATION_LETTER` - Recommendation Letter
+     *     * `PARENT_ID` - Parent/Guardian ID
+     *     * `PARENT_BIRTH_CERT` - Parent Birth Certificate
+     *     * `LOCAL_GOV_LETTER` - Local Government Letter
+     *     * `AFFIDAVIT` - Affidavit
+     *     * `OTHER` - Other
+     * @enum {string}
+     */
+    DocumentType1feEnum:
+      | 'PASSPORT'
+      | 'PASSPORT_PHOTO'
+      | 'BLUE_BG_PHOTO'
+      | 'BIRTH_CERT'
+      | 'NIDA'
+      | 'FORM_FOUR_CERT'
+      | 'FORM_SIX_CERT'
+      | 'FORM_SIX_LEAVING_CERT'
+      | 'RECOMMENDATION_LETTER'
+      | 'PARENT_ID'
+      | 'PARENT_BIRTH_CERT'
+      | 'LOCAL_GOV_LETTER'
+      | 'AFFIDAVIT'
+      | 'OTHER';
     /**
      * @description * `FORM_FOUR_CERT` - Form Four Certificate
      *     * `FORM_SIX_CERT` - Form Six Certificate
@@ -4559,7 +10563,7 @@ export interface components {
      *     * `OTHER` - Other
      * @enum {string}
      */
-    DocumentTypeEnum:
+    DocumentTypeA7eEnum:
       | 'FORM_FOUR_CERT'
       | 'FORM_SIX_CERT'
       | 'FORM_SIX_LEAVING_CERT'
@@ -4581,6 +10585,39 @@ export interface components {
       | 'FLIGHT_TICKET'
       | 'PASSPORT'
       | 'OTHER';
+    EarningTransaction: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      transaction_type: components['schemas']['TransactionTypeEnum'];
+      status?: components['schemas']['EarningTransactionStatusEnum'];
+      /** Format: decimal */
+      readonly gross_amount: string;
+      /** Format: decimal */
+      readonly commission: string;
+      /** Format: decimal */
+      readonly net_amount: string;
+      description?: string;
+      reference_id?: string;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+      /** @description cuid-format identifier for this entity. */
+      readonly expert: string;
+    };
+    EarningTransactionRequest: {
+      transaction_type: components['schemas']['TransactionTypeEnum'];
+      status?: components['schemas']['EarningTransactionStatusEnum'];
+      description?: string;
+      reference_id?: string;
+    };
+    /**
+     * @description * `pending` - Pending
+     *     * `completed` - Completed
+     *     * `failed` - Failed
+     * @enum {string}
+     */
+    EarningTransactionStatusEnum: 'pending' | 'completed' | 'failed';
     /**
      * @description * `A Level Graduate` - A Level Graduate
      *     * `A Level Student` - A Level Student
@@ -4591,6 +10628,13 @@ export interface components {
       | 'A Level Graduate'
       | 'A Level Student'
       | 'O Level Student';
+    /**
+     * @description * `full_time` - Full Time
+     *     * `part_time` - Part Time
+     *     * `self_employed` - Self Employed
+     * @enum {string}
+     */
+    EmploymentTypeEnum: 'full_time' | 'part_time' | 'self_employed';
     /**
      * @description * `CALL` - Phone Call
      *     * `CONSULTATION` - Consultation
@@ -4615,6 +10659,10 @@ export interface components {
      *     * `MEETING` - In-Person Meeting
      *     * `ORIENTATION` - Orientation Seminar
      *     * `DEPARTURE` - Departure
+     *     * `REQUIREMENT_SUBMITTED` - Requirement Submitted
+     *     * `REQUIREMENT_APPROVED` - Requirement Approved
+     *     * `REQUIREMENT_REJECTED` - Requirement Rejected
+     *     * `REQUIREMENT_ADDED` - Requirement Added
      *     * `NOTE` - Note
      *     * `TASK_ASSIGNED` - Task Assigned
      *     * `OTHER` - Other
@@ -4644,9 +10692,569 @@ export interface components {
       | 'MEETING'
       | 'ORIENTATION'
       | 'DEPARTURE'
+      | 'REQUIREMENT_SUBMITTED'
+      | 'REQUIREMENT_APPROVED'
+      | 'REQUIREMENT_REJECTED'
+      | 'REQUIREMENT_ADDED'
       | 'NOTE'
       | 'TASK_ASSIGNED'
       | 'OTHER';
+    ExpertAvailability: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      day: components['schemas']['DayEnum'];
+      /** Format: time */
+      start_time: string;
+      /** Format: time */
+      end_time: string;
+      timezone?: string;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+      /** @description cuid-format identifier for this entity. */
+      readonly expert: string;
+    };
+    ExpertAvailabilityDetail: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** @description cuid-format identifier for this entity. */
+      expert: string;
+      readonly expert_name: string;
+      day: components['schemas']['DayEnum'];
+      /** Format: time */
+      start_time: string;
+      /** Format: time */
+      end_time: string;
+      timezone?: string;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    ExpertAvailabilityDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      expert: string;
+      day: components['schemas']['DayEnum'];
+      /** Format: time */
+      start_time: string;
+      /** Format: time */
+      end_time: string;
+      timezone?: string;
+    };
+    ExpertAvailabilityList: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** @description cuid-format identifier for this entity. */
+      readonly expert: string;
+      readonly expert_name: string;
+      readonly day: components['schemas']['DayEnum'];
+      /** Format: time */
+      readonly start_time: string;
+      /** Format: time */
+      readonly end_time: string;
+      readonly timezone: string;
+      /** Format: date-time */
+      readonly created_at: string;
+    };
+    ExpertAvailabilityRequest: {
+      day: components['schemas']['DayEnum'];
+      /** Format: time */
+      start_time: string;
+      /** Format: time */
+      end_time: string;
+      timezone?: string;
+    };
+    ExpertCredential: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      credential_type?: components['schemas']['CredentialTypeEnum'];
+      title: string;
+      institution?: string;
+      /** Format: uri */
+      file?: string | null;
+      year?: number | null;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+      /** @description cuid-format identifier for this entity. */
+      readonly expert: string;
+    };
+    ExpertCredentialDetail: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** @description cuid-format identifier for this entity. */
+      expert: string;
+      readonly expert_name: string;
+      credential_type?: components['schemas']['CredentialTypeEnum'];
+      title: string;
+      institution?: string;
+      /** Format: uri */
+      file?: string | null;
+      year?: number | null;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    ExpertCredentialDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      expert: string;
+      credential_type?: components['schemas']['CredentialTypeEnum'];
+      title: string;
+      institution?: string;
+      /** Format: binary */
+      file?: string | null;
+      year?: number | null;
+    };
+    ExpertCredentialList: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** @description cuid-format identifier for this entity. */
+      readonly expert: string;
+      readonly expert_name: string;
+      readonly credential_type: components['schemas']['CredentialTypeEnum'];
+      readonly title: string;
+      readonly institution: string;
+      readonly year: number | null;
+      /** Format: date-time */
+      readonly created_at: string;
+    };
+    ExpertCredentialRequest: {
+      credential_type?: components['schemas']['CredentialTypeEnum'];
+      title: string;
+      institution?: string;
+      /** Format: binary */
+      file?: string | null;
+      year?: number | null;
+    };
+    ExpertExpertise: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      discipline: string;
+      is_primary?: boolean;
+      target_level?: components['schemas']['TargetLevelEnum'];
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+      /** @description cuid-format identifier for this entity. */
+      readonly expert: string;
+    };
+    ExpertExpertiseDetail: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** @description cuid-format identifier for this entity. */
+      expert: string;
+      readonly expert_name: string;
+      discipline: string;
+      is_primary?: boolean;
+      target_level?: components['schemas']['TargetLevelEnum'];
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    ExpertExpertiseDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      expert: string;
+      discipline: string;
+      is_primary?: boolean;
+      target_level?: components['schemas']['TargetLevelEnum'];
+    };
+    ExpertExpertiseList: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** @description cuid-format identifier for this entity. */
+      readonly expert: string;
+      readonly expert_name: string;
+      readonly discipline: string;
+      readonly is_primary: boolean;
+      readonly target_level: components['schemas']['TargetLevelEnum'];
+      /** Format: date-time */
+      readonly created_at: string;
+    };
+    ExpertExpertiseRequest: {
+      discipline: string;
+      is_primary?: boolean;
+      target_level?: components['schemas']['TargetLevelEnum'];
+    };
+    ExpertProfile: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      readonly user: components['schemas']['User'];
+      readonly average_rating: string;
+      readonly total_reviews: string;
+      bio?: string;
+      /** Format: uri */
+      profile_photo?: string | null;
+      location?: string;
+      phone?: string;
+      job_title?: string;
+      institution?: string;
+      years_experience?: number;
+      employment_type?:
+        | components['schemas']['EmploymentTypeEnum']
+        | components['schemas']['BlankEnum'];
+      /** Format: uri */
+      cv_file?: string | null;
+      highest_degree?: string;
+      /** Format: uri */
+      linkedin_url?: string;
+      /** Format: uri */
+      twitter_url?: string;
+      /** Format: uri */
+      instagram_url?: string;
+      /** Format: uri */
+      github_url?: string;
+      /** Format: uri */
+      website_url?: string;
+      /**
+       * Format: uri
+       * @description Portfolio, Behance, Dribbble, YouTube etc.
+       */
+      portfolio_url?: string;
+      /**
+       * @description How the expert gained their expertise
+       *
+       *     * `formal_education` - Formal Education
+       *     * `professional_experience` - Professional Experience
+       *     * `self_taught` - Self-Taught / Autodidact
+       *     * `combination` - Combination
+       */
+      expertise_source?:
+        | components['schemas']['ExpertiseSourceEnum']
+        | components['schemas']['BlankEnum'];
+      /** @description Where they studied (if formal education) */
+      degree_institution?: string;
+      /** @description Notable projects, clients, achievements */
+      notable_work?: string;
+      /** Format: decimal */
+      message_rate?: string;
+      /** Format: decimal */
+      call_rate_per_min?: string;
+      /** Format: decimal */
+      group_subscription_price?: string;
+      /** @description If False, expert only accepts audio calls */
+      video_calls_enabled?: boolean;
+      /** @description Minimum call duration in minutes that students can book */
+      minimum_call_duration?: number;
+      readonly verification_status: components['schemas']['VerificationStatus7e0Enum'];
+      readonly verification_level: components['schemas']['VerificationLevelEnum'];
+      readonly verification_notes: string;
+      /** Format: date-time */
+      readonly verified_at: string | null;
+      onboarding_step?: number;
+      is_onboarding_complete?: boolean;
+      is_active?: boolean;
+      is_online?: boolean;
+      /** Format: decimal */
+      readonly total_earnings: string;
+      /** Format: decimal */
+      readonly pending_earnings: string;
+      /** Format: decimal */
+      readonly withdrawn_amount: string;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    ExpertProfileDetail: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** @description cuid-format identifier for this entity. */
+      user: string;
+      /** Format: email */
+      readonly user_email: string;
+      readonly user_name: string;
+      bio?: string;
+      /** Format: uri */
+      profile_photo?: string | null;
+      location?: string;
+      phone?: string;
+      job_title?: string;
+      institution?: string;
+      years_experience?: number;
+      employment_type?:
+        | components['schemas']['EmploymentTypeEnum']
+        | components['schemas']['BlankEnum'];
+      /** Format: uri */
+      cv_file?: string | null;
+      highest_degree?: string;
+      /** Format: uri */
+      linkedin_url?: string;
+      /** Format: uri */
+      twitter_url?: string;
+      /** Format: uri */
+      instagram_url?: string;
+      /** Format: uri */
+      github_url?: string;
+      /** Format: uri */
+      website_url?: string;
+      /**
+       * Format: uri
+       * @description Portfolio, Behance, Dribbble, YouTube etc.
+       */
+      portfolio_url?: string;
+      /**
+       * @description How the expert gained their expertise
+       *
+       *     * `formal_education` - Formal Education
+       *     * `professional_experience` - Professional Experience
+       *     * `self_taught` - Self-Taught / Autodidact
+       *     * `combination` - Combination
+       */
+      expertise_source?:
+        | components['schemas']['ExpertiseSourceEnum']
+        | components['schemas']['BlankEnum'];
+      /** @description Where they studied (if formal education) */
+      degree_institution?: string;
+      /** @description Notable projects, clients, achievements */
+      notable_work?: string;
+      /** Format: decimal */
+      message_rate?: string;
+      /** Format: decimal */
+      call_rate_per_min?: string;
+      /** Format: decimal */
+      group_subscription_price?: string;
+      /** @description If False, expert only accepts audio calls */
+      video_calls_enabled?: boolean;
+      /** @description Minimum call duration in minutes that students can book */
+      minimum_call_duration?: number;
+      verification_status?: components['schemas']['VerificationStatus7e0Enum'];
+      verification_level?:
+        | components['schemas']['VerificationLevelEnum']
+        | components['schemas']['BlankEnum'];
+      verification_notes?: string;
+      /** Format: date-time */
+      verified_at?: string | null;
+      onboarding_step?: number;
+      is_onboarding_complete?: boolean;
+      is_active?: boolean;
+      is_online?: boolean;
+      /** Format: decimal */
+      total_earnings?: string;
+      /** Format: decimal */
+      pending_earnings?: string;
+      /** Format: decimal */
+      withdrawn_amount?: string;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    ExpertProfileDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      user: string;
+      bio?: string;
+      /** Format: binary */
+      profile_photo?: string | null;
+      location?: string;
+      phone?: string;
+      job_title?: string;
+      institution?: string;
+      years_experience?: number;
+      employment_type?:
+        | components['schemas']['EmploymentTypeEnum']
+        | components['schemas']['BlankEnum'];
+      /** Format: binary */
+      cv_file?: string | null;
+      highest_degree?: string;
+      /** Format: uri */
+      linkedin_url?: string;
+      /** Format: uri */
+      twitter_url?: string;
+      /** Format: uri */
+      instagram_url?: string;
+      /** Format: uri */
+      github_url?: string;
+      /** Format: uri */
+      website_url?: string;
+      /**
+       * Format: uri
+       * @description Portfolio, Behance, Dribbble, YouTube etc.
+       */
+      portfolio_url?: string;
+      /**
+       * @description How the expert gained their expertise
+       *
+       *     * `formal_education` - Formal Education
+       *     * `professional_experience` - Professional Experience
+       *     * `self_taught` - Self-Taught / Autodidact
+       *     * `combination` - Combination
+       */
+      expertise_source?:
+        | components['schemas']['ExpertiseSourceEnum']
+        | components['schemas']['BlankEnum'];
+      /** @description Where they studied (if formal education) */
+      degree_institution?: string;
+      /** @description Notable projects, clients, achievements */
+      notable_work?: string;
+      /** Format: decimal */
+      message_rate?: string;
+      /** Format: decimal */
+      call_rate_per_min?: string;
+      /** Format: decimal */
+      group_subscription_price?: string;
+      /** @description If False, expert only accepts audio calls */
+      video_calls_enabled?: boolean;
+      /** @description Minimum call duration in minutes that students can book */
+      minimum_call_duration?: number;
+      verification_status?: components['schemas']['VerificationStatus7e0Enum'];
+      verification_level?:
+        | components['schemas']['VerificationLevelEnum']
+        | components['schemas']['BlankEnum'];
+      verification_notes?: string;
+      /** Format: date-time */
+      verified_at?: string | null;
+      onboarding_step?: number;
+      is_onboarding_complete?: boolean;
+      is_active?: boolean;
+      is_online?: boolean;
+      /** Format: decimal */
+      total_earnings?: string;
+      /** Format: decimal */
+      pending_earnings?: string;
+      /** Format: decimal */
+      withdrawn_amount?: string;
+    };
+    ExpertProfileList: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** @description cuid-format identifier for this entity. */
+      readonly user: string;
+      /** Format: email */
+      readonly user_email: string;
+      readonly user_name: string;
+      readonly bio: string;
+      readonly job_title: string;
+      readonly institution: string;
+      readonly verification_status: components['schemas']['VerificationStatus7e0Enum'];
+      readonly is_active: boolean;
+      readonly is_online: boolean;
+      /** Format: decimal */
+      readonly total_earnings: string;
+      /** Format: date-time */
+      readonly created_at: string;
+    };
+    /** @description Public serializer for students browsing experts — optimized for selling. */
+    ExpertProfilePublic: {
+      /** @description cuid-format identifier for this entity. */
+      id?: string;
+      readonly user_name: string;
+      bio?: string;
+      /** Format: uri */
+      profile_photo?: string | null;
+      location?: string;
+      job_title?: string;
+      institution?: string;
+      years_experience?: number;
+      highest_degree?: string;
+      /** Format: decimal */
+      message_rate?: string;
+      /** Format: decimal */
+      call_rate_per_min?: string;
+      /** Format: decimal */
+      group_subscription_price?: string;
+      verification_status?: components['schemas']['VerificationStatus7e0Enum'];
+      verification_level?:
+        | components['schemas']['VerificationLevelEnum']
+        | components['schemas']['BlankEnum'];
+      is_online?: boolean;
+      readonly average_rating: string;
+      readonly total_reviews: string;
+      readonly expertise: string;
+      readonly students_helped: string;
+      readonly total_sessions: string;
+      readonly response_time: string;
+      /** Format: uri */
+      linkedin_url?: string;
+      /** Format: uri */
+      twitter_url?: string;
+      /** Format: uri */
+      instagram_url?: string;
+      /** Format: uri */
+      github_url?: string;
+      /** Format: uri */
+      website_url?: string;
+      /** @description If False, expert only accepts audio calls */
+      video_calls_enabled?: boolean;
+      /** @description Minimum call duration in minutes that students can book */
+      minimum_call_duration?: number;
+    };
+    ExpertProfileRequest: {
+      bio?: string;
+      /** Format: binary */
+      profile_photo?: string | null;
+      location?: string;
+      phone?: string;
+      job_title?: string;
+      institution?: string;
+      years_experience?: number;
+      employment_type?:
+        | components['schemas']['EmploymentTypeEnum']
+        | components['schemas']['BlankEnum'];
+      /** Format: binary */
+      cv_file?: string | null;
+      highest_degree?: string;
+      /** Format: uri */
+      linkedin_url?: string;
+      /** Format: uri */
+      twitter_url?: string;
+      /** Format: uri */
+      instagram_url?: string;
+      /** Format: uri */
+      github_url?: string;
+      /** Format: uri */
+      website_url?: string;
+      /**
+       * Format: uri
+       * @description Portfolio, Behance, Dribbble, YouTube etc.
+       */
+      portfolio_url?: string;
+      /**
+       * @description How the expert gained their expertise
+       *
+       *     * `formal_education` - Formal Education
+       *     * `professional_experience` - Professional Experience
+       *     * `self_taught` - Self-Taught / Autodidact
+       *     * `combination` - Combination
+       */
+      expertise_source?:
+        | components['schemas']['ExpertiseSourceEnum']
+        | components['schemas']['BlankEnum'];
+      /** @description Where they studied (if formal education) */
+      degree_institution?: string;
+      /** @description Notable projects, clients, achievements */
+      notable_work?: string;
+      /** Format: decimal */
+      message_rate?: string;
+      /** Format: decimal */
+      call_rate_per_min?: string;
+      /** Format: decimal */
+      group_subscription_price?: string;
+      /** @description If False, expert only accepts audio calls */
+      video_calls_enabled?: boolean;
+      /** @description Minimum call duration in minutes that students can book */
+      minimum_call_duration?: number;
+      onboarding_step?: number;
+      is_onboarding_complete?: boolean;
+      is_active?: boolean;
+      is_online?: boolean;
+    };
+    /**
+     * @description * `formal_education` - Formal Education
+     *     * `professional_experience` - Professional Experience
+     *     * `self_taught` - Self-Taught / Autodidact
+     *     * `combination` - Combination
+     * @enum {string}
+     */
+    ExpertiseSourceEnum:
+      | 'formal_education'
+      | 'professional_experience'
+      | 'self_taught'
+      | 'combination';
     FileUpload: {
       /** @description cuid-format identifier for this entity. */
       readonly id: string;
@@ -4664,6 +11272,12 @@ export interface components {
       file: string;
     };
     /**
+     * @description * `LOCAL` - Local (Tanzania)
+     *     * `ABROAD` - Abroad (International)
+     * @enum {string}
+     */
+    FlowTypeEnum: 'LOCAL' | 'ABROAD';
+    /**
      * @description * `MALE` - MALE
      *     * `FEMALE` - FEMALE
      * @enum {string}
@@ -4679,10 +11293,69 @@ export interface components {
       /** Format: double */
       end_amount: number;
       is_default?: boolean;
+      /** @description Pipeline stage this fee is linked to (e.g. 'Police Clearance'). */
+      linked_stage?: string | null;
       /** Format: date-time */
       readonly created_at: string;
       /** Format: date-time */
       readonly updated_at: string;
+    };
+    GeneralExpenseDetail: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      name: string;
+      iname: string;
+      currency?: components['schemas']['CurrencyE3dEnum'];
+      is_default?: boolean;
+      /** Format: double */
+      offer?: number;
+      tag?: string | null;
+      /** @description Pipeline stage this fee is linked to (e.g. 'Police Clearance'). */
+      linked_stage?: string | null;
+      description?: string | null;
+      /** Format: double */
+      start_amount: number;
+      /** Format: double */
+      end_amount: number;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    GeneralExpenseDetailRequest: {
+      name: string;
+      iname: string;
+      currency?: components['schemas']['CurrencyE3dEnum'];
+      is_default?: boolean;
+      /** Format: double */
+      offer?: number;
+      tag?: string | null;
+      /** @description Pipeline stage this fee is linked to (e.g. 'Police Clearance'). */
+      linked_stage?: string | null;
+      description?: string | null;
+      /** Format: double */
+      start_amount: number;
+      /** Format: double */
+      end_amount: number;
+    };
+    GeneralExpenseList: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      readonly name: string;
+      readonly iname: string;
+      readonly currency: components['schemas']['CurrencyE3dEnum'];
+      readonly is_default: boolean;
+      /** Format: double */
+      readonly offer: number;
+      readonly tag: string | null;
+      /** @description Pipeline stage this fee is linked to (e.g. 'Police Clearance'). */
+      readonly linked_stage: string | null;
+      /** Format: double */
+      readonly start_amount: number;
+      /** Format: double */
+      readonly end_amount: number;
+      /** Format: date-time */
+      readonly created_at: string;
     };
     GeneralExpenseRequest: {
       /** @description cuid-format identifier for this entity. */
@@ -4694,11 +11367,194 @@ export interface components {
       /** Format: double */
       end_amount: number;
       is_default?: boolean;
+      /** @description Pipeline stage this fee is linked to (e.g. 'Police Clearance'). */
+      linked_stage?: string | null;
+    };
+    Group: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      readonly expert_name: string;
+      name: string;
+      description?: string;
+      /** Format: uri */
+      cover_image?: string | null;
+      /** Format: decimal */
+      subscription_price?: string;
+      is_active?: boolean;
+      readonly member_count: number;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+      /** @description cuid-format identifier for this entity. */
+      readonly expert: string;
+    };
+    GroupDetail: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** @description cuid-format identifier for this entity. */
+      expert: string;
+      readonly expert_name: string;
+      name: string;
+      description?: string;
+      /** Format: uri */
+      cover_image?: string | null;
+      /** Format: decimal */
+      subscription_price?: string;
+      is_active?: boolean;
+      member_count?: number;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    GroupDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      expert: string;
+      name: string;
+      description?: string;
+      /** Format: binary */
+      cover_image?: string | null;
+      /** Format: decimal */
+      subscription_price?: string;
+      is_active?: boolean;
+      member_count?: number;
+    };
+    GroupList: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      readonly name: string;
+      /** @description cuid-format identifier for this entity. */
+      readonly expert: string;
+      readonly expert_name: string;
+      /** Format: decimal */
+      readonly subscription_price: string;
+      readonly is_active: boolean;
+      readonly member_count: number;
+      /** Format: date-time */
+      readonly created_at: string;
+    };
+    GroupMembershipDetail: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** @description cuid-format identifier for this entity. */
+      group: string;
+      readonly group_name: string;
+      /** @description cuid-format identifier for this entity. */
+      user: string;
+      /** Format: email */
+      readonly user_email: string;
+      readonly user_name: string;
+      is_active?: boolean;
+      /** Format: date-time */
+      readonly joined_at: string;
+      /** Format: date-time */
+      expires_at?: string | null;
+    };
+    GroupMembershipDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      group: string;
+      /** @description cuid-format identifier for this entity. */
+      user: string;
+      is_active?: boolean;
+      /** Format: date-time */
+      expires_at?: string | null;
+    };
+    GroupMembershipList: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** @description cuid-format identifier for this entity. */
+      readonly group: string;
+      readonly group_name: string;
+      /** @description cuid-format identifier for this entity. */
+      readonly user: string;
+      /** Format: email */
+      readonly user_email: string;
+      readonly user_name: string;
+      readonly is_active: boolean;
+      /** Format: date-time */
+      readonly joined_at: string;
+      /** Format: date-time */
+      readonly expires_at: string | null;
+    };
+    GroupPost: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      readonly author_name: string;
+      content: string;
+      /** Format: uri */
+      image?: string | null;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+      /** @description cuid-format identifier for this entity. */
+      group: string;
+      /** @description cuid-format identifier for this entity. */
+      readonly author: string;
+    };
+    GroupPostDetail: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** @description cuid-format identifier for this entity. */
+      group: string;
+      readonly group_name: string;
+      /** @description cuid-format identifier for this entity. */
+      author: string;
+      readonly author_name: string;
+      content: string;
+      /** Format: uri */
+      image?: string | null;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    GroupPostDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      group: string;
+      /** @description cuid-format identifier for this entity. */
+      author: string;
+      content: string;
+      /** Format: binary */
+      image?: string | null;
+    };
+    GroupPostList: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** @description cuid-format identifier for this entity. */
+      readonly group: string;
+      readonly group_name: string;
+      /** @description cuid-format identifier for this entity. */
+      readonly author: string;
+      readonly author_name: string;
+      readonly content: string;
+      /** Format: date-time */
+      readonly created_at: string;
+    };
+    GroupPostRequest: {
+      content: string;
+      /** Format: binary */
+      image?: string | null;
+      /** @description cuid-format identifier for this entity. */
+      group: string;
+    };
+    GroupRequest: {
+      name: string;
+      description?: string;
+      /** Format: binary */
+      cover_image?: string | null;
+      /** Format: decimal */
+      subscription_price?: string;
+      is_active?: boolean;
     };
     Lead: {
       /** @description cuid-format identifier for this entity. */
       readonly id: string;
       readonly assigned_to_name: string;
+      readonly converted_student_name: string;
+      readonly converted_student_email: string;
+      readonly converted_student_phone: string;
       source: components['schemas']['SourceEnum'];
       status?: components['schemas']['LeadStatusEnum'];
       student_name: string;
@@ -4707,6 +11563,8 @@ export interface components {
       /** Format: email */
       email?: string;
       notes?: string;
+      /** @description True if this lead was matched to an existing ChuoLink app student account. */
+      is_app_student?: boolean;
       /** Format: date */
       follow_up_date?: string | null;
       /** Format: date-time */
@@ -4727,6 +11585,8 @@ export interface components {
       /** Format: email */
       email?: string;
       notes?: string;
+      /** @description True if this lead was matched to an existing ChuoLink app student account. */
+      is_app_student?: boolean;
       /** Format: date */
       follow_up_date?: string | null;
       /** @description cuid-format identifier for this entity. */
@@ -4750,6 +11610,39 @@ export interface components {
       | 'CONSULTATION_DONE'
       | 'CONVERTED'
       | 'LOST';
+    MailingListDetail: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** Format: email */
+      email?: string;
+      name?: string | null;
+      phone_number?: string | null;
+      subject?: string | null;
+      message?: string | null;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    MailingListDetailRequest: {
+      /** Format: email */
+      email?: string;
+      name?: string | null;
+      phone_number?: string | null;
+      subject?: string | null;
+      message?: string | null;
+    };
+    MailingListList: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** Format: email */
+      readonly email: string;
+      readonly name: string | null;
+      readonly phone_number: string | null;
+      readonly subject: string | null;
+      /** Format: date-time */
+      readonly created_at: string;
+    };
     ManualEmail: {
       readonly id: number;
       to?: components['schemas']['ToEnum'];
@@ -4786,11 +11679,10 @@ export interface components {
     ManualNotification: {
       readonly id: number;
       readonly recipient_count: string;
-      readonly successful_deliveries: string;
-      readonly failed_deliveries: string;
-      readonly error: string;
+      readonly recipient_name: string;
       is_sent?: boolean;
       to?: components['schemas']['ToEnum'];
+      channel?: components['schemas']['ChannelEnum'];
       data_type?:
         | (
             | components['schemas']['DataTypeEnum']
@@ -4805,6 +11697,8 @@ export interface components {
       data?: unknown;
       title: string;
       message: string;
+      /** @description Markdown body for email delivery */
+      email_body?: string | null;
       /** Format: date-time */
       when?: string;
       /** Format: date-time */
@@ -4819,6 +11713,7 @@ export interface components {
     ManualNotificationRequest: {
       is_sent?: boolean;
       to?: components['schemas']['ToEnum'];
+      channel?: components['schemas']['ChannelEnum'];
       data_type?:
         | (
             | components['schemas']['DataTypeEnum']
@@ -4833,6 +11728,8 @@ export interface components {
       data?: unknown;
       title: string;
       message: string;
+      /** @description Markdown body for email delivery */
+      email_body?: string | null;
       /** Format: date-time */
       when?: string;
       /** @description cuid-format identifier for this entity. */
@@ -4840,6 +11737,47 @@ export interface components {
       /** @description cuid-format identifier for this entity. */
       student?: string | null;
     };
+    Message: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      readonly sender_name: string;
+      content?: string;
+      message_type?: components['schemas']['MessageTypeEnum'];
+      /** Format: uri */
+      file?: string | null;
+      /** @description Duration in seconds for voice/video messages */
+      duration_seconds?: number | null;
+      readonly is_read: boolean;
+      readonly is_paid: boolean;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+      /** @description cuid-format identifier for this entity. */
+      conversation: string;
+      /** @description cuid-format identifier for this entity. */
+      readonly sender: string;
+    };
+    MessageRequest: {
+      content?: string;
+      message_type?: components['schemas']['MessageTypeEnum'];
+      /** Format: binary */
+      file?: string | null;
+      /** @description Duration in seconds for voice/video messages */
+      duration_seconds?: number | null;
+      /** @description cuid-format identifier for this entity. */
+      conversation: string;
+    };
+    /**
+     * @description * `text` - Text
+     *     * `image` - Image
+     *     * `file` - File
+     *     * `system` - System
+     *     * `voice` - Voice
+     *     * `video` - Video
+     * @enum {string}
+     */
+    MessageTypeEnum: 'text' | 'image' | 'file' | 'system' | 'voice' | 'video';
     /**
      * @description * `ghala` - Ghala
      *     * `revenuecat` - Revenuecat
@@ -5028,6 +11966,60 @@ export interface components {
     };
     /** @enum {unknown} */
     NullEnum: null;
+    NumberConstant: {
+      readonly id: number;
+      name: string;
+      /** Format: double */
+      value?: number;
+      description?: string | null;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    NumberConstantRequest: {
+      name: string;
+      /** Format: double */
+      value?: number;
+      description?: string | null;
+    };
+    OLevelGradeDetail: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      grade: string;
+      /** Format: double */
+      point: number;
+      min: number;
+      max: number;
+      range: string;
+      description: string;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    OLevelGradeDetailRequest: {
+      grade: string;
+      /** Format: double */
+      point: number;
+      min: number;
+      max: number;
+      range: string;
+      description: string;
+    };
+    OLevelGradeList: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      readonly grade: string;
+      /** Format: double */
+      readonly point: number;
+      readonly min: number;
+      readonly max: number;
+      readonly range: string;
+      readonly description: string;
+      /** Format: date-time */
+      readonly created_at: string;
+    };
     OLevelResultGradeModel: {
       /** @description cuid-format identifier for this entity. */
       readonly id: string;
@@ -5062,6 +12054,58 @@ export interface components {
     OLevelResultModelRequest: {
       reg_no: string;
     };
+    OLevelSubjectDetail: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      name: string;
+      slug: string;
+      code: string;
+      type: components['schemas']['Type84fEnum'];
+      category: components['schemas']['CategoryF26Enum'];
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    OLevelSubjectDetailRequest: {
+      name: string;
+      slug: string;
+      code: string;
+      type: components['schemas']['Type84fEnum'];
+      category: components['schemas']['CategoryF26Enum'];
+    };
+    OLevelSubjectList: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      readonly name: string;
+      readonly slug: string;
+      readonly code: string;
+      readonly type: components['schemas']['Type84fEnum'];
+      readonly category: components['schemas']['CategoryF26Enum'];
+      /** Format: date-time */
+      readonly created_at: string;
+    };
+    /**
+     * @description * `student` - Student
+     *     * `staff` - Staff
+     * @enum {string}
+     */
+    OwnerEnum: 'student' | 'staff';
+    PaginatedALevelCombinationListList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['ALevelCombinationList'][];
+    };
     PaginatedALevelCombinationModelList: {
       /** @example 123 */
       count?: number;
@@ -5076,6 +12120,36 @@ export interface components {
        */
       previous?: string | null;
       results?: components['schemas']['ALevelCombinationModel'][];
+    };
+    PaginatedALevelCombinationSubjectListList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['ALevelCombinationSubjectList'][];
+    };
+    PaginatedALevelGradeListList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['ALevelGradeList'][];
     };
     PaginatedALevelGradeModelList: {
       /** @example 123 */
@@ -5121,6 +12195,21 @@ export interface components {
        */
       previous?: string | null;
       results?: components['schemas']['ALevelResultModel'][];
+    };
+    PaginatedALevelSubjectListList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['ALevelSubjectList'][];
     };
     PaginatedAdmissionLetterModelList: {
       /** @example 123 */
@@ -5182,7 +12271,7 @@ export interface components {
       previous?: string | null;
       results?: components['schemas']['ApplicationInfoModel'][];
     };
-    PaginatedApplicationList: {
+    PaginatedApplicationListList: {
       /** @example 123 */
       count?: number;
       /**
@@ -5195,7 +12284,7 @@ export interface components {
        * @example http://api.example.org/accounts/?page=2
        */
       previous?: string | null;
-      results?: components['schemas']['Application'][];
+      results?: components['schemas']['ApplicationList'][];
     };
     PaginatedApplicationPaymentList: {
       /** @example 123 */
@@ -5212,6 +12301,96 @@ export interface components {
       previous?: string | null;
       results?: components['schemas']['ApplicationPayment'][];
     };
+    PaginatedApplicationStageInstanceList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['ApplicationStageInstance'][];
+    };
+    PaginatedApplicationStageTemplateList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['ApplicationStageTemplate'][];
+    };
+    PaginatedBookingList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['Booking'][];
+    };
+    PaginatedBookingListList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['BookingList'][];
+    };
+    PaginatedCallList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['Call'][];
+    };
+    PaginatedCareerCourseListList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['CareerCourseList'][];
+    };
     PaginatedCareerCourseModelList: {
       /** @example 123 */
       count?: number;
@@ -5227,6 +12406,36 @@ export interface components {
       previous?: string | null;
       results?: components['schemas']['CareerCourseModel'][];
     };
+    PaginatedCareerDisciplineListList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['CareerDisciplineList'][];
+    };
+    PaginatedCareerListList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['CareerList'][];
+    };
     PaginatedCareerModelList: {
       /** @example 123 */
       count?: number;
@@ -5241,6 +12450,51 @@ export interface components {
        */
       previous?: string | null;
       results?: components['schemas']['CareerModel'][];
+    };
+    PaginatedCareerSalaryListList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['CareerSalaryList'][];
+    };
+    PaginatedCareerSpecificListList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['CareerSpecificList'][];
+    };
+    PaginatedCareerTrendListList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['CareerTrendList'][];
     };
     PaginatedChatMessageList: {
       /** @example 123 */
@@ -5287,6 +12541,21 @@ export interface components {
       previous?: string | null;
       results?: components['schemas']['ConsultantApplication'][];
     };
+    PaginatedConsultantApplicationListList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['ConsultantApplicationList'][];
+    };
     PaginatedConsultantList: {
       /** @example 123 */
       count?: number;
@@ -5301,6 +12570,21 @@ export interface components {
        */
       previous?: string | null;
       results?: components['schemas']['Consultant'][];
+    };
+    PaginatedConsultantListList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['ConsultantList'][];
     };
     PaginatedConsultantWithdrawalList: {
       /** @example 123 */
@@ -5317,6 +12601,21 @@ export interface components {
       previous?: string | null;
       results?: components['schemas']['ConsultantWithdrawal'][];
     };
+    PaginatedConsultantWithdrawalListList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['ConsultantWithdrawalList'][];
+    };
     PaginatedConsultationList: {
       /** @example 123 */
       count?: number;
@@ -5331,6 +12630,36 @@ export interface components {
        */
       previous?: string | null;
       results?: components['schemas']['Consultation'][];
+    };
+    PaginatedConversationList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['Conversation'][];
+    };
+    PaginatedCountryBenefitListList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['CountryBenefitList'][];
     };
     PaginatedCountryExpenseList: {
       /** @example 123 */
@@ -5347,6 +12676,36 @@ export interface components {
       previous?: string | null;
       results?: components['schemas']['CountryExpense'][];
     };
+    PaginatedCountryExpenseListList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['CountryExpenseList'][];
+    };
+    PaginatedCountryFAQListList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['CountryFAQList'][];
+    };
     PaginatedCountryLikeModelList: {
       /** @example 123 */
       count?: number;
@@ -5362,6 +12721,21 @@ export interface components {
       previous?: string | null;
       results?: components['schemas']['CountryLikeModel'][];
     };
+    PaginatedCountryListList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['CountryList'][];
+    };
     PaginatedCountryModelList: {
       /** @example 123 */
       count?: number;
@@ -5376,6 +12750,66 @@ export interface components {
        */
       previous?: string | null;
       results?: components['schemas']['CountryModel'][];
+    };
+    PaginatedCountryPictureListList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['CountryPictureList'][];
+    };
+    PaginatedCountryReasonListList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['CountryReasonList'][];
+    };
+    PaginatedCountryTestimonialListList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['CountryTestimonialList'][];
+    };
+    PaginatedCourseDisciplineListList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['CourseDisciplineList'][];
     };
     PaginatedCourseExpenseList: {
       /** @example 123 */
@@ -5407,6 +12841,21 @@ export interface components {
       previous?: string | null;
       results?: components['schemas']['Course'][];
     };
+    PaginatedCourseListList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['CourseList'][];
+    };
     PaginatedCourseModelList: {
       /** @example 123 */
       count?: number;
@@ -5421,6 +12870,66 @@ export interface components {
        */
       previous?: string | null;
       results?: components['schemas']['CourseModel'][];
+    };
+    PaginatedCourseModuleListList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['CourseModuleList'][];
+    };
+    PaginatedCoursePictureListList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['CoursePictureList'][];
+    };
+    PaginatedCourseRequirementsList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['CourseRequirements'][];
+    };
+    PaginatedCourseSemisterListList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['CourseSemisterList'][];
     };
     PaginatedCourseTrendList: {
       /** @example 123 */
@@ -5437,6 +12946,51 @@ export interface components {
       previous?: string | null;
       results?: components['schemas']['CourseTrend'][];
     };
+    PaginatedCourseTrendListList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['CourseTrendList'][];
+    };
+    PaginatedCourseUniversityExpensesList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['CourseUniversityExpenses'][];
+    };
+    PaginatedCourseUniversityListList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['CourseUniversityList'][];
+    };
     PaginatedCourseUniversityModelList: {
       /** @example 123 */
       count?: number;
@@ -5451,6 +13005,36 @@ export interface components {
        */
       previous?: string | null;
       results?: components['schemas']['CourseUniversityModel'][];
+    };
+    PaginatedCourseVideoListList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['CourseVideoList'][];
+    };
+    PaginatedCourseYearListList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['CourseYearList'][];
     };
     PaginatedCourseYearModelList: {
       /** @example 123 */
@@ -5482,6 +13066,21 @@ export interface components {
       previous?: string | null;
       results?: components['schemas']['CoursesLikedModel'][];
     };
+    PaginatedDisciplineListList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['DisciplineList'][];
+    };
     PaginatedDisciplineModelList: {
       /** @example 123 */
       count?: number;
@@ -5511,6 +13110,141 @@ export interface components {
        */
       previous?: string | null;
       results?: components['schemas']['DocumentQueue'][];
+    };
+    PaginatedEarningTransactionList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['EarningTransaction'][];
+    };
+    PaginatedExpertAvailabilityList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['ExpertAvailability'][];
+    };
+    PaginatedExpertAvailabilityListList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['ExpertAvailabilityList'][];
+    };
+    PaginatedExpertCredentialList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['ExpertCredential'][];
+    };
+    PaginatedExpertCredentialListList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['ExpertCredentialList'][];
+    };
+    PaginatedExpertExpertiseList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['ExpertExpertise'][];
+    };
+    PaginatedExpertExpertiseListList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['ExpertExpertiseList'][];
+    };
+    PaginatedExpertProfileList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['ExpertProfile'][];
+    };
+    PaginatedExpertProfileListList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['ExpertProfileList'][];
     };
     PaginatedFileUploadList: {
       /** @example 123 */
@@ -5542,6 +13276,96 @@ export interface components {
       previous?: string | null;
       results?: components['schemas']['GeneralExpense'][];
     };
+    PaginatedGeneralExpenseListList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['GeneralExpenseList'][];
+    };
+    PaginatedGroupList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['Group'][];
+    };
+    PaginatedGroupListList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['GroupList'][];
+    };
+    PaginatedGroupMembershipListList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['GroupMembershipList'][];
+    };
+    PaginatedGroupPostList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['GroupPost'][];
+    };
+    PaginatedGroupPostListList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['GroupPostList'][];
+    };
     PaginatedLeadList: {
       /** @example 123 */
       count?: number;
@@ -5557,6 +13381,36 @@ export interface components {
       previous?: string | null;
       results?: components['schemas']['Lead'][];
     };
+    PaginatedMailingListListList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['MailingListList'][];
+    };
+    PaginatedMessageList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['Message'][];
+    };
     PaginatedNotificationList: {
       /** @example 123 */
       count?: number;
@@ -5571,6 +13425,36 @@ export interface components {
        */
       previous?: string | null;
       results?: components['schemas']['Notification'][];
+    };
+    PaginatedNumberConstantList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['NumberConstant'][];
+    };
+    PaginatedOLevelGradeListList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['OLevelGradeList'][];
     };
     PaginatedOLevelResultGradeModelList: {
       /** @example 123 */
@@ -5601,6 +13485,51 @@ export interface components {
        */
       previous?: string | null;
       results?: components['schemas']['OLevelResultModel'][];
+    };
+    PaginatedOLevelSubjectListList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['OLevelSubjectList'][];
+    };
+    PaginatedParentListList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['ParentList'][];
+    };
+    PaginatedParentStudentLinkList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['ParentStudentLink'][];
     };
     PaginatedPaymentList: {
       /** @example 123 */
@@ -5677,6 +13606,21 @@ export interface components {
       previous?: string | null;
       results?: components['schemas']['ReferralModel'][];
     };
+    PaginatedReminderList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['Reminder'][];
+    };
     PaginatedReportModelList: {
       /** @example 123 */
       count?: number;
@@ -5691,6 +13635,51 @@ export interface components {
        */
       previous?: string | null;
       results?: components['schemas']['ReportModel'][];
+    };
+    PaginatedRequirementResponseList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['RequirementResponse'][];
+    };
+    PaginatedReviewList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['Review'][];
+    };
+    PaginatedReviewListList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['ReviewList'][];
     };
     PaginatedSalesCallList: {
       /** @example 123 */
@@ -5707,6 +13696,36 @@ export interface components {
       previous?: string | null;
       results?: components['schemas']['SalesCall'][];
     };
+    PaginatedScholarshipImageListList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['ScholarshipImageList'][];
+    };
+    PaginatedScholarshipListList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['ScholarshipList'][];
+    };
     PaginatedScholarshipModelList: {
       /** @example 123 */
       count?: number;
@@ -5721,6 +13740,21 @@ export interface components {
        */
       previous?: string | null;
       results?: components['schemas']['ScholarshipModel'][];
+    };
+    PaginatedSemisterListList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['SemisterList'][];
     };
     PaginatedStaffTaskList: {
       /** @example 123 */
@@ -5737,6 +13771,21 @@ export interface components {
       previous?: string | null;
       results?: components['schemas']['StaffTask'][];
     };
+    PaginatedStageRequirementList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['StageRequirement'][];
+    };
     PaginatedStudentCombinationChoiceModelList: {
       /** @example 123 */
       count?: number;
@@ -5752,7 +13801,7 @@ export interface components {
       previous?: string | null;
       results?: components['schemas']['StudentCombinationChoiceModel'][];
     };
-    PaginatedStudentDetailList: {
+    PaginatedStudentDocumentAdminList: {
       /** @example 123 */
       count?: number;
       /**
@@ -5765,7 +13814,22 @@ export interface components {
        * @example http://api.example.org/accounts/?page=2
        */
       previous?: string | null;
-      results?: components['schemas']['StudentDetail'][];
+      results?: components['schemas']['StudentDocumentAdmin'][];
+    };
+    PaginatedStudentDocumentList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['StudentDocument'][];
     };
     PaginatedStudentJourneyEventList: {
       /** @example 123 */
@@ -5781,6 +13845,21 @@ export interface components {
        */
       previous?: string | null;
       results?: components['schemas']['StudentJourneyEvent'][];
+    };
+    PaginatedStudentListList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['StudentList'][];
     };
     PaginatedStudentModelList: {
       /** @example 123 */
@@ -5827,6 +13906,21 @@ export interface components {
       previous?: string | null;
       results?: components['schemas']['StudentSubscriptionModel'][];
     };
+    PaginatedSubscriptionListList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['SubscriptionList'][];
+    };
     PaginatedSubscriptionModelList: {
       /** @example 123 */
       count?: number;
@@ -5841,6 +13935,36 @@ export interface components {
        */
       previous?: string | null;
       results?: components['schemas']['SubscriptionModel'][];
+    };
+    PaginatedTestimonialList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['Testimonial'][];
+    };
+    PaginatedTestimonialListList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['TestimonialList'][];
     };
     PaginatedTransactionModelList: {
       /** @example 123 */
@@ -5887,6 +14011,21 @@ export interface components {
       previous?: string | null;
       results?: components['schemas']['UniversityExpense'][];
     };
+    PaginatedUniversityExpensesListList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['UniversityExpensesList'][];
+    };
     PaginatedUniversityLikedModelList: {
       /** @example 123 */
       count?: number;
@@ -5917,6 +14056,51 @@ export interface components {
       previous?: string | null;
       results?: components['schemas']['University'][];
     };
+    PaginatedUniversityListList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['UniversityList'][];
+    };
+    PaginatedUniversityLocationList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['UniversityLocation'][];
+    };
+    PaginatedUniversityPictureListList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['UniversityPictureList'][];
+    };
     PaginatedUniversityPictureModelList: {
       /** @example 123 */
       count?: number;
@@ -5931,6 +14115,51 @@ export interface components {
        */
       previous?: string | null;
       results?: components['schemas']['UniversityPictureModel'][];
+    };
+    PaginatedUniversityRankingList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['UniversityRanking'][];
+    };
+    PaginatedUniversityStudyReasonsListList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['UniversityStudyReasonsList'][];
+    };
+    PaginatedUniversityVideoListList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['UniversityVideoList'][];
     };
     PaginatedUserReferralSummaryList: {
       /** @example 123 */
@@ -5977,11 +14206,155 @@ export interface components {
       previous?: string | null;
       results?: components['schemas']['WithdrawalModel'][];
     };
+    ParentDetail: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** @description cuid-format identifier for this entity. */
+      student: string;
+      readonly student_name: string;
+      /** @description cuid-format identifier for this entity. */
+      user?: string | null;
+      /** Format: email */
+      readonly user_email: string;
+      name: string;
+      phone_number?: string | null;
+      /** Format: email */
+      email?: string | null;
+      verification_status?: components['schemas']['VerificationStatus45dEnum'];
+      is_primary_contact?: boolean;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    ParentDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      student: string;
+      /** @description cuid-format identifier for this entity. */
+      user?: string | null;
+      name: string;
+      phone_number?: string | null;
+      /** Format: email */
+      email?: string | null;
+      verification_status?: components['schemas']['VerificationStatus45dEnum'];
+      is_primary_contact?: boolean;
+    };
+    ParentList: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** @description cuid-format identifier for this entity. */
+      readonly student: string;
+      readonly student_name: string;
+      /** @description cuid-format identifier for this entity. */
+      readonly user: string | null;
+      /** Format: email */
+      readonly user_email: string;
+      readonly name: string;
+      readonly phone_number: string | null;
+      /** Format: email */
+      readonly email: string | null;
+      readonly verification_status: components['schemas']['VerificationStatus45dEnum'];
+      readonly is_primary_contact: boolean;
+      /** Format: date-time */
+      readonly created_at: string;
+    };
+    ParentStudentLink: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      readonly parent_name: string;
+      readonly student_name: string;
+      relationship?: components['schemas']['RelationshipEnum'];
+      readonly verified: boolean;
+      /** Format: date-time */
+      readonly verified_at: string | null;
+      can_make_payments?: boolean;
+      can_upload_documents?: boolean;
+      notifications_enabled?: boolean;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+      /** @description cuid-format identifier for this entity. */
+      parent: string;
+      /** @description cuid-format identifier for this entity. */
+      student: string;
+    };
+    ParentStudentLinkRequest: {
+      relationship?: components['schemas']['RelationshipEnum'];
+      can_make_payments?: boolean;
+      can_upload_documents?: boolean;
+      notifications_enabled?: boolean;
+      /** @description cuid-format identifier for this entity. */
+      parent: string;
+      /** @description cuid-format identifier for this entity. */
+      student: string;
+    };
+    ParentVerification: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      readonly student_name: string;
+      parent_name: string;
+      parent_phone?: string;
+      /** Format: email */
+      parent_email?: string;
+      relationship?: components['schemas']['RelationshipEnum'];
+      readonly verification_code: string;
+      readonly status: components['schemas']['ParentVerificationStatusEnum'];
+      /** Format: date-time */
+      readonly verified_at: string | null;
+      /** Format: date-time */
+      readonly expires_at: string;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** @description cuid-format identifier for this entity. */
+      student: string;
+      /** @description cuid-format identifier for this entity. */
+      parent?: string | null;
+    };
+    ParentVerificationRequest: {
+      parent_name: string;
+      parent_phone?: string;
+      /** Format: email */
+      parent_email?: string;
+      relationship?: components['schemas']['RelationshipEnum'];
+      /** @description cuid-format identifier for this entity. */
+      student: string;
+      /** @description cuid-format identifier for this entity. */
+      parent?: string | null;
+    };
+    /**
+     * @description * `PENDING` - Pending
+     *     * `VERIFIED` - Verified
+     *     * `EXPIRED` - Expired
+     * @enum {string}
+     */
+    ParentVerificationStatusEnum: 'PENDING' | 'VERIFIED' | 'EXPIRED';
+    PatchedALevelCombinationDetailRequest: {
+      combination?: string;
+      category?: components['schemas']['CategoryF26Enum'];
+      description?: string;
+      codes?: string;
+    };
     PatchedALevelCombinationModelRequest: {
       combination?: string;
       category?: components['schemas']['CategoryF26Enum'];
       description?: string;
       codes?: string;
+    };
+    PatchedALevelCombinationSubjectDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      combination?: string;
+      /** @description cuid-format identifier for this entity. */
+      subject?: string;
+    };
+    PatchedALevelGradeDetailRequest: {
+      grade?: string;
+      /** Format: double */
+      point?: number;
+      min?: number;
+      max?: number;
+      range?: string;
+      description?: string;
     };
     PatchedALevelGradeModelRequest: {
       /** Format: double */
@@ -5994,6 +14367,14 @@ export interface components {
     };
     PatchedALevelResultModelRequest: {
       reg_no?: string;
+    };
+    PatchedALevelSubjectDetailRequest: {
+      name?: string;
+      slug?: string;
+      code?: string;
+      necta_name?: string;
+      type?: components['schemas']['Type84fEnum'];
+      category?: components['schemas']['CategoryF26Enum'];
     };
     PatchedAdminUserRequest: {
       /** Format: email */
@@ -6020,6 +14401,8 @@ export interface components {
       /** @description cuid-format identifier for this entity. */
       application?: string;
       name?: string;
+      /** @description Short description shown to student, e.g. 'Your official acceptance from the university' */
+      description?: string | null;
       /** Format: binary */
       document?: string;
     };
@@ -6042,6 +14425,75 @@ export interface components {
       /** Format: date-time */
       when?: string | null;
     };
+    PatchedApplicationStageInstanceRequest: {
+      stage_order?: number;
+      stage_name?: string;
+      stage_type?: components['schemas']['StageTypeC6fEnum'];
+      description?: string;
+      is_required?: boolean;
+      status?: components['schemas']['StatusD7dEnum'];
+      /** Format: date */
+      due_date?: string | null;
+      /** @description Student responses, uploaded file URLs, etc. */
+      data?: unknown;
+      document_types?: unknown;
+      /** Format: decimal */
+      payment_amount?: string | null;
+      payment_currency?: string;
+      /** Format: date-time */
+      scheduled_date?: string | null;
+      /** Format: date-time */
+      completed_at?: string | null;
+      /** @description How questions are presented: list (default) or wizard (one-at-a-time) */
+      answer_mode?: string;
+      /** @description Fee patterns linked to this stage instance. Copied from template on creation. */
+      linked_fees?: unknown;
+      /** @description If true, all required linked fees must be paid before the student can progress past this stage. */
+      payment_required_to_progress?: boolean;
+      notes?: string;
+      /** @description cuid-format identifier for this entity. */
+      application?: string;
+      /** @description Links this stage to the unified pipeline. Bridges template-based stages with pipeline tracking. */
+      pipeline?: string | null;
+      /** @description cuid-format identifier for this entity. */
+      template?: string | null;
+      /** @description Staff member responsible for this stage. Admin can reassign to take over. */
+      assigned_to?: string | null;
+      /** @description cuid-format identifier for this entity. */
+      completed_by?: string | null;
+    };
+    PatchedApplicationStageTemplateRequest: {
+      flow_type?: components['schemas']['FlowTypeEnum'];
+      stage_order?: number;
+      stage_name?: string;
+      stage_type?: components['schemas']['StageTypeC6fEnum'];
+      /** @description Instructions shown to the student for this stage. */
+      description?: string;
+      is_required?: boolean;
+      /** @description List of required document types if stage_type=DOCUMENT_UPLOAD. */
+      document_types?: unknown;
+      /**
+       * Format: decimal
+       * @description Default payment amount if stage_type=PAYMENT.
+       */
+      payment_amount?: string | null;
+      payment_currency?: string;
+      requires_scheduling?: boolean;
+      /** @description Auto-send notification when this stage becomes active. */
+      auto_notify?: boolean;
+      /** @description Default requirements auto-created for this stage. E.g. [{"response_type":"DOCUMENT","title":"Birth Certificate","is_required":true,"accepted_file_types":[".pdf",".jpg"],"description":"Upload a clear scan"}] */
+      requirements_config?: unknown;
+      /** @description How questions are presented: list (default) or wizard (one-at-a-time) */
+      answer_mode?: string;
+      /** @description Fee patterns linked to this stage. E.g. [{'pattern': 'passport fee', 'required': true, 'label': 'Passport Fee'}] */
+      linked_fees?: unknown;
+      /** @description If true, all required linked fees must be paid before the student can progress past this stage. */
+      payment_required_to_progress?: boolean;
+      /** @description Null = default for flow type; set for country-specific overrides. */
+      country?: string | null;
+      /** @description cuid-format identifier for this entity. */
+      created_by?: string | null;
+    };
     PatchedBankTransactionRequest: {
       /** @description cuid-format identifier for this entity. */
       id?: string;
@@ -6058,11 +14510,78 @@ export interface components {
       /** @description cuid-format identifier for this entity. */
       user?: string;
     };
+    PatchedBookingDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      expert?: string;
+      /** @description cuid-format identifier for this entity. */
+      student?: string;
+      booking_type?: components['schemas']['BookingTypeEnum'];
+      status?: components['schemas']['Status177Enum'];
+      /** Format: date */
+      scheduled_date?: string;
+      /** Format: time */
+      scheduled_time?: string;
+      duration_minutes?: number;
+      notes?: string;
+      /** Format: decimal */
+      amount?: string;
+      is_paid?: boolean;
+    };
+    PatchedBookingRequest: {
+      booking_type?: components['schemas']['BookingTypeEnum'];
+      status?: components['schemas']['Status177Enum'];
+      /** Format: date */
+      scheduled_date?: string;
+      /** Format: time */
+      scheduled_time?: string;
+      duration_minutes?: number;
+      notes?: string;
+      /** Format: decimal */
+      amount?: string;
+      /** @description cuid-format identifier for this entity. */
+      expert?: string;
+      /** @description cuid-format identifier for this entity. */
+      student?: string;
+    };
+    PatchedCallRequest: {
+      call_type?: components['schemas']['CallCallTypeEnum'];
+      /** @description Original booked duration in minutes */
+      booked_duration_minutes?: number;
+      /**
+       * Format: date-time
+       * @description When the call is scheduled for
+       */
+      scheduled_at?: string | null;
+      /** @description cuid-format identifier for this entity. */
+      conversation?: string | null;
+      /** @description cuid-format identifier for this entity. */
+      expert?: string;
+      /** @description cuid-format identifier for this entity. */
+      student?: string;
+    };
+    PatchedCareerCourseDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      career?: string;
+      /** @description cuid-format identifier for this entity. */
+      course?: string;
+    };
     PatchedCareerCourseModelRequest: {
       /** @description cuid-format identifier for this entity. */
       career?: string;
       /** @description cuid-format identifier for this entity. */
       course?: string;
+    };
+    PatchedCareerDetailRequest: {
+      name?: string;
+      slug?: string | null;
+      /** Format: binary */
+      img?: string | null;
+    };
+    PatchedCareerDisciplineDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      career?: string;
+      /** @description cuid-format identifier for this entity. */
+      discipline?: string;
     };
     PatchedCareerModelRequest: {
       name?: string;
@@ -6070,24 +14589,86 @@ export interface components {
       img?: string | null;
       slug?: string | null;
     };
+    PatchedCareerSalaryDetailRequest: {
+      /** Format: double */
+      start_salary?: number;
+      /** Format: double */
+      end_salary?: number;
+    };
+    PatchedCareerSpecificDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      career?: string;
+      version?: number;
+      introduction?: string | null;
+      responsibilities?: string | null;
+      skills?: string | null;
+      qualifications?: string | null;
+      career_map?: string | null;
+    };
+    PatchedCareerTrendDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      career?: string;
+      category?: string | null;
+      /** Chances to be Employed in Formal Sector */
+      formal_employment_chances?: number | null;
+      /** Chances for Self Employment */
+      self_employment_chances?: number | null;
+      world_trend_demand?: number | null;
+      /** Local Market Demand (Tanzania) Approximate Estimates */
+      local_market_demand?: number | null;
+      /** Local Market Supply (Tanzania) Approximate Estimates */
+      local_market_supply?: number | null;
+      major_stakeholders?: string | null;
+      /** Side Hustles (Tanzania) */
+      side_hustles?: string | null;
+      /** Market Perspective (Tanzania) */
+      market_perspective?: string | null;
+      /** Relevant Courses Cross Reference */
+      relevant_courses?: string | null;
+    };
     PatchedChatMessageRequest: {
       message?: string;
       /** @description cuid-format identifier for this entity. */
       session?: string;
       sender?: components['schemas']['SenderEnum'];
     };
+    PatchedConsultantApplicationDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      consultant?: string;
+      /** @description cuid-format identifier for this entity. */
+      application?: string;
+      status?: components['schemas']['Status2dfEnum'];
+      is_paid?: boolean;
+    };
     PatchedConsultantApplicationRequest: {
       /** @description cuid-format identifier for this entity. */
       id?: string;
-      status?: components['schemas']['ConsultantApplicationStatusEnum'];
+      status?: components['schemas']['Status2dfEnum'];
       is_paid?: boolean;
+    };
+    PatchedConsultantDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      user?: string;
+      is_active?: boolean;
+      payment_type?: components['schemas']['PaymentTypeA9cEnum'];
+      payment_name?: string | null;
+      payment_account_name?: string | null;
+      /** Format: double */
+      earnings?: number;
+      payment_account_number?: string | null;
     };
     PatchedConsultantRequest: {
       is_active?: boolean;
-      payment_type?: components['schemas']['ConsultantPaymentTypeEnum'];
+      payment_type?: components['schemas']['PaymentTypeA9cEnum'];
       payment_name?: string | null;
       payment_account_name?: string | null;
       payment_account_number?: string | null;
+    };
+    PatchedConsultantWithdrawalDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      consultant?: string;
+      /** Format: double */
+      amount?: number;
     };
     PatchedConsultantWithdrawalRequest: {
       /** @description cuid-format identifier for this entity. */
@@ -6119,8 +14700,49 @@ export interface components {
       lead?: string | null;
       /** @description cuid-format identifier for this entity. */
       student?: string | null;
+    };
+    PatchedConversationRequest: {
       /** @description cuid-format identifier for this entity. */
-      consultant?: string;
+      expert_id?: string;
+      is_active?: boolean;
+    };
+    PatchedCountryBenefitDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      country?: string;
+      title?: string;
+      description?: string;
+      /** Format: uri */
+      image?: string;
+      order?: number;
+    };
+    PatchedCountryDetailRequest: {
+      name?: string;
+      slug?: string | null;
+      code?: string;
+      order?: number;
+      description?: string | null;
+      no_of_universities?: number;
+      no_of_students?: number;
+      scholarship_only?: boolean;
+      location?: components['schemas']['CountryLocationRequest'];
+    };
+    PatchedCountryExpenseDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      country?: string;
+      name?: string;
+      iname?: string;
+      currency?: components['schemas']['CurrencyE3dEnum'];
+      is_default?: boolean;
+      /** Format: double */
+      offer?: number;
+      tag?: string | null;
+      /** @description Pipeline stage this fee is linked to (e.g. 'Police Clearance'). */
+      linked_stage?: string | null;
+      description?: string | null;
+      /** Format: double */
+      start_amount?: number;
+      /** Format: double */
+      end_amount?: number;
     };
     PatchedCountryExpenseRequest: {
       /** @description cuid-format identifier for this entity. */
@@ -6133,6 +14755,14 @@ export interface components {
       end_amount?: number;
       /** @description cuid-format identifier for this entity. */
       country?: string;
+      /** @description Pipeline stage this fee is linked to (e.g. 'Police Clearance'). */
+      linked_stage?: string | null;
+    };
+    PatchedCountryFAQDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      country?: string;
+      question?: string;
+      answer?: string;
     };
     PatchedCountryLikeModelRequest: {
       /** @description cuid-format identifier for this entity. */
@@ -6147,6 +14777,53 @@ export interface components {
       scholarship_only?: boolean;
       no_of_students?: number;
     };
+    PatchedCountryPictureDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      country?: string;
+      name?: string;
+      /** Format: binary */
+      image?: string;
+    };
+    PatchedCountryReasonDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      country?: string;
+      text?: string;
+      order?: number;
+    };
+    PatchedCountryTestimonialDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      country?: string;
+      name?: string;
+      subtitle?: string;
+      /** Format: uri */
+      image?: string;
+      /** @description Testimonial text content */
+      content?: string;
+    };
+    PatchedCourseDetailRequest: {
+      name?: string;
+      slug?: string;
+      code?: string | null;
+      version?: number;
+      /** @description cuid-format identifier for this entity. */
+      category?: string | null;
+      combination?: string | null;
+      short_description?: string | null;
+      long_description?: string | null;
+      is_active?: boolean;
+      order?: number;
+      /** Format: uri */
+      video_url?: string | null;
+      /** Format: binary */
+      img_url?: string | null;
+      description?: string | null;
+    };
+    PatchedCourseDisciplineDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      course?: string;
+      /** @description cuid-format identifier for this entity. */
+      discipline?: string;
+    };
     PatchedCourseExpenseRequest: {
       /** @description cuid-format identifier for this entity. */
       id?: string;
@@ -6158,11 +14835,35 @@ export interface components {
       end_amount?: number;
       /** @description cuid-format identifier for this entity. */
       uni_course?: string;
+      /** @description Pipeline stage this fee is linked to (e.g. 'Police Clearance'). */
+      linked_stage?: string | null;
     };
     PatchedCourseModelRequest: {
       order?: number;
       short_description?: string | null;
       long_description?: string | null;
+    };
+    PatchedCourseModuleDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      course_semister?: string;
+      title?: string | null;
+      code?: string | null;
+      version?: number;
+      description?: string | null;
+      category?:
+        | (
+            | components['schemas']['Category55aEnum']
+            | components['schemas']['BlankEnum']
+            | components['schemas']['NullEnum']
+          )
+        | null;
+    };
+    PatchedCoursePictureDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      course?: string;
+      name?: string;
+      /** Format: binary */
+      image?: string;
     };
     PatchedCourseRequest: {
       /** @description cuid-format identifier for this entity. */
@@ -6173,6 +14874,52 @@ export interface components {
       /** @description cuid-format identifier for this entity. */
       category?: string | null;
       is_active?: boolean;
+    };
+    /** @description Used when nested inside CourseUniversityDetailSerializer (no uni_course FK). */
+    PatchedCourseRequirementsNestedRequest: {
+      combinations?: string | null;
+      detailed_requirement?: string | null;
+      admission_points?: number | null;
+      requirement?: string | null;
+      requirement_json?: unknown;
+      version?: number;
+    };
+    PatchedCourseSemisterDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      course_year?: string;
+      /** @description cuid-format identifier for this entity. */
+      semister?: string;
+    };
+    PatchedCourseTrendDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      course?: string;
+      sector_relevance?: number | null;
+      employment_demand?: number | null;
+      self_employment_potential?: number | null;
+      formal_employment_demand?: number | null;
+      /** Geographical Relevance (Tanzania & East Africa) */
+      geographical_relevance?: number | null;
+      economic_trends_alignment?: number | null;
+      /** Technological Advancements Alignment */
+      technological_advancement_alignment?: number | null;
+      /** Government and Educational Policy Support */
+      government_policy_support?: number | null;
+      skill_gap_industry_need?: number | null;
+      /** Career Progression and Stability */
+      career_progression_stability?: number | null;
+      /** Income and Salary Potential */
+      income_salary_potential?: number | null;
+      alignment_with_sdgs?: number | null;
+      educational_infrastructure_quality?: number | null;
+      /** Cultural Acceptance and Social Value */
+      cultural_acceptance?: number | null;
+      /** Predictability Duration Accuracy (in years) */
+      predictability_duration?: string | null;
+      /**
+       * Overall Realistic Potential (%)
+       * Format: double
+       */
+      overall_potential?: number | null;
     };
     PatchedCourseTrendRequest: {
       sector_relevance?: number | null;
@@ -6205,12 +14952,72 @@ export interface components {
       /** @description cuid-format identifier for this entity. */
       course?: string;
     };
+    PatchedCourseUniversityDetailRequest: {
+      name?: string;
+      unclear_name?: string | null;
+      /** @description cuid-format identifier for this entity. */
+      course?: string;
+      /** @description cuid-format identifier for this entity. */
+      university?: string;
+      /** Format: double */
+      offer?: number;
+      min_capacity?: number | null;
+      max_capacity?: number | null;
+      /** Format: double */
+      duration?: number | null;
+      /** Format: double */
+      fee?: number;
+      is_active?: boolean;
+      requirements?:
+        | components['schemas']['CourseRequirementsNestedRequest']
+        | null;
+      course_expenses?: components['schemas']['CourseUniversityExpensesNestedRequest'][];
+    };
+    /** @description Used when nested inside CourseUniversityDetailSerializer (no uni_course FK). */
+    PatchedCourseUniversityExpensesNestedRequest: {
+      id?: string;
+      currency?: components['schemas']['CurrencyE3dEnum'];
+      iname?: string;
+      name?: string;
+      /** Format: double */
+      offer?: number;
+      is_default?: boolean;
+      tag?: string | null;
+      /** @description Pipeline stage this fee is linked to (e.g. 'Police Clearance'). */
+      linked_stage?: string | null;
+      description?: string | null;
+      /** Format: double */
+      start_amount?: number;
+      /** Format: double */
+      end_amount?: number;
+    };
     PatchedCourseUniversityModelRequest: {
       max_capacity?: number | null;
       min_capacity?: number | null;
     };
+    PatchedCourseVideoDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      course?: string;
+      name?: string;
+      /** Format: binary */
+      video?: string;
+    };
+    PatchedCourseYearDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      uni_course?: string;
+      year?: number;
+      objective?: string | null;
+      description?: string | null;
+    };
     PatchedCoursesLikedModelRequest: {
       is_like?: boolean;
+    };
+    PatchedDisciplineDetailRequest: {
+      name?: string;
+      slug?: string;
+      /** Format: binary */
+      image?: string;
+      description?: string | null;
     };
     PatchedDisciplineModelRequest: {
       name?: string;
@@ -6218,7 +15025,7 @@ export interface components {
     };
     /** @description Flat serializer for the admin document verification queue. */
     PatchedDocumentQueueRequest: {
-      document_type?: components['schemas']['DocumentTypeEnum'];
+      document_type?: components['schemas']['DocumentTypeA7eEnum'];
       status?: components['schemas']['StatusFd3Enum'];
       /** Format: binary */
       document_file?: string | null;
@@ -6229,10 +15036,215 @@ export interface components {
       /** @description cuid-format identifier for this entity. */
       verified_by?: string | null;
     };
+    PatchedEarningTransactionRequest: {
+      transaction_type?: components['schemas']['TransactionTypeEnum'];
+      status?: components['schemas']['EarningTransactionStatusEnum'];
+      description?: string;
+      reference_id?: string;
+    };
+    PatchedExpertAvailabilityDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      expert?: string;
+      day?: components['schemas']['DayEnum'];
+      /** Format: time */
+      start_time?: string;
+      /** Format: time */
+      end_time?: string;
+      timezone?: string;
+    };
+    PatchedExpertAvailabilityRequest: {
+      day?: components['schemas']['DayEnum'];
+      /** Format: time */
+      start_time?: string;
+      /** Format: time */
+      end_time?: string;
+      timezone?: string;
+    };
+    PatchedExpertCredentialDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      expert?: string;
+      credential_type?: components['schemas']['CredentialTypeEnum'];
+      title?: string;
+      institution?: string;
+      /** Format: binary */
+      file?: string | null;
+      year?: number | null;
+    };
+    PatchedExpertCredentialRequest: {
+      credential_type?: components['schemas']['CredentialTypeEnum'];
+      title?: string;
+      institution?: string;
+      /** Format: binary */
+      file?: string | null;
+      year?: number | null;
+    };
+    PatchedExpertExpertiseDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      expert?: string;
+      discipline?: string;
+      is_primary?: boolean;
+      target_level?: components['schemas']['TargetLevelEnum'];
+    };
+    PatchedExpertExpertiseRequest: {
+      discipline?: string;
+      is_primary?: boolean;
+      target_level?: components['schemas']['TargetLevelEnum'];
+    };
+    PatchedExpertProfileDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      user?: string;
+      bio?: string;
+      /** Format: binary */
+      profile_photo?: string | null;
+      location?: string;
+      phone?: string;
+      job_title?: string;
+      institution?: string;
+      years_experience?: number;
+      employment_type?:
+        | components['schemas']['EmploymentTypeEnum']
+        | components['schemas']['BlankEnum'];
+      /** Format: binary */
+      cv_file?: string | null;
+      highest_degree?: string;
+      /** Format: uri */
+      linkedin_url?: string;
+      /** Format: uri */
+      twitter_url?: string;
+      /** Format: uri */
+      instagram_url?: string;
+      /** Format: uri */
+      github_url?: string;
+      /** Format: uri */
+      website_url?: string;
+      /**
+       * Format: uri
+       * @description Portfolio, Behance, Dribbble, YouTube etc.
+       */
+      portfolio_url?: string;
+      /**
+       * @description How the expert gained their expertise
+       *
+       *     * `formal_education` - Formal Education
+       *     * `professional_experience` - Professional Experience
+       *     * `self_taught` - Self-Taught / Autodidact
+       *     * `combination` - Combination
+       */
+      expertise_source?:
+        | components['schemas']['ExpertiseSourceEnum']
+        | components['schemas']['BlankEnum'];
+      /** @description Where they studied (if formal education) */
+      degree_institution?: string;
+      /** @description Notable projects, clients, achievements */
+      notable_work?: string;
+      /** Format: decimal */
+      message_rate?: string;
+      /** Format: decimal */
+      call_rate_per_min?: string;
+      /** Format: decimal */
+      group_subscription_price?: string;
+      /** @description If False, expert only accepts audio calls */
+      video_calls_enabled?: boolean;
+      /** @description Minimum call duration in minutes that students can book */
+      minimum_call_duration?: number;
+      verification_status?: components['schemas']['VerificationStatus7e0Enum'];
+      verification_level?:
+        | components['schemas']['VerificationLevelEnum']
+        | components['schemas']['BlankEnum'];
+      verification_notes?: string;
+      /** Format: date-time */
+      verified_at?: string | null;
+      onboarding_step?: number;
+      is_onboarding_complete?: boolean;
+      is_active?: boolean;
+      is_online?: boolean;
+      /** Format: decimal */
+      total_earnings?: string;
+      /** Format: decimal */
+      pending_earnings?: string;
+      /** Format: decimal */
+      withdrawn_amount?: string;
+    };
+    PatchedExpertProfileRequest: {
+      bio?: string;
+      /** Format: binary */
+      profile_photo?: string | null;
+      location?: string;
+      phone?: string;
+      job_title?: string;
+      institution?: string;
+      years_experience?: number;
+      employment_type?:
+        | components['schemas']['EmploymentTypeEnum']
+        | components['schemas']['BlankEnum'];
+      /** Format: binary */
+      cv_file?: string | null;
+      highest_degree?: string;
+      /** Format: uri */
+      linkedin_url?: string;
+      /** Format: uri */
+      twitter_url?: string;
+      /** Format: uri */
+      instagram_url?: string;
+      /** Format: uri */
+      github_url?: string;
+      /** Format: uri */
+      website_url?: string;
+      /**
+       * Format: uri
+       * @description Portfolio, Behance, Dribbble, YouTube etc.
+       */
+      portfolio_url?: string;
+      /**
+       * @description How the expert gained their expertise
+       *
+       *     * `formal_education` - Formal Education
+       *     * `professional_experience` - Professional Experience
+       *     * `self_taught` - Self-Taught / Autodidact
+       *     * `combination` - Combination
+       */
+      expertise_source?:
+        | components['schemas']['ExpertiseSourceEnum']
+        | components['schemas']['BlankEnum'];
+      /** @description Where they studied (if formal education) */
+      degree_institution?: string;
+      /** @description Notable projects, clients, achievements */
+      notable_work?: string;
+      /** Format: decimal */
+      message_rate?: string;
+      /** Format: decimal */
+      call_rate_per_min?: string;
+      /** Format: decimal */
+      group_subscription_price?: string;
+      /** @description If False, expert only accepts audio calls */
+      video_calls_enabled?: boolean;
+      /** @description Minimum call duration in minutes that students can book */
+      minimum_call_duration?: number;
+      onboarding_step?: number;
+      is_onboarding_complete?: boolean;
+      is_active?: boolean;
+      is_online?: boolean;
+    };
     PatchedFileUploadRequest: {
       name?: string;
       /** Format: binary */
       file?: string;
+    };
+    PatchedGeneralExpenseDetailRequest: {
+      name?: string;
+      iname?: string;
+      currency?: components['schemas']['CurrencyE3dEnum'];
+      is_default?: boolean;
+      /** Format: double */
+      offer?: number;
+      tag?: string | null;
+      /** @description Pipeline stage this fee is linked to (e.g. 'Police Clearance'). */
+      linked_stage?: string | null;
+      description?: string | null;
+      /** Format: double */
+      start_amount?: number;
+      /** Format: double */
+      end_amount?: number;
     };
     PatchedGeneralExpenseRequest: {
       /** @description cuid-format identifier for this entity. */
@@ -6244,6 +15256,54 @@ export interface components {
       /** Format: double */
       end_amount?: number;
       is_default?: boolean;
+      /** @description Pipeline stage this fee is linked to (e.g. 'Police Clearance'). */
+      linked_stage?: string | null;
+    };
+    PatchedGroupDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      expert?: string;
+      name?: string;
+      description?: string;
+      /** Format: binary */
+      cover_image?: string | null;
+      /** Format: decimal */
+      subscription_price?: string;
+      is_active?: boolean;
+      member_count?: number;
+    };
+    PatchedGroupMembershipDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      group?: string;
+      /** @description cuid-format identifier for this entity. */
+      user?: string;
+      is_active?: boolean;
+      /** Format: date-time */
+      expires_at?: string | null;
+    };
+    PatchedGroupPostDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      group?: string;
+      /** @description cuid-format identifier for this entity. */
+      author?: string;
+      content?: string;
+      /** Format: binary */
+      image?: string | null;
+    };
+    PatchedGroupPostRequest: {
+      content?: string;
+      /** Format: binary */
+      image?: string | null;
+      /** @description cuid-format identifier for this entity. */
+      group?: string;
+    };
+    PatchedGroupRequest: {
+      name?: string;
+      description?: string;
+      /** Format: binary */
+      cover_image?: string | null;
+      /** Format: decimal */
+      subscription_price?: string;
+      is_active?: boolean;
     };
     PatchedLeadRequest: {
       source?: components['schemas']['SourceEnum'];
@@ -6254,12 +15314,22 @@ export interface components {
       /** Format: email */
       email?: string;
       notes?: string;
+      /** @description True if this lead was matched to an existing ChuoLink app student account. */
+      is_app_student?: boolean;
       /** Format: date */
       follow_up_date?: string | null;
       /** @description cuid-format identifier for this entity. */
       assigned_to?: string | null;
       /** @description cuid-format identifier for this entity. */
       converted_student?: string | null;
+    };
+    PatchedMailingListDetailRequest: {
+      /** Format: email */
+      email?: string;
+      name?: string | null;
+      phone_number?: string | null;
+      subject?: string | null;
+      message?: string | null;
     };
     PatchedManualEmailRequest: {
       to?: components['schemas']['ToEnum'];
@@ -6278,6 +15348,7 @@ export interface components {
     PatchedManualNotificationRequest: {
       is_sent?: boolean;
       to?: components['schemas']['ToEnum'];
+      channel?: components['schemas']['ChannelEnum'];
       data_type?:
         | (
             | components['schemas']['DataTypeEnum']
@@ -6292,12 +15363,24 @@ export interface components {
       data?: unknown;
       title?: string;
       message?: string;
+      /** @description Markdown body for email delivery */
+      email_body?: string | null;
       /** Format: date-time */
       when?: string;
       /** @description cuid-format identifier for this entity. */
       user?: string | null;
       /** @description cuid-format identifier for this entity. */
       student?: string | null;
+    };
+    PatchedMessageRequest: {
+      content?: string;
+      message_type?: components['schemas']['MessageTypeEnum'];
+      /** Format: binary */
+      file?: string | null;
+      /** @description Duration in seconds for voice/video messages */
+      duration_seconds?: number | null;
+      /** @description cuid-format identifier for this entity. */
+      conversation?: string;
     };
     PatchedMobileTransactionRequest: {
       /** @description cuid-format identifier for this entity. */
@@ -6358,8 +15441,52 @@ export interface components {
       is_success?: boolean;
       is_read?: boolean;
     };
+    PatchedNumberConstantRequest: {
+      name?: string;
+      /** Format: double */
+      value?: number;
+      description?: string | null;
+    };
+    PatchedOLevelGradeDetailRequest: {
+      grade?: string;
+      /** Format: double */
+      point?: number;
+      min?: number;
+      max?: number;
+      range?: string;
+      description?: string;
+    };
     PatchedOLevelResultModelRequest: {
       reg_no?: string;
+    };
+    PatchedOLevelSubjectDetailRequest: {
+      name?: string;
+      slug?: string;
+      code?: string;
+      type?: components['schemas']['Type84fEnum'];
+      category?: components['schemas']['CategoryF26Enum'];
+    };
+    PatchedParentDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      student?: string;
+      /** @description cuid-format identifier for this entity. */
+      user?: string | null;
+      name?: string;
+      phone_number?: string | null;
+      /** Format: email */
+      email?: string | null;
+      verification_status?: components['schemas']['VerificationStatus45dEnum'];
+      is_primary_contact?: boolean;
+    };
+    PatchedParentStudentLinkRequest: {
+      relationship?: components['schemas']['RelationshipEnum'];
+      can_make_payments?: boolean;
+      can_upload_documents?: boolean;
+      notifications_enabled?: boolean;
+      /** @description cuid-format identifier for this entity. */
+      parent?: string;
+      /** @description cuid-format identifier for this entity. */
+      student?: string;
     };
     PatchedPaymentModelRequest: {
       /** @description cuid-format identifier for this entity. */
@@ -6379,6 +15506,15 @@ export interface components {
           )
         | null;
       status?: components['schemas']['Status692Enum'];
+      /**
+       * Format: date-time
+       * @description Payment deadline. If set and passed, payment may expire.
+       */
+      deadline?: string | null;
+      /** @description Higher priority shows first. Admission=100, Processing=50, others=0. */
+      priority?: number;
+      /** @description Pipeline stage name this payment is linked to (e.g. 'Police Clearance'). Shown inline in that stage. */
+      linked_stage?: string | null;
     };
     PatchedPaymentRequest: {
       /** @description cuid-format identifier for this entity. */
@@ -6400,6 +15536,15 @@ export interface components {
         | null;
       status?: components['schemas']['Status692Enum'];
       bulk_id?: string | null;
+      /**
+       * Format: date-time
+       * @description Payment deadline. If set and passed, payment may expire.
+       */
+      deadline?: string | null;
+      /** @description Higher priority shows first. Admission=100, Processing=50, others=0. */
+      priority?: number;
+      /** @description Pipeline stage name this payment is linked to (e.g. 'Police Clearance'). Shown inline in that stage. */
+      linked_stage?: string | null;
       /** @description cuid-format identifier for this entity. */
       user?: string;
       /** @description cuid-format identifier for this entity. */
@@ -6409,7 +15554,7 @@ export interface components {
       payment_type?: components['schemas']['PipelinePaymentPaymentTypeEnum'];
       /** Format: decimal */
       amount?: string;
-      currency?: components['schemas']['CurrencyEnum'];
+      currency?: components['schemas']['PipelinePaymentCurrencyEnum'];
       status?: components['schemas']['PipelinePaymentStatusEnum'];
       /** Format: date */
       due_date?: string | null;
@@ -6421,7 +15566,7 @@ export interface components {
       payment?: string | null;
     };
     PatchedPipelineStageRequest: {
-      stage_type?: components['schemas']['StageTypeEnum'];
+      stage_type?: components['schemas']['PipelineStageStageTypeEnum'];
       status?: components['schemas']['PipelineStageStatusEnum'];
       /** Format: date-time */
       started_at?: string | null;
@@ -6437,13 +15582,62 @@ export interface components {
       /** @description cuid-format identifier for this entity. */
       assigned_to?: string | null;
     };
+    PatchedReminderRequest: {
+      recipient_type?: components['schemas']['RecipientTypeEnum'];
+      reminder_type?: components['schemas']['ReminderTypeEnum'];
+      priority?: components['schemas']['PriorityEnum'];
+      title?: string;
+      message?: string;
+      /** @description Deep link to relevant page in the app. */
+      action_url?: string;
+      /**
+       * Format: date-time
+       * @description When the reminder should be delivered.
+       */
+      scheduled_for?: string;
+      auto_generated?: boolean;
+      /** @description cuid-format identifier for this entity. */
+      student?: string;
+      /** @description cuid-format identifier for this entity. */
+      application?: string | null;
+      /** @description cuid-format identifier for this entity. */
+      stage_instance?: string | null;
+      /** @description cuid-format identifier for this entity. */
+      created_by?: string | null;
+    };
     PatchedReportModelRequest: {
       payment?: string;
       issue?: string;
       description?: string;
     };
+    PatchedRequirementResponseRequest: {
+      text_response?: string;
+      /** Format: binary */
+      file_response?: string | null;
+      /** Format: date-time */
+      schedule_response?: string | null;
+      status?: components['schemas']['RequirementResponseStatusEnum'];
+      /** @description Admin notes — rejection reason or approval notes. */
+      review_notes?: string;
+      /** @description cuid-format identifier for this entity. */
+      requirement?: string;
+    };
+    PatchedReviewDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      expert?: string;
+      /** @description cuid-format identifier for this entity. */
+      reviewer?: string;
+      rating?: number;
+      comment?: string;
+    };
+    PatchedReviewRequest: {
+      rating?: number;
+      comment?: string;
+      /** @description cuid-format identifier for this entity. */
+      expert?: string;
+    };
     PatchedSalesCallRequest: {
-      call_type?: components['schemas']['CallTypeEnum'];
+      call_type?: components['schemas']['SalesCallCallTypeEnum'];
       purpose?: components['schemas']['PurposeEnum'];
       outcome?: components['schemas']['SalesCallOutcomeEnum'];
       duration_minutes?: number;
@@ -6455,8 +15649,35 @@ export interface components {
       lead?: string | null;
       /** @description cuid-format identifier for this entity. */
       student?: string | null;
+    };
+    PatchedScholarshipDetailRequest: {
+      name?: string;
+      /** Format: binary */
+      img?: string | null;
       /** @description cuid-format identifier for this entity. */
-      caller?: string;
+      country?: string;
+      /** @description cuid-format identifier for this entity. */
+      university?: string | null;
+      category?: components['schemas']['CategoryFfcEnum'];
+      amount?: string | null;
+      eligibility?: string | null;
+      eligibility_short?: string | null;
+      requirements?: string | null;
+      description?: string | null;
+      /** Format: date-time */
+      posted_at?: string | null;
+      /** Format: date-time */
+      deadline?: string | null;
+      region?: string | null;
+      /** Format: uri */
+      link?: string | null;
+    };
+    PatchedScholarshipImageDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      scholarship?: string;
+      name?: string;
+      /** Format: binary */
+      image?: string;
     };
     PatchedScholarshipModelRequest: {
       /** Format: binary */
@@ -6472,9 +15693,16 @@ export interface components {
       /** Format: date-time */
       deadline?: string | null;
       region?: string | null;
-      category?: components['schemas']['ScholarshipModelCategoryEnum'];
+      category?: components['schemas']['CategoryFfcEnum'];
       /** Format: uri */
       link?: string | null;
+    };
+    PatchedSemisterDetailRequest: {
+      semister_no?: number;
+      name?: string | null;
+      start_month?: number | null;
+      end_month?: number | null;
+      description?: string | null;
     };
     PatchedStaffTaskRequest: {
       task_type?: components['schemas']['TaskTypeEnum'];
@@ -6493,6 +15721,53 @@ export interface components {
       pipeline?: string | null;
       /** @description cuid-format identifier for this entity. */
       related_stage?: string | null;
+    };
+    PatchedStageRequirementRequest: {
+      /** @description True if auto-created from stage template; False if added ad-hoc by admin. */
+      from_template?: boolean;
+      response_type?: components['schemas']['ResponseTypeEnum'];
+      title?: string;
+      /** @description Instructions shown to the student for this requirement. */
+      description?: string;
+      is_required?: boolean;
+      /** @description If True, admin must approve the response. If False (default), response is auto-approved on submission. */
+      requires_review?: boolean;
+      status?: components['schemas']['Status29eEnum'];
+      /** @description E.g. [".pdf", ".jpg", ".png"] */
+      accepted_file_types?: unknown;
+      /** Format: date-time */
+      scheduled_date?: string | null;
+      /** @description E.g. "Tanzania Immigration Office, Dar es Salaam" */
+      scheduled_location?: string;
+      /** Format: date-time */
+      reviewed_at?: string | null;
+      /** @description Shown to student when requirement is rejected. */
+      rejection_reason?: string;
+      /**
+       * @description Who is responsible for fulfilling this requirement. Staff-owned requirements show a waiting state to students.
+       *
+       *     * `student` - Student
+       *     * `staff` - Staff
+       */
+      owner?: components['schemas']['OwnerEnum'];
+      /**
+       * @description student-scoped answers are reused across applications
+       *
+       *     * `application` - Application
+       *     * `student` - Student
+       */
+      scope?: components['schemas']['ScopeEnum'];
+      /** @description Links to StudentDocumentModel.document_type for auto-fill. E.g. 'PASSPORT', 'BIRTH_CERT' */
+      document_type?: string | null;
+      /** @description Options for SELECT type. E.g. [{"value": "male", "label": "Male"}] */
+      options?: unknown;
+      order?: number;
+      /** @description cuid-format identifier for this entity. */
+      stage_instance?: string;
+      /** @description cuid-format identifier for this entity. */
+      added_by?: string | null;
+      /** @description cuid-format identifier for this entity. */
+      reviewed_by?: string | null;
     };
     PatchedStudentCombinationChoiceModelRequest: {
       /** @description cuid-format identifier for this entity. */
@@ -6513,6 +15788,29 @@ export interface components {
       balance?: number;
       /** Format: double */
       earnings?: number;
+    };
+    /** @description Admin serializer — can update verification status. */
+    PatchedStudentDocumentAdminRequest: {
+      document_type?: components['schemas']['DocumentType1feEnum'];
+      /** Format: binary */
+      document_file?: string;
+      label?: string;
+      verification_status?: components['schemas']['VerificationStatus3f6Enum'];
+      /** Format: date-time */
+      verified_at?: string | null;
+      rejection_reason?: string;
+      /** @description cuid-format identifier for this entity. */
+      student?: string;
+      /** @description cuid-format identifier for this entity. */
+      verified_by?: string | null;
+    };
+    PatchedStudentDocumentRequest: {
+      document_type?: components['schemas']['DocumentType1feEnum'];
+      /** Format: binary */
+      document_file?: string;
+      label?: string;
+      /** @description cuid-format identifier for this entity. */
+      student?: string;
     };
     PatchedStudentJourneyEventRequest: {
       event_type?: components['schemas']['EventTypeEnum'];
@@ -6536,6 +15834,10 @@ export interface components {
       related_consultation?: string | null;
       /** @description cuid-format identifier for this entity. */
       related_document?: string | null;
+      /** @description cuid-format identifier for this entity. */
+      related_stage_instance?: string | null;
+      /** @description cuid-format identifier for this entity. */
+      related_requirement?: string | null;
     };
     PatchedStudentModelRequest: {
       /** Format: email */
@@ -6563,7 +15865,16 @@ export interface components {
       student?: string;
       /** @description cuid-format identifier for this entity. */
       application?: string | null;
+      /**
+       * @description Determines which stage templates are used (local=fewer stages, abroad=full 16).
+       *
+       *     * `LOCAL` - Local (Tanzania)
+       *     * `ABROAD` - Abroad (International)
+       */
+      flow_type?: components['schemas']['FlowTypeEnum'];
       current_phase?: components['schemas']['CurrentPhaseEnum'];
+      /** @description True if the student has committed to this university as their final choice. */
+      is_committed?: boolean;
       /** @description cuid-format identifier for this entity. */
       assigned_consultant?: string | null;
       /** @description cuid-format identifier for this entity. */
@@ -6572,8 +15883,62 @@ export interface components {
       completed_at?: string | null;
       notes?: string;
     };
+    PatchedSubscriptionDetailRequest: {
+      name?: string;
+      description?: string;
+      /** Format: double */
+      amount?: number;
+      duration_period?: number;
+      duration_desc?: string;
+      /** Format: double */
+      discount_percentage?: number;
+    };
     PatchedSubscriptionModelRequest: {
       duration_period?: number;
+    };
+    PatchedTestimonialDetailRequest: {
+      testimonial_type?: components['schemas']['TestimonialTypeEnum'];
+      person_name?: string;
+      /** @description E.g. "Parent of Amina, studying in India" */
+      relationship?: string;
+      /**
+       * Format: uri
+       * @description YouTube or Vimeo embed URL.
+       */
+      video_url?: string;
+      /** Format: binary */
+      thumbnail?: string | null;
+      /** @description Short text excerpt for display in cards. */
+      quote?: string;
+      /** @description cuid-format identifier for this entity. */
+      university?: string | null;
+      /** @description cuid-format identifier for this entity. */
+      country?: string | null;
+      is_featured?: boolean;
+      is_active?: boolean;
+      display_order?: number;
+    };
+    PatchedTestimonialRequest: {
+      testimonial_type?: components['schemas']['TestimonialTypeEnum'];
+      person_name?: string;
+      /** @description E.g. "Parent of Amina, studying in India" */
+      relationship?: string;
+      /**
+       * Format: uri
+       * @description YouTube or Vimeo embed URL.
+       */
+      video_url?: string;
+      /** Format: binary */
+      thumbnail?: string | null;
+      /** @description Short text excerpt for display in cards. */
+      quote?: string;
+      is_featured?: boolean;
+      is_active?: boolean;
+      display_order?: number;
+      /** @description cuid-format identifier for this entity. */
+      university?: string | null;
+      /** @description cuid-format identifier for this entity. */
+      country?: string | null;
     };
     PatchedTransactionModelRequest: {
       code?: string;
@@ -6597,6 +15962,35 @@ export interface components {
       status?: components['schemas']['StatusC07Enum'];
       info?: string | null;
     };
+    PatchedUniversityDetailRequest: {
+      name?: string;
+      slug?: string;
+      code?: string | null;
+      order?: number;
+      /** @description cuid-format identifier for this entity. */
+      country?: string;
+      category?: components['schemas']['Category64aEnum'];
+      institution_type?: string;
+      scholarship?: components['schemas']['ScholarshipEnum'];
+      /** Format: double */
+      offer?: number;
+      max_applications?: number;
+      /** Format: uri */
+      website_link?: string | null;
+      /** Format: uri */
+      admission_link?: string | null;
+      /** Format: binary */
+      video?: string | null;
+      /** Format: uri */
+      video_url?: string | null;
+      /** Format: binary */
+      img_url?: string | null;
+      description?: string | null;
+      capacity?: number | null;
+      no_of_students?: number;
+      location?: components['schemas']['UniversityLocationRequest'] | null;
+      ranking?: components['schemas']['UniversityRankingRequest'] | null;
+    };
     PatchedUniversityExpenseRequest: {
       /** @description cuid-format identifier for this entity. */
       id?: string;
@@ -6608,10 +16002,46 @@ export interface components {
       end_amount?: number;
       /** @description cuid-format identifier for this entity. */
       university?: string;
+      /** @description Pipeline stage this fee is linked to (e.g. 'Police Clearance'). */
+      linked_stage?: string | null;
+    };
+    PatchedUniversityExpensesDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      university?: string;
+      name?: string;
+      iname?: string;
+      currency?: components['schemas']['CurrencyE3dEnum'];
+      is_default?: boolean;
+      /** Format: double */
+      offer?: number;
+      tag?: string | null;
+      /** @description Pipeline stage this fee is linked to (e.g. 'Police Clearance'). */
+      linked_stage?: string | null;
+      description?: string | null;
+      /** Format: double */
+      start_amount?: number;
+      /** Format: double */
+      end_amount?: number;
     };
     PatchedUniversityLikedModelRequest: {
       /** @description cuid-format identifier for this entity. */
       university?: string;
+    };
+    /** @description Writable serializer used as a nested field inside UniversityDetailSerializer. */
+    PatchedUniversityLocationRequest: {
+      region?: string | null;
+      address?: string | null;
+      /** Format: double */
+      latitude?: number | null;
+      /** Format: double */
+      longitude?: number | null;
+    };
+    PatchedUniversityPictureDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      university?: string;
+      name?: components['schemas']['NameEnum'];
+      /** Format: binary */
+      image?: string;
     };
     PatchedUniversityPictureModelRequest: {
       /** @description cuid-format identifier for this entity. */
@@ -6620,6 +16050,12 @@ export interface components {
       /** Format: binary */
       image?: string;
     };
+    /** @description Writable serializer used as a nested field inside UniversityDetailSerializer. */
+    PatchedUniversityRankingRequest: {
+      global_rank?: number | null;
+      country_rank?: number | null;
+      continent_rank?: number | null;
+    };
     PatchedUniversityRequest: {
       /** @description cuid-format identifier for this entity. */
       id?: string;
@@ -6627,6 +16063,19 @@ export interface components {
       code?: string | null;
       /** @description cuid-format identifier for this entity. */
       country?: string;
+    };
+    PatchedUniversityStudyReasonsDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      university?: string;
+      title?: string;
+      description?: string;
+    };
+    PatchedUniversityVideoDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      university?: string;
+      name?: string;
+      /** Format: binary */
+      video?: string;
     };
     PatchedUserReferralSummaryRequest: {
       /** @description cuid-format identifier for this entity. */
@@ -6707,6 +16156,15 @@ export interface components {
         | null;
       status?: components['schemas']['Status692Enum'];
       bulk_id?: string | null;
+      /**
+       * Format: date-time
+       * @description Payment deadline. If set and passed, payment may expire.
+       */
+      deadline?: string | null;
+      /** @description Higher priority shows first. Admission=100, Processing=50, others=0. */
+      priority?: number;
+      /** @description Pipeline stage name this payment is linked to (e.g. 'Police Clearance'). Shown inline in that stage. */
+      linked_stage?: string | null;
       /** Format: date-time */
       readonly created_at: string;
       /** Format: date-time */
@@ -6738,6 +16196,15 @@ export interface components {
         | null;
       status?: components['schemas']['Status692Enum'];
       readonly bulk_id: string | null;
+      /**
+       * Format: date-time
+       * @description Payment deadline. If set and passed, payment may expire.
+       */
+      deadline?: string | null;
+      /** @description Higher priority shows first. Admission=100, Processing=50, others=0. */
+      priority?: number;
+      /** @description Pipeline stage name this payment is linked to (e.g. 'Police Clearance'). Shown inline in that stage. */
+      linked_stage?: string | null;
       /** Format: date-time */
       readonly created_at: string;
       /** Format: date-time */
@@ -6763,6 +16230,15 @@ export interface components {
           )
         | null;
       status?: components['schemas']['Status692Enum'];
+      /**
+       * Format: date-time
+       * @description Payment deadline. If set and passed, payment may expire.
+       */
+      deadline?: string | null;
+      /** @description Higher priority shows first. Admission=100, Processing=50, others=0. */
+      priority?: number;
+      /** @description Pipeline stage name this payment is linked to (e.g. 'Police Clearance'). Shown inline in that stage. */
+      linked_stage?: string | null;
     };
     PaymentRequest: {
       /** @description cuid-format identifier for this entity. */
@@ -6784,18 +16260,33 @@ export interface components {
         | null;
       status?: components['schemas']['Status692Enum'];
       bulk_id?: string | null;
+      /**
+       * Format: date-time
+       * @description Payment deadline. If set and passed, payment may expire.
+       */
+      deadline?: string | null;
+      /** @description Higher priority shows first. Admission=100, Processing=50, others=0. */
+      priority?: number;
+      /** @description Pipeline stage name this payment is linked to (e.g. 'Police Clearance'). Shown inline in that stage. */
+      linked_stage?: string | null;
       /** @description cuid-format identifier for this entity. */
       user: string;
       /** @description cuid-format identifier for this entity. */
       app_id?: string | null;
     };
+    /**
+     * @description * `BANK` - Bank
+     *     * `MOBILE` - Mobile
+     * @enum {string}
+     */
+    PaymentTypeA9cEnum: 'BANK' | 'MOBILE';
     PipelinePayment: {
       /** @description cuid-format identifier for this entity. */
       readonly id: string;
       payment_type: components['schemas']['PipelinePaymentPaymentTypeEnum'];
       /** Format: decimal */
       amount: string;
-      currency?: components['schemas']['CurrencyEnum'];
+      currency?: components['schemas']['PipelinePaymentCurrencyEnum'];
       status?: components['schemas']['PipelinePaymentStatusEnum'];
       /** Format: date */
       due_date?: string | null;
@@ -6810,6 +16301,12 @@ export interface components {
       /** @description cuid-format identifier for this entity. */
       payment?: string | null;
     };
+    /**
+     * @description * `TZS` - TZS
+     *     * `USD` - USD
+     * @enum {string}
+     */
+    PipelinePaymentCurrencyEnum: 'TZS' | 'USD';
     /**
      * @description * `ADMISSION_FEE` - Admission Fee
      *     * `PASSPORT_FEE` - Passport Fee
@@ -6836,7 +16333,7 @@ export interface components {
       payment_type: components['schemas']['PipelinePaymentPaymentTypeEnum'];
       /** Format: decimal */
       amount: string;
-      currency?: components['schemas']['CurrencyEnum'];
+      currency?: components['schemas']['PipelinePaymentCurrencyEnum'];
       status?: components['schemas']['PipelinePaymentStatusEnum'];
       /** Format: date */
       due_date?: string | null;
@@ -6859,7 +16356,7 @@ export interface components {
       readonly id: string;
       readonly assigned_to_name: string;
       readonly documents: components['schemas']['DocumentRequirement'][];
-      stage_type: components['schemas']['StageTypeEnum'];
+      stage_type: components['schemas']['PipelineStageStageTypeEnum'];
       status?: components['schemas']['PipelineStageStatusEnum'];
       /** Format: date-time */
       started_at?: string | null;
@@ -6880,7 +16377,7 @@ export interface components {
       assigned_to?: string | null;
     };
     PipelineStageRequest: {
-      stage_type: components['schemas']['StageTypeEnum'];
+      stage_type: components['schemas']['PipelineStageStageTypeEnum'];
       status?: components['schemas']['PipelineStageStatusEnum'];
       /** Format: date-time */
       started_at?: string | null;
@@ -6896,6 +16393,42 @@ export interface components {
       /** @description cuid-format identifier for this entity. */
       assigned_to?: string | null;
     };
+    /**
+     * @description * `DOCUMENT_COLLECTION` - Document Collection
+     *     * `COURSE_SELECTION` - Course Selection
+     *     * `UNIVERSITY_SELECTION` - University Selection
+     *     * `APPLICATION_SUBMISSION` - Application Submission
+     *     * `OFFER_LETTER` - Offer Letter
+     *     * `ADMISSION_CONFIRMATION` - Admission Confirmation
+     *     * `PASSPORT_APPLICATION` - Passport Application
+     *     * `POLICE_CLEARANCE` - Police Clearance
+     *     * `MEDICAL_EXAMINATION` - Medical Examination
+     *     * `NOC_APPLICATION` - NOC Application
+     *     * `BANK_STATEMENT` - Bank Statement
+     *     * `EMBASSY_BOOKING` - Embassy Booking
+     *     * `VISA_APPLICATION` - Visa Application
+     *     * `FLIGHT_BOOKING` - Flight Booking
+     *     * `ORIENTATION_SEMINAR` - Orientation Seminar
+     *     * `DEPARTURE` - Departure
+     * @enum {string}
+     */
+    PipelineStageStageTypeEnum:
+      | 'DOCUMENT_COLLECTION'
+      | 'COURSE_SELECTION'
+      | 'UNIVERSITY_SELECTION'
+      | 'APPLICATION_SUBMISSION'
+      | 'OFFER_LETTER'
+      | 'ADMISSION_CONFIRMATION'
+      | 'PASSPORT_APPLICATION'
+      | 'POLICE_CLEARANCE'
+      | 'MEDICAL_EXAMINATION'
+      | 'NOC_APPLICATION'
+      | 'BANK_STATEMENT'
+      | 'EMBASSY_BOOKING'
+      | 'VISA_APPLICATION'
+      | 'FLIGHT_BOOKING'
+      | 'ORIENTATION_SEMINAR'
+      | 'DEPARTURE';
     /**
      * @description * `NOT_STARTED` - Not Started
      *     * `IN_PROGRESS` - In Progress
@@ -6934,6 +16467,13 @@ export interface components {
       | 'DOCUMENT_REMINDER'
       | 'PAYMENT_REMINDER'
       | 'GENERAL';
+    /**
+     * @description * `STUDENT` - Student Only
+     *     * `PARENT` - Parent Only
+     *     * `BOTH` - Student & Parent
+     * @enum {string}
+     */
+    RecipientTypeEnum: 'STUDENT' | 'PARENT' | 'BOTH';
     ReferralModel: {
       /** @description cuid-format identifier for this entity. */
       readonly id: string;
@@ -6950,6 +16490,88 @@ export interface components {
       /** Format: double */
       readonly amount: number;
     };
+    /**
+     * @description * `FATHER` - Father
+     *     * `MOTHER` - Mother
+     *     * `GUARDIAN` - Guardian
+     *     * `SPONSOR` - Sponsor
+     * @enum {string}
+     */
+    RelationshipEnum: 'FATHER' | 'MOTHER' | 'GUARDIAN' | 'SPONSOR';
+    Reminder: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      readonly student_name: string;
+      readonly created_by_name: string;
+      recipient_type?: components['schemas']['RecipientTypeEnum'];
+      reminder_type: components['schemas']['ReminderTypeEnum'];
+      priority?: components['schemas']['PriorityEnum'];
+      title: string;
+      message: string;
+      /** @description Deep link to relevant page in the app. */
+      action_url?: string;
+      /**
+       * Format: date-time
+       * @description When the reminder should be delivered.
+       */
+      scheduled_for: string;
+      /** Format: date-time */
+      readonly sent_at: string | null;
+      /** Format: date-time */
+      readonly read_at: string | null;
+      auto_generated?: boolean;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+      /** @description cuid-format identifier for this entity. */
+      student: string;
+      /** @description cuid-format identifier for this entity. */
+      application?: string | null;
+      /** @description cuid-format identifier for this entity. */
+      stage_instance?: string | null;
+      /** @description cuid-format identifier for this entity. */
+      created_by?: string | null;
+    };
+    ReminderRequest: {
+      recipient_type?: components['schemas']['RecipientTypeEnum'];
+      reminder_type: components['schemas']['ReminderTypeEnum'];
+      priority?: components['schemas']['PriorityEnum'];
+      title: string;
+      message: string;
+      /** @description Deep link to relevant page in the app. */
+      action_url?: string;
+      /**
+       * Format: date-time
+       * @description When the reminder should be delivered.
+       */
+      scheduled_for: string;
+      auto_generated?: boolean;
+      /** @description cuid-format identifier for this entity. */
+      student: string;
+      /** @description cuid-format identifier for this entity. */
+      application?: string | null;
+      /** @description cuid-format identifier for this entity. */
+      stage_instance?: string | null;
+      /** @description cuid-format identifier for this entity. */
+      created_by?: string | null;
+    };
+    /**
+     * @description * `PAYMENT_DUE` - Payment Due
+     *     * `PAYMENT_OVERDUE` - Payment Overdue
+     *     * `DOCUMENT_NEEDED` - Document Needed
+     *     * `SCHEDULE_UPCOMING` - Upcoming Appointment
+     *     * `STAGE_ACTION` - Stage Action Required
+     *     * `GENERAL` - General Reminder
+     * @enum {string}
+     */
+    ReminderTypeEnum:
+      | 'PAYMENT_DUE'
+      | 'PAYMENT_OVERDUE'
+      | 'DOCUMENT_NEEDED'
+      | 'SCHEDULE_UPCOMING'
+      | 'STAGE_ACTION'
+      | 'GENERAL';
     ReportModel: {
       /** @description cuid-format identifier for this entity. */
       readonly id: string;
@@ -6969,13 +16591,139 @@ export interface components {
       issue: string;
       description: string;
     };
+    RequirementResponse: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      readonly submitted_by_name: string;
+      readonly reviewed_by_name: string;
+      readonly file_response_url: string;
+      text_response?: string;
+      /** Format: uri */
+      file_response?: string | null;
+      /** Format: date-time */
+      schedule_response?: string | null;
+      status?: components['schemas']['RequirementResponseStatusEnum'];
+      /** Format: date-time */
+      readonly reviewed_at: string | null;
+      /** @description Admin notes — rejection reason or approval notes. */
+      review_notes?: string;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** @description cuid-format identifier for this entity. */
+      requirement: string;
+      /** @description cuid-format identifier for this entity. */
+      readonly submitted_by: string | null;
+      /** @description cuid-format identifier for this entity. */
+      readonly reviewed_by: string | null;
+    };
+    RequirementResponseRequest: {
+      text_response?: string;
+      /** Format: binary */
+      file_response?: string | null;
+      /** Format: date-time */
+      schedule_response?: string | null;
+      status?: components['schemas']['RequirementResponseStatusEnum'];
+      /** @description Admin notes — rejection reason or approval notes. */
+      review_notes?: string;
+      /** @description cuid-format identifier for this entity. */
+      requirement: string;
+    };
+    /**
+     * @description * `PENDING_REVIEW` - Pending Review
+     *     * `APPROVED` - Approved
+     *     * `REJECTED` - Rejected
+     * @enum {string}
+     */
+    RequirementResponseStatusEnum: 'PENDING_REVIEW' | 'APPROVED' | 'REJECTED';
+    /**
+     * @description * `DOCUMENT` - Document
+     *     * `MULTI_FILE` - Multiple Files
+     *     * `IMAGE` - Image
+     *     * `MULTI_IMAGE` - Multiple Images
+     *     * `TEXT` - Text
+     *     * `TEXTAREA` - Long Text
+     *     * `NUMBER` - Number
+     *     * `DATE` - Date
+     *     * `SELECT` - Selection
+     *     * `SCHEDULE` - Schedule
+     * @enum {string}
+     */
+    ResponseTypeEnum:
+      | 'DOCUMENT'
+      | 'MULTI_FILE'
+      | 'IMAGE'
+      | 'MULTI_IMAGE'
+      | 'TEXT'
+      | 'TEXTAREA'
+      | 'NUMBER'
+      | 'DATE'
+      | 'SELECT'
+      | 'SCHEDULE';
+    Review: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      readonly reviewer_name: string;
+      rating: number;
+      comment?: string;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+      /** @description cuid-format identifier for this entity. */
+      expert: string;
+      /** @description cuid-format identifier for this entity. */
+      readonly reviewer: string;
+    };
+    ReviewDetail: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** @description cuid-format identifier for this entity. */
+      expert: string;
+      readonly expert_name: string;
+      /** @description cuid-format identifier for this entity. */
+      reviewer: string;
+      readonly reviewer_name: string;
+      rating: number;
+      comment?: string;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    ReviewDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      expert: string;
+      /** @description cuid-format identifier for this entity. */
+      reviewer: string;
+      rating: number;
+      comment?: string;
+    };
+    ReviewList: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** @description cuid-format identifier for this entity. */
+      readonly expert: string;
+      readonly expert_name: string;
+      /** @description cuid-format identifier for this entity. */
+      readonly reviewer: string;
+      readonly reviewer_name: string;
+      readonly rating: number;
+      /** Format: date-time */
+      readonly created_at: string;
+    };
+    ReviewRequest: {
+      rating: number;
+      comment?: string;
+      /** @description cuid-format identifier for this entity. */
+      expert: string;
+    };
     SalesCall: {
       /** @description cuid-format identifier for this entity. */
       readonly id: string;
       readonly caller_name: string;
       readonly lead_name: string;
       readonly student_name: string;
-      call_type: components['schemas']['CallTypeEnum'];
+      call_type: components['schemas']['SalesCallCallTypeEnum'];
       purpose: components['schemas']['PurposeEnum'];
       outcome: components['schemas']['SalesCallOutcomeEnum'];
       duration_minutes?: number;
@@ -6992,8 +16740,14 @@ export interface components {
       /** @description cuid-format identifier for this entity. */
       student?: string | null;
       /** @description cuid-format identifier for this entity. */
-      caller: string;
+      readonly caller: string;
     };
+    /**
+     * @description * `OUTBOUND` - Outbound
+     *     * `INBOUND` - Inbound
+     * @enum {string}
+     */
+    SalesCallCallTypeEnum: 'OUTBOUND' | 'INBOUND';
     /**
      * @description * `ANSWERED` - Answered
      *     * `NO_ANSWER` - No Answer
@@ -7009,7 +16763,7 @@ export interface components {
       | 'CALLBACK_REQUESTED'
       | 'VOICEMAIL';
     SalesCallRequest: {
-      call_type: components['schemas']['CallTypeEnum'];
+      call_type: components['schemas']['SalesCallCallTypeEnum'];
       purpose: components['schemas']['PurposeEnum'];
       outcome: components['schemas']['SalesCallOutcomeEnum'];
       duration_minutes?: number;
@@ -7021,8 +16775,56 @@ export interface components {
       lead?: string | null;
       /** @description cuid-format identifier for this entity. */
       student?: string | null;
+    };
+    ScholarshipDetail: {
       /** @description cuid-format identifier for this entity. */
-      caller: string;
+      readonly id: string;
+      name: string;
+      /** Format: uri */
+      img?: string | null;
+      /** @description cuid-format identifier for this entity. */
+      country: string;
+      /** @description cuid-format identifier for this entity. */
+      university?: string | null;
+      category: components['schemas']['CategoryFfcEnum'];
+      amount?: string | null;
+      eligibility?: string | null;
+      eligibility_short?: string | null;
+      requirements?: string | null;
+      description?: string | null;
+      /** Format: date-time */
+      posted_at?: string | null;
+      /** Format: date-time */
+      deadline?: string | null;
+      region?: string | null;
+      /** Format: uri */
+      link?: string | null;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    ScholarshipDetailRequest: {
+      name: string;
+      /** Format: binary */
+      img?: string | null;
+      /** @description cuid-format identifier for this entity. */
+      country: string;
+      /** @description cuid-format identifier for this entity. */
+      university?: string | null;
+      category: components['schemas']['CategoryFfcEnum'];
+      amount?: string | null;
+      eligibility?: string | null;
+      eligibility_short?: string | null;
+      requirements?: string | null;
+      description?: string | null;
+      /** Format: date-time */
+      posted_at?: string | null;
+      /** Format: date-time */
+      deadline?: string | null;
+      region?: string | null;
+      /** Format: uri */
+      link?: string | null;
     };
     /**
      * @description * `FULL` - FULL
@@ -7032,6 +16834,59 @@ export interface components {
      * @enum {string}
      */
     ScholarshipEnum: 'FULL' | 'TUITION' | 'HALF' | 'NONE';
+    ScholarshipImageDetail: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** @description cuid-format identifier for this entity. */
+      scholarship: string;
+      readonly scholarship_name: string;
+      name: string;
+      /** Format: uri */
+      image: string;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    ScholarshipImageDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      scholarship: string;
+      name: string;
+      /** Format: binary */
+      image: string;
+    };
+    ScholarshipImageList: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** @description cuid-format identifier for this entity. */
+      readonly scholarship: string;
+      readonly scholarship_name: string;
+      readonly name: string;
+      /** Format: uri */
+      readonly image: string;
+      /** Format: date-time */
+      readonly created_at: string;
+    };
+    ScholarshipList: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      readonly name: string;
+      /** @description cuid-format identifier for this entity. */
+      readonly country: string;
+      readonly country_name: string;
+      /** @description cuid-format identifier for this entity. */
+      readonly university: string | null;
+      readonly university_name: string;
+      readonly category: components['schemas']['CategoryFfcEnum'];
+      readonly amount: string | null;
+      readonly region: string | null;
+      /** Format: date-time */
+      readonly deadline: string | null;
+      /** Format: date-time */
+      readonly posted_at: string | null;
+      /** Format: date-time */
+      readonly created_at: string;
+    };
     ScholarshipModel: {
       /** @description cuid-format identifier for this entity. */
       readonly id: string;
@@ -7051,7 +16906,7 @@ export interface components {
       /** Format: date-time */
       deadline?: string | null;
       region?: string | null;
-      category: components['schemas']['ScholarshipModelCategoryEnum'];
+      category: components['schemas']['CategoryFfcEnum'];
       /** Format: uri */
       link?: string | null;
       /** Format: date-time */
@@ -7059,18 +16914,6 @@ export interface components {
       /** Format: date-time */
       readonly updated_at: string;
     };
-    /**
-     * @description * `INTERNATIONAL SCHOLARSHIP` - INTERNATIONAL SCHOLARSHIP
-     *     * `LOCAL SCHOLARSHIP` - LOCAL SCHOLARSHIP
-     *     * `COMMONWEALTH SCHOLARSHIP` - COMMONWEALTH SCHOLARSHIP
-     *     * `NATIONAL SCHOLARSHIP` - NATIONAL SCHOLARSHIP
-     * @enum {string}
-     */
-    ScholarshipModelCategoryEnum:
-      | 'INTERNATIONAL SCHOLARSHIP'
-      | 'LOCAL SCHOLARSHIP'
-      | 'COMMONWEALTH SCHOLARSHIP'
-      | 'NATIONAL SCHOLARSHIP';
     ScholarshipModelRequest: {
       /** Format: binary */
       img?: string | null;
@@ -7085,9 +16928,45 @@ export interface components {
       /** Format: date-time */
       deadline?: string | null;
       region?: string | null;
-      category: components['schemas']['ScholarshipModelCategoryEnum'];
+      category: components['schemas']['CategoryFfcEnum'];
       /** Format: uri */
       link?: string | null;
+    };
+    /**
+     * @description * `application` - Application
+     *     * `student` - Student
+     * @enum {string}
+     */
+    ScopeEnum: 'application' | 'student';
+    SemisterDetail: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      semister_no: number;
+      name?: string | null;
+      start_month?: number | null;
+      end_month?: number | null;
+      description?: string | null;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    SemisterDetailRequest: {
+      semister_no: number;
+      name?: string | null;
+      start_month?: number | null;
+      end_month?: number | null;
+      description?: string | null;
+    };
+    SemisterList: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      readonly semister_no: number;
+      readonly name: string | null;
+      readonly start_month: number | null;
+      readonly end_month: number | null;
+      /** Format: date-time */
+      readonly created_at: string;
     };
     /**
      * @description * `user` - User
@@ -7103,6 +16982,7 @@ export interface components {
      *     * `REFERRAL` - Referral
      *     * `SOCIAL_MEDIA` - Social Media
      *     * `THIRD_PARTY` - Third Party (TV/Radio/Influencer)
+     *     * `APP` - App Student
      * @enum {string}
      */
     SourceEnum:
@@ -7112,7 +16992,8 @@ export interface components {
       | 'SALES_CALL'
       | 'REFERRAL'
       | 'SOCIAL_MEDIA'
-      | 'THIRD_PARTY';
+      | 'THIRD_PARTY'
+      | 'APP';
     StaffTask: {
       /** @description cuid-format identifier for this entity. */
       readonly id: string;
@@ -7165,42 +17046,126 @@ export interface components {
      * @enum {string}
      */
     StaffTaskStatusEnum: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
+    StageRequirement: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      readonly responses: components['schemas']['RequirementResponse'][];
+      readonly latest_response: string;
+      readonly added_by_name: string;
+      readonly reviewed_by_name: string;
+      /** @description True if auto-created from stage template; False if added ad-hoc by admin. */
+      from_template?: boolean;
+      response_type: components['schemas']['ResponseTypeEnum'];
+      title: string;
+      /** @description Instructions shown to the student for this requirement. */
+      description?: string;
+      is_required?: boolean;
+      /** @description If True, admin must approve the response. If False (default), response is auto-approved on submission. */
+      requires_review?: boolean;
+      status?: components['schemas']['Status29eEnum'];
+      /** @description E.g. [".pdf", ".jpg", ".png"] */
+      accepted_file_types?: unknown;
+      /** Format: date-time */
+      scheduled_date?: string | null;
+      /** @description E.g. "Tanzania Immigration Office, Dar es Salaam" */
+      scheduled_location?: string;
+      /** Format: date-time */
+      reviewed_at?: string | null;
+      /** @description Shown to student when requirement is rejected. */
+      rejection_reason?: string;
+      /**
+       * @description Who is responsible for fulfilling this requirement. Staff-owned requirements show a waiting state to students.
+       *
+       *     * `student` - Student
+       *     * `staff` - Staff
+       */
+      owner?: components['schemas']['OwnerEnum'];
+      /**
+       * @description student-scoped answers are reused across applications
+       *
+       *     * `application` - Application
+       *     * `student` - Student
+       */
+      scope?: components['schemas']['ScopeEnum'];
+      /** @description Links to StudentDocumentModel.document_type for auto-fill. E.g. 'PASSPORT', 'BIRTH_CERT' */
+      document_type?: string | null;
+      /** @description Options for SELECT type. E.g. [{"value": "male", "label": "Male"}] */
+      options?: unknown;
+      order?: number;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+      /** @description cuid-format identifier for this entity. */
+      stage_instance: string;
+      /** @description cuid-format identifier for this entity. */
+      added_by?: string | null;
+      /** @description cuid-format identifier for this entity. */
+      reviewed_by?: string | null;
+    };
+    StageRequirementRequest: {
+      /** @description True if auto-created from stage template; False if added ad-hoc by admin. */
+      from_template?: boolean;
+      response_type: components['schemas']['ResponseTypeEnum'];
+      title: string;
+      /** @description Instructions shown to the student for this requirement. */
+      description?: string;
+      is_required?: boolean;
+      /** @description If True, admin must approve the response. If False (default), response is auto-approved on submission. */
+      requires_review?: boolean;
+      status?: components['schemas']['Status29eEnum'];
+      /** @description E.g. [".pdf", ".jpg", ".png"] */
+      accepted_file_types?: unknown;
+      /** Format: date-time */
+      scheduled_date?: string | null;
+      /** @description E.g. "Tanzania Immigration Office, Dar es Salaam" */
+      scheduled_location?: string;
+      /** Format: date-time */
+      reviewed_at?: string | null;
+      /** @description Shown to student when requirement is rejected. */
+      rejection_reason?: string;
+      /**
+       * @description Who is responsible for fulfilling this requirement. Staff-owned requirements show a waiting state to students.
+       *
+       *     * `student` - Student
+       *     * `staff` - Staff
+       */
+      owner?: components['schemas']['OwnerEnum'];
+      /**
+       * @description student-scoped answers are reused across applications
+       *
+       *     * `application` - Application
+       *     * `student` - Student
+       */
+      scope?: components['schemas']['ScopeEnum'];
+      /** @description Links to StudentDocumentModel.document_type for auto-fill. E.g. 'PASSPORT', 'BIRTH_CERT' */
+      document_type?: string | null;
+      /** @description Options for SELECT type. E.g. [{"value": "male", "label": "Male"}] */
+      options?: unknown;
+      order?: number;
+      /** @description cuid-format identifier for this entity. */
+      stage_instance: string;
+      /** @description cuid-format identifier for this entity. */
+      added_by?: string | null;
+      /** @description cuid-format identifier for this entity. */
+      reviewed_by?: string | null;
+    };
     /**
-     * @description * `DOCUMENT_COLLECTION` - Document Collection
-     *     * `COURSE_SELECTION` - Course Selection
-     *     * `UNIVERSITY_SELECTION` - University Selection
-     *     * `APPLICATION_SUBMISSION` - Application Submission
-     *     * `OFFER_LETTER` - Offer Letter
-     *     * `ADMISSION_CONFIRMATION` - Admission Confirmation
-     *     * `PASSPORT_APPLICATION` - Passport Application
-     *     * `POLICE_CLEARANCE` - Police Clearance
-     *     * `MEDICAL_EXAMINATION` - Medical Examination
-     *     * `NOC_APPLICATION` - NOC Application
-     *     * `BANK_STATEMENT` - Bank Statement
-     *     * `EMBASSY_BOOKING` - Embassy Booking
-     *     * `VISA_APPLICATION` - Visa Application
-     *     * `FLIGHT_BOOKING` - Flight Booking
-     *     * `ORIENTATION_SEMINAR` - Orientation Seminar
-     *     * `DEPARTURE` - Departure
+     * @description * `PAYMENT` - Payment
+     *     * `DOCUMENT_UPLOAD` - Document Upload
+     *     * `SCHEDULE` - Schedule/Appointment
+     *     * `INFO` - Information
+     *     * `PHYSICAL_VISIT` - Physical Visit
+     *     * `APPROVAL` - Approval/Waiting
      * @enum {string}
      */
-    StageTypeEnum:
-      | 'DOCUMENT_COLLECTION'
-      | 'COURSE_SELECTION'
-      | 'UNIVERSITY_SELECTION'
-      | 'APPLICATION_SUBMISSION'
-      | 'OFFER_LETTER'
-      | 'ADMISSION_CONFIRMATION'
-      | 'PASSPORT_APPLICATION'
-      | 'POLICE_CLEARANCE'
-      | 'MEDICAL_EXAMINATION'
-      | 'NOC_APPLICATION'
-      | 'BANK_STATEMENT'
-      | 'EMBASSY_BOOKING'
-      | 'VISA_APPLICATION'
-      | 'FLIGHT_BOOKING'
-      | 'ORIENTATION_SEMINAR'
-      | 'DEPARTURE';
+    StageTypeC6fEnum:
+      | 'PAYMENT'
+      | 'DOCUMENT_UPLOAD'
+      | 'SCHEDULE'
+      | 'INFO'
+      | 'PHYSICAL_VISIT'
+      | 'APPROVAL';
     /**
      * @description * `success` - Success
      *     * `failed` - Failed
@@ -7208,6 +17173,42 @@ export interface components {
      * @enum {string}
      */
     Status14bEnum: 'success' | 'failed' | 'pending';
+    /**
+     * @description * `pending` - Pending
+     *     * `confirmed` - Confirmed
+     *     * `cancelled` - Cancelled
+     *     * `completed` - Completed
+     *     * `no_show` - No Show
+     * @enum {string}
+     */
+    Status177Enum:
+      | 'pending'
+      | 'confirmed'
+      | 'cancelled'
+      | 'completed'
+      | 'no_show';
+    /**
+     * @description * `PENDING` - Pending
+     *     * `SUBMITTED` - Submitted
+     *     * `APPROVED` - Approved
+     *     * `REJECTED` - Rejected
+     * @enum {string}
+     */
+    Status29eEnum: 'PENDING' | 'SUBMITTED' | 'APPROVED' | 'REJECTED';
+    /**
+     * @description * `PENDING` - Pending
+     *     * `APPROVED` - Approved
+     *     * `REJECTED` - Rejected
+     *     * `WAITING` - Waiting
+     *     * `COMPLETED` - Completed
+     * @enum {string}
+     */
+    Status2dfEnum:
+      | 'PENDING'
+      | 'APPROVED'
+      | 'REJECTED'
+      | 'WAITING'
+      | 'COMPLETED';
     /**
      * @description * `pending` - Pending
      *     * `processing` - Processing
@@ -7251,6 +17252,15 @@ export interface components {
       | 'CANCELLED'
       | 'REVOKED'
       | 'EXPIRED';
+    /**
+     * @description * `PENDING` - Pending
+     *     * `ACTIVE` - Active
+     *     * `COMPLETED` - Completed
+     *     * `SKIPPED` - Skipped
+     *     * `BLOCKED` - Blocked
+     * @enum {string}
+     */
+    StatusD7dEnum: 'PENDING' | 'ACTIVE' | 'COMPLETED' | 'SKIPPED' | 'BLOCKED';
     /**
      * @description * `REQUIRED` - Required
      *     * `UPLOADED` - Uploaded
@@ -7336,6 +17346,73 @@ export interface components {
       /** Format: double */
       earnings?: number;
     };
+    StudentDocument: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      readonly verified_by_name: string;
+      document_type: components['schemas']['DocumentType1feEnum'];
+      /** Format: uri */
+      document_file: string;
+      label?: string;
+      readonly verification_status: components['schemas']['VerificationStatus3f6Enum'];
+      /** Format: date-time */
+      readonly verified_at: string | null;
+      readonly rejection_reason: string;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+      /** @description cuid-format identifier for this entity. */
+      student: string;
+      /** @description cuid-format identifier for this entity. */
+      readonly verified_by: string | null;
+    };
+    /** @description Admin serializer — can update verification status. */
+    StudentDocumentAdmin: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      readonly verified_by_name: string;
+      readonly student_name: string;
+      document_type: components['schemas']['DocumentType1feEnum'];
+      /** Format: uri */
+      document_file: string;
+      label?: string;
+      verification_status?: components['schemas']['VerificationStatus3f6Enum'];
+      /** Format: date-time */
+      verified_at?: string | null;
+      rejection_reason?: string;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+      /** @description cuid-format identifier for this entity. */
+      student: string;
+      /** @description cuid-format identifier for this entity. */
+      verified_by?: string | null;
+    };
+    /** @description Admin serializer — can update verification status. */
+    StudentDocumentAdminRequest: {
+      document_type: components['schemas']['DocumentType1feEnum'];
+      /** Format: binary */
+      document_file: string;
+      label?: string;
+      verification_status?: components['schemas']['VerificationStatus3f6Enum'];
+      /** Format: date-time */
+      verified_at?: string | null;
+      rejection_reason?: string;
+      /** @description cuid-format identifier for this entity. */
+      student: string;
+      /** @description cuid-format identifier for this entity. */
+      verified_by?: string | null;
+    };
+    StudentDocumentRequest: {
+      document_type: components['schemas']['DocumentType1feEnum'];
+      /** Format: binary */
+      document_file: string;
+      label?: string;
+      /** @description cuid-format identifier for this entity. */
+      student: string;
+    };
     StudentJourneyEvent: {
       /** @description cuid-format identifier for this entity. */
       readonly id: string;
@@ -7364,6 +17441,10 @@ export interface components {
       related_consultation?: string | null;
       /** @description cuid-format identifier for this entity. */
       related_document?: string | null;
+      /** @description cuid-format identifier for this entity. */
+      related_stage_instance?: string | null;
+      /** @description cuid-format identifier for this entity. */
+      related_requirement?: string | null;
     };
     StudentJourneyEventRequest: {
       event_type: components['schemas']['EventTypeEnum'];
@@ -7387,6 +17468,44 @@ export interface components {
       related_consultation?: string | null;
       /** @description cuid-format identifier for this entity. */
       related_document?: string | null;
+      /** @description cuid-format identifier for this entity. */
+      related_stage_instance?: string | null;
+      /** @description cuid-format identifier for this entity. */
+      related_requirement?: string | null;
+    };
+    /**
+     * @description Lightweight serializer for the students list endpoint.
+     *     Uses annotated values from the queryset to avoid N+1 queries.
+     */
+    StudentList: {
+      /** @description cuid-format identifier for this entity. */
+      id?: string;
+      readonly user: string;
+      readonly user_name: string;
+      readonly user_email: string;
+      education_level?:
+        | (
+            | components['schemas']['EducationLevelEnum']
+            | components['schemas']['BlankEnum']
+            | components['schemas']['NullEnum']
+          )
+        | null;
+      reg_prog?: number;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+      /** @default 0 */
+      readonly referral_count: number;
+      readonly subscription: string;
+      readonly payments: string;
+      /** Format: double */
+      balance?: number;
+      /** Format: double */
+      earnings?: number;
+      /** @default 0 */
+      readonly no_abroad_apps: number;
+      readonly profile_complete: string;
     };
     StudentModel: {
       /** @description cuid-format identifier for this entity. */
@@ -7456,7 +17575,19 @@ export interface components {
       readonly university_name: string;
       readonly country_name: string;
       readonly stages: components['schemas']['PipelineStage'][];
+      readonly stage_instances: components['schemas']['ApplicationStageInstanceDetail'][];
       readonly payments: components['schemas']['PipelinePayment'][];
+      readonly related_pipelines: string;
+      readonly app_id: string;
+      /**
+       * @description Determines which stage templates are used (local=fewer stages, abroad=full 16).
+       *
+       *     * `LOCAL` - Local (Tanzania)
+       *     * `ABROAD` - Abroad (International)
+       */
+      flow_type?: components['schemas']['FlowTypeEnum'];
+      /** @description True if the student has committed to this university as their final choice. */
+      is_committed?: boolean;
       current_phase?: components['schemas']['CurrentPhaseEnum'];
       /** Format: date-time */
       readonly started_at: string;
@@ -7484,7 +17615,16 @@ export interface components {
       student: string;
       /** @description cuid-format identifier for this entity. */
       application?: string | null;
+      /**
+       * @description Determines which stage templates are used (local=fewer stages, abroad=full 16).
+       *
+       *     * `LOCAL` - Local (Tanzania)
+       *     * `ABROAD` - Abroad (International)
+       */
+      flow_type?: components['schemas']['FlowTypeEnum'];
       current_phase?: components['schemas']['CurrentPhaseEnum'];
+      /** @description True if the student has committed to this university as their final choice. */
+      is_committed?: boolean;
       /** @description cuid-format identifier for this entity. */
       assigned_consultant?: string | null;
       /** @description cuid-format identifier for this entity. */
@@ -7498,7 +17638,9 @@ export interface components {
       readonly consultant_name: string;
       readonly university_name: string;
       readonly country_name: string;
+      readonly app_id: string;
       readonly completed_stages: string;
+      readonly total_stages: string;
       readonly active_stage: string;
       readonly has_blocked: string;
       /** Format: date-time */
@@ -7514,7 +17656,16 @@ export interface components {
       student: string;
       /** @description cuid-format identifier for this entity. */
       application?: string | null;
+      /**
+       * @description Determines which stage templates are used (local=fewer stages, abroad=full 16).
+       *
+       *     * `LOCAL` - Local (Tanzania)
+       *     * `ABROAD` - Abroad (International)
+       */
+      flow_type?: components['schemas']['FlowTypeEnum'];
       current_phase?: components['schemas']['CurrentPhaseEnum'];
+      /** @description True if the student has committed to this university as their final choice. */
+      is_committed?: boolean;
       /** @description cuid-format identifier for this entity. */
       assigned_consultant?: string | null;
       /** @description cuid-format identifier for this entity. */
@@ -7522,6 +17673,175 @@ export interface components {
       /** Format: date-time */
       completed_at?: string | null;
       notes?: string;
+    };
+    /** @description Student journey view — stages with nested requirements. */
+    StudentStageInstanceDetail: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      readonly completed_by_name: string;
+      readonly requirements: components['schemas']['StudentStageRequirement'][];
+      readonly requirements_summary: string;
+      readonly has_pending_action: string;
+      stage_order: number;
+      stage_name: string;
+      stage_type: components['schemas']['StageTypeC6fEnum'];
+      description?: string;
+      is_required?: boolean;
+      status?: components['schemas']['StatusD7dEnum'];
+      /** Format: date */
+      due_date?: string | null;
+      /** @description Student responses, uploaded file URLs, etc. */
+      data?: unknown;
+      document_types?: unknown;
+      /** Format: decimal */
+      payment_amount?: string | null;
+      payment_currency?: string;
+      /** Format: date-time */
+      scheduled_date?: string | null;
+      /** Format: date-time */
+      completed_at?: string | null;
+      /** @description How questions are presented: list (default) or wizard (one-at-a-time) */
+      answer_mode?: string;
+      /** @description Fee patterns linked to this stage instance. Copied from template on creation. */
+      linked_fees?: unknown;
+      /** @description If true, all required linked fees must be paid before the student can progress past this stage. */
+      payment_required_to_progress?: boolean;
+      notes?: string;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+      /** @description cuid-format identifier for this entity. */
+      application: string;
+      /** @description Links this stage to the unified pipeline. Bridges template-based stages with pipeline tracking. */
+      pipeline?: string | null;
+      /** @description cuid-format identifier for this entity. */
+      template?: string | null;
+      /** @description Staff member responsible for this stage. Admin can reassign to take over. */
+      assigned_to?: string | null;
+      /** @description cuid-format identifier for this entity. */
+      completed_by?: string | null;
+    };
+    /** @description Student journey view — stages with nested requirements. */
+    StudentStageInstanceDetailRequest: {
+      stage_order: number;
+      stage_name: string;
+      stage_type: components['schemas']['StageTypeC6fEnum'];
+      description?: string;
+      is_required?: boolean;
+      status?: components['schemas']['StatusD7dEnum'];
+      /** Format: date */
+      due_date?: string | null;
+      /** @description Student responses, uploaded file URLs, etc. */
+      data?: unknown;
+      document_types?: unknown;
+      /** Format: decimal */
+      payment_amount?: string | null;
+      payment_currency?: string;
+      /** Format: date-time */
+      scheduled_date?: string | null;
+      /** Format: date-time */
+      completed_at?: string | null;
+      /** @description How questions are presented: list (default) or wizard (one-at-a-time) */
+      answer_mode?: string;
+      /** @description Fee patterns linked to this stage instance. Copied from template on creation. */
+      linked_fees?: unknown;
+      /** @description If true, all required linked fees must be paid before the student can progress past this stage. */
+      payment_required_to_progress?: boolean;
+      notes?: string;
+      /** @description cuid-format identifier for this entity. */
+      application: string;
+      /** @description Links this stage to the unified pipeline. Bridges template-based stages with pipeline tracking. */
+      pipeline?: string | null;
+      /** @description cuid-format identifier for this entity. */
+      template?: string | null;
+      /** @description Staff member responsible for this stage. Admin can reassign to take over. */
+      assigned_to?: string | null;
+      /** @description cuid-format identifier for this entity. */
+      completed_by?: string | null;
+    };
+    /** @description Student-facing requirement — shows latest response, excludes admin audit fields. */
+    StudentStageRequirement: {
+      /** @description cuid-format identifier for this entity. */
+      id?: string;
+      response_type: components['schemas']['ResponseTypeEnum'];
+      title: string;
+      /** @description Instructions shown to the student for this requirement. */
+      description?: string;
+      is_required?: boolean;
+      /** @description If True, admin must approve the response. If False (default), response is auto-approved on submission. */
+      requires_review?: boolean;
+      status?: components['schemas']['Status29eEnum'];
+      /**
+       * @description Who is responsible for fulfilling this requirement. Staff-owned requirements show a waiting state to students.
+       *
+       *     * `student` - Student
+       *     * `staff` - Staff
+       */
+      owner?: components['schemas']['OwnerEnum'];
+      /**
+       * @description student-scoped answers are reused across applications
+       *
+       *     * `application` - Application
+       *     * `student` - Student
+       */
+      scope?: components['schemas']['ScopeEnum'];
+      /** @description Links to StudentDocumentModel.document_type for auto-fill. E.g. 'PASSPORT', 'BIRTH_CERT' */
+      document_type?: string | null;
+      /** @description Options for SELECT type. E.g. [{"value": "male", "label": "Male"}] */
+      options?: unknown;
+      /** @description E.g. [".pdf", ".jpg", ".png"] */
+      accepted_file_types?: unknown;
+      /** Format: date-time */
+      scheduled_date?: string | null;
+      /** @description E.g. "Tanzania Immigration Office, Dar es Salaam" */
+      scheduled_location?: string;
+      /** @description Shown to student when requirement is rejected. */
+      rejection_reason?: string;
+      order?: number;
+      /** Format: date-time */
+      readonly created_at: string;
+      readonly latest_response: string;
+    };
+    /** @description Student-facing requirement — shows latest response, excludes admin audit fields. */
+    StudentStageRequirementRequest: {
+      /** @description cuid-format identifier for this entity. */
+      id?: string;
+      response_type: components['schemas']['ResponseTypeEnum'];
+      title: string;
+      /** @description Instructions shown to the student for this requirement. */
+      description?: string;
+      is_required?: boolean;
+      /** @description If True, admin must approve the response. If False (default), response is auto-approved on submission. */
+      requires_review?: boolean;
+      status?: components['schemas']['Status29eEnum'];
+      /**
+       * @description Who is responsible for fulfilling this requirement. Staff-owned requirements show a waiting state to students.
+       *
+       *     * `student` - Student
+       *     * `staff` - Staff
+       */
+      owner?: components['schemas']['OwnerEnum'];
+      /**
+       * @description student-scoped answers are reused across applications
+       *
+       *     * `application` - Application
+       *     * `student` - Student
+       */
+      scope?: components['schemas']['ScopeEnum'];
+      /** @description Links to StudentDocumentModel.document_type for auto-fill. E.g. 'PASSPORT', 'BIRTH_CERT' */
+      document_type?: string | null;
+      /** @description Options for SELECT type. E.g. [{"value": "male", "label": "Male"}] */
+      options?: unknown;
+      /** @description E.g. [".pdf", ".jpg", ".png"] */
+      accepted_file_types?: unknown;
+      /** Format: date-time */
+      scheduled_date?: string | null;
+      /** @description E.g. "Tanzania Immigration Office, Dar es Salaam" */
+      scheduled_location?: string;
+      /** @description Shown to student when requirement is rejected. */
+      rejection_reason?: string;
+      order?: number;
     };
     StudentSubscriptionModel: {
       /** @description cuid-format identifier for this entity. */
@@ -7536,6 +17856,45 @@ export interface components {
       readonly created_at: string;
       /** Format: date-time */
       readonly updated_at: string;
+    };
+    SubscriptionDetail: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      name: string;
+      description: string;
+      /** Format: double */
+      amount: number;
+      duration_period: number;
+      duration_desc: string;
+      /** Format: double */
+      discount_percentage?: number;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    SubscriptionDetailRequest: {
+      name: string;
+      description: string;
+      /** Format: double */
+      amount: number;
+      duration_period: number;
+      duration_desc: string;
+      /** Format: double */
+      discount_percentage?: number;
+    };
+    SubscriptionList: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      readonly name: string;
+      /** Format: double */
+      readonly amount: number;
+      readonly duration_period: number;
+      readonly duration_desc: string;
+      /** Format: double */
+      readonly discount_percentage: number;
+      /** Format: date-time */
+      readonly created_at: string;
     };
     SubscriptionModel: {
       /** @description cuid-format identifier for this entity. */
@@ -7557,6 +17916,14 @@ export interface components {
       duration_period: number;
     };
     /**
+     * @description * `o_level` - O Level
+     *     * `a_level` - A Level
+     *     * `university` - University
+     *     * `all` - All
+     * @enum {string}
+     */
+    TargetLevelEnum: 'o_level' | 'a_level' | 'university' | 'all';
+    /**
      * @description * `FOLLOW_UP_CALL` - Follow-up Call
      *     * `DOCUMENT_REVIEW` - Document Review
      *     * `PAYMENT_FOLLOW_UP` - Payment Follow-up
@@ -7574,6 +17941,144 @@ export interface components {
       | 'CONSULTATION'
       | 'ESCORT'
       | 'GENERAL';
+    Testimonial: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      readonly university_name: string;
+      readonly country_name: string;
+      testimonial_type: components['schemas']['TestimonialTypeEnum'];
+      person_name: string;
+      /** @description E.g. "Parent of Amina, studying in India" */
+      relationship?: string;
+      /**
+       * Format: uri
+       * @description YouTube or Vimeo embed URL.
+       */
+      video_url?: string;
+      /** Format: uri */
+      thumbnail?: string | null;
+      /** @description Short text excerpt for display in cards. */
+      quote: string;
+      is_featured?: boolean;
+      is_active?: boolean;
+      display_order?: number;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+      /** @description cuid-format identifier for this entity. */
+      university?: string | null;
+      /** @description cuid-format identifier for this entity. */
+      country?: string | null;
+    };
+    TestimonialDetail: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      testimonial_type: components['schemas']['TestimonialTypeEnum'];
+      person_name: string;
+      /** @description E.g. "Parent of Amina, studying in India" */
+      relationship?: string;
+      /**
+       * Format: uri
+       * @description YouTube or Vimeo embed URL.
+       */
+      video_url?: string;
+      /** Format: uri */
+      thumbnail?: string | null;
+      /** @description Short text excerpt for display in cards. */
+      quote: string;
+      /** @description cuid-format identifier for this entity. */
+      university?: string | null;
+      readonly university_name: string;
+      /** @description cuid-format identifier for this entity. */
+      country?: string | null;
+      readonly country_name: string;
+      is_featured?: boolean;
+      is_active?: boolean;
+      display_order?: number;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    TestimonialDetailRequest: {
+      testimonial_type: components['schemas']['TestimonialTypeEnum'];
+      person_name: string;
+      /** @description E.g. "Parent of Amina, studying in India" */
+      relationship?: string;
+      /**
+       * Format: uri
+       * @description YouTube or Vimeo embed URL.
+       */
+      video_url?: string;
+      /** Format: binary */
+      thumbnail?: string | null;
+      /** @description Short text excerpt for display in cards. */
+      quote: string;
+      /** @description cuid-format identifier for this entity. */
+      university?: string | null;
+      /** @description cuid-format identifier for this entity. */
+      country?: string | null;
+      is_featured?: boolean;
+      is_active?: boolean;
+      display_order?: number;
+    };
+    TestimonialList: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      readonly testimonial_type: components['schemas']['TestimonialTypeEnum'];
+      readonly person_name: string;
+      /** @description E.g. "Parent of Amina, studying in India" */
+      readonly relationship: string;
+      /** @description cuid-format identifier for this entity. */
+      readonly university: string | null;
+      readonly university_name: string;
+      /** @description cuid-format identifier for this entity. */
+      readonly country: string | null;
+      readonly country_name: string;
+      readonly is_featured: boolean;
+      readonly is_active: boolean;
+      readonly display_order: number;
+      /** Format: date-time */
+      readonly created_at: string;
+    };
+    TestimonialRequest: {
+      testimonial_type: components['schemas']['TestimonialTypeEnum'];
+      person_name: string;
+      /** @description E.g. "Parent of Amina, studying in India" */
+      relationship?: string;
+      /**
+       * Format: uri
+       * @description YouTube or Vimeo embed URL.
+       */
+      video_url?: string;
+      /** Format: binary */
+      thumbnail?: string | null;
+      /** @description Short text excerpt for display in cards. */
+      quote: string;
+      is_featured?: boolean;
+      is_active?: boolean;
+      display_order?: number;
+      /** @description cuid-format identifier for this entity. */
+      university?: string | null;
+      /** @description cuid-format identifier for this entity. */
+      country?: string | null;
+    };
+    /**
+     * @description * `PARENT` - Parent Testimonial
+     *     * `STUDENT` - Student Testimonial
+     *     * `SUCCESS_STORY` - Success Story
+     * @enum {string}
+     */
+    TestimonialTypeEnum: 'PARENT' | 'STUDENT' | 'SUCCESS_STORY';
+    /**
+     * @description * `open` - Open
+     *     * `awaiting_expert` - Awaiting Expert
+     *     * `answering` - Answering
+     *     * `completed` - Completed
+     * @enum {string}
+     */
+    ThreadStatusEnum: 'open' | 'awaiting_expert' | 'answering' | 'completed';
     /**
      * @description * `all` - All
      *     * `single` - Single
@@ -7615,6 +18120,22 @@ export interface components {
       student?: string | null;
     };
     /**
+     * @description * `message` - Message
+     *     * `call` - Call
+     *     * `group` - Group
+     *     * `booking` - Booking
+     *     * `withdrawal` - Withdrawal
+     *     * `refund` - Refund
+     * @enum {string}
+     */
+    TransactionTypeEnum:
+      | 'message'
+      | 'call'
+      | 'group'
+      | 'booking'
+      | 'withdrawal'
+      | 'refund';
+    /**
      * @description * `deposit` - Deposit
      *     * `payment` - Payment
      * @enum {string}
@@ -7635,12 +18156,18 @@ export interface components {
      * @enum {string}
      */
     Type6f6Enum: 'danger' | 'warning' | 'info' | 'success';
+    /**
+     * @description * `PRINCIPAL` - PRINCIPAL
+     *     * `ELECTIVE` - ELECTIVE
+     * @enum {string}
+     */
+    Type84fEnum: 'PRINCIPAL' | 'ELECTIVE';
     University: {
       /** @description cuid-format identifier for this entity. */
       readonly id: string;
       readonly name: string;
       order?: number;
-      readonly category: components['schemas']['UniversityCategoryEnum'];
+      readonly category: components['schemas']['Category64aEnum'];
       readonly institution_type: string;
       scholarship?: components['schemas']['ScholarshipEnum'];
       readonly code: string | null;
@@ -7709,12 +18236,70 @@ export interface components {
       status?: components['schemas']['StatusC07Enum'];
       info?: string | null;
     };
-    /**
-     * @description * `PUBLIC` - PUBLIC
-     *     * `PRIVATE` - PRIVATE
-     * @enum {string}
-     */
-    UniversityCategoryEnum: 'PUBLIC' | 'PRIVATE';
+    UniversityDetail: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      name: string;
+      slug: string;
+      code?: string | null;
+      order?: number;
+      /** @description cuid-format identifier for this entity. */
+      country: string;
+      category: components['schemas']['Category64aEnum'];
+      institution_type: string;
+      scholarship?: components['schemas']['ScholarshipEnum'];
+      /** Format: double */
+      offer?: number;
+      max_applications?: number;
+      /** Format: uri */
+      website_link?: string | null;
+      /** Format: uri */
+      admission_link?: string | null;
+      /** Format: uri */
+      video?: string | null;
+      /** Format: uri */
+      video_url?: string | null;
+      /** Format: uri */
+      img_url?: string | null;
+      description?: string | null;
+      capacity?: number | null;
+      no_of_students?: number;
+      location?: components['schemas']['UniversityLocation'] | null;
+      ranking?: components['schemas']['UniversityRanking'] | null;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    UniversityDetailRequest: {
+      name: string;
+      slug: string;
+      code?: string | null;
+      order?: number;
+      /** @description cuid-format identifier for this entity. */
+      country: string;
+      category: components['schemas']['Category64aEnum'];
+      institution_type: string;
+      scholarship?: components['schemas']['ScholarshipEnum'];
+      /** Format: double */
+      offer?: number;
+      max_applications?: number;
+      /** Format: uri */
+      website_link?: string | null;
+      /** Format: uri */
+      admission_link?: string | null;
+      /** Format: binary */
+      video?: string | null;
+      /** Format: uri */
+      video_url?: string | null;
+      /** Format: binary */
+      img_url?: string | null;
+      description?: string | null;
+      capacity?: number | null;
+      no_of_students?: number;
+      location?: components['schemas']['UniversityLocationRequest'] | null;
+      ranking?: components['schemas']['UniversityRankingRequest'] | null;
+    };
     UniversityExpense: {
       /** @description cuid-format identifier for this entity. */
       id?: string;
@@ -7727,6 +18312,8 @@ export interface components {
       /** @description cuid-format identifier for this entity. */
       university: string;
       readonly university_name: string;
+      /** @description Pipeline stage this fee is linked to (e.g. 'Police Clearance'). */
+      linked_stage?: string | null;
       /** Format: date-time */
       readonly created_at: string;
       /** Format: date-time */
@@ -7743,6 +18330,72 @@ export interface components {
       end_amount: number;
       /** @description cuid-format identifier for this entity. */
       university: string;
+      /** @description Pipeline stage this fee is linked to (e.g. 'Police Clearance'). */
+      linked_stage?: string | null;
+    };
+    UniversityExpensesDetail: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** @description cuid-format identifier for this entity. */
+      university: string;
+      name: string;
+      iname: string;
+      currency?: components['schemas']['CurrencyE3dEnum'];
+      is_default?: boolean;
+      /** Format: double */
+      offer?: number;
+      tag?: string | null;
+      /** @description Pipeline stage this fee is linked to (e.g. 'Police Clearance'). */
+      linked_stage?: string | null;
+      description?: string | null;
+      /** Format: double */
+      start_amount: number;
+      /** Format: double */
+      end_amount: number;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    UniversityExpensesDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      university: string;
+      name: string;
+      iname: string;
+      currency?: components['schemas']['CurrencyE3dEnum'];
+      is_default?: boolean;
+      /** Format: double */
+      offer?: number;
+      tag?: string | null;
+      /** @description Pipeline stage this fee is linked to (e.g. 'Police Clearance'). */
+      linked_stage?: string | null;
+      description?: string | null;
+      /** Format: double */
+      start_amount: number;
+      /** Format: double */
+      end_amount: number;
+    };
+    UniversityExpensesList: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** @description cuid-format identifier for this entity. */
+      readonly university: string;
+      readonly university_name: string;
+      readonly name: string;
+      readonly iname: string;
+      readonly currency: components['schemas']['CurrencyE3dEnum'];
+      readonly is_default: boolean;
+      /** Format: double */
+      readonly offer: number;
+      readonly tag: string | null;
+      /** @description Pipeline stage this fee is linked to (e.g. 'Police Clearance'). */
+      readonly linked_stage: string | null;
+      /** Format: double */
+      readonly start_amount: number;
+      /** Format: double */
+      readonly end_amount: number;
+      /** Format: date-time */
+      readonly created_at: string;
     };
     UniversityLikedModel: {
       /** @description cuid-format identifier for this entity. */
@@ -7755,6 +18408,44 @@ export interface components {
     UniversityLikedModelRequest: {
       /** @description cuid-format identifier for this entity. */
       university: string;
+    };
+    UniversityList: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      readonly name: string;
+      readonly slug: string;
+      readonly code: string | null;
+      readonly order: number;
+      /** @description cuid-format identifier for this entity. */
+      readonly country: string;
+      readonly country_name: string;
+      readonly category: components['schemas']['Category64aEnum'];
+      readonly institution_type: string;
+      readonly scholarship: components['schemas']['ScholarshipEnum'];
+      /** Format: double */
+      readonly offer: number;
+      readonly max_applications: number;
+      readonly capacity: number | null;
+      readonly no_of_students: number;
+      readonly course_count: number;
+      readonly expense_count: number;
+      /** Format: date-time */
+      readonly created_at: string;
+    };
+    /** @description Writable serializer used as a nested field inside UniversityDetailSerializer. */
+    UniversityLocation: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      region?: string | null;
+      address?: string | null;
+      /** Format: double */
+      latitude?: number | null;
+      /** Format: double */
+      longitude?: number | null;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
     };
     UniversityLocationModel: {
       /** @description cuid-format identifier for this entity. */
@@ -7778,6 +18469,47 @@ export interface components {
       /** Format: double */
       longitude?: number | null;
     };
+    /** @description Writable serializer used as a nested field inside UniversityDetailSerializer. */
+    UniversityLocationRequest: {
+      region?: string | null;
+      address?: string | null;
+      /** Format: double */
+      latitude?: number | null;
+      /** Format: double */
+      longitude?: number | null;
+    };
+    UniversityPictureDetail: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** @description cuid-format identifier for this entity. */
+      university: string;
+      name: components['schemas']['NameEnum'];
+      /** Format: uri */
+      image: string;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    UniversityPictureDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      university: string;
+      name: components['schemas']['NameEnum'];
+      /** Format: binary */
+      image: string;
+    };
+    UniversityPictureList: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** @description cuid-format identifier for this entity. */
+      readonly university: string;
+      readonly university_name: string;
+      readonly name: components['schemas']['NameEnum'];
+      /** Format: uri */
+      readonly image: string;
+      /** Format: date-time */
+      readonly created_at: string;
+    };
     UniversityPictureModel: {
       /** @description cuid-format identifier for this entity. */
       readonly id: string;
@@ -7798,9 +18530,89 @@ export interface components {
       /** Format: binary */
       image: string;
     };
+    /** @description Writable serializer used as a nested field inside UniversityDetailSerializer. */
+    UniversityRanking: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      global_rank?: number | null;
+      country_rank?: number | null;
+      continent_rank?: number | null;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    /** @description Writable serializer used as a nested field inside UniversityDetailSerializer. */
+    UniversityRankingRequest: {
+      global_rank?: number | null;
+      country_rank?: number | null;
+      continent_rank?: number | null;
+    };
     UniversityRequest: {
       order?: number;
       scholarship?: components['schemas']['ScholarshipEnum'];
+    };
+    UniversityStudyReasonsDetail: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** @description cuid-format identifier for this entity. */
+      university: string;
+      title: string;
+      description: string;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    UniversityStudyReasonsDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      university: string;
+      title: string;
+      description: string;
+    };
+    UniversityStudyReasonsList: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** @description cuid-format identifier for this entity. */
+      readonly university: string;
+      readonly university_name: string;
+      readonly title: string;
+      readonly description: string;
+      /** Format: date-time */
+      readonly created_at: string;
+    };
+    UniversityVideoDetail: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** @description cuid-format identifier for this entity. */
+      university: string;
+      readonly university_name: string;
+      name: string;
+      /** Format: uri */
+      video: string;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    UniversityVideoDetailRequest: {
+      /** @description cuid-format identifier for this entity. */
+      university: string;
+      name: string;
+      /** Format: binary */
+      video: string;
+    };
+    UniversityVideoList: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** @description cuid-format identifier for this entity. */
+      readonly university: string;
+      readonly university_name: string;
+      readonly name: string;
+      /** Format: uri */
+      readonly video: string;
+      /** Format: date-time */
+      readonly created_at: string;
     };
     User: {
       /** @description cuid-format identifier for this entity. */
@@ -7893,6 +18705,39 @@ export interface components {
      * @enum {string}
      */
     UstatusEnum: 'updated' | 'created' | 'failed' | 'success' | 'cancelled';
+    /**
+     * @description * `basic` - Basic
+     *     * `premium` - Premium
+     * @enum {string}
+     */
+    VerificationLevelEnum: 'basic' | 'premium';
+    /**
+     * @description * `PENDING` - Pending Review
+     *     * `VERIFIED` - Verified
+     *     * `REJECTED` - Rejected
+     * @enum {string}
+     */
+    VerificationStatus3f6Enum: 'PENDING' | 'VERIFIED' | 'REJECTED';
+    /**
+     * @description * `UNVERIFIED` - Unverified
+     *     * `VERIFIED` - Verified
+     * @enum {string}
+     */
+    VerificationStatus45dEnum: 'UNVERIFIED' | 'VERIFIED';
+    /**
+     * @description * `none` - None
+     *     * `pending` - Pending
+     *     * `under_review` - Under Review
+     *     * `verified` - Verified
+     *     * `rejected` - Rejected
+     * @enum {string}
+     */
+    VerificationStatus7e0Enum:
+      | 'none'
+      | 'pending'
+      | 'under_review'
+      | 'verified'
+      | 'rejected';
     Withdrawal: {
       /** @description cuid-format identifier for this entity. */
       id?: string;
@@ -7997,7 +18842,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['PaginatedApplicationList'];
+          'application/json': components['schemas']['PaginatedApplicationListList'];
         };
       };
     };
@@ -8150,6 +18995,33 @@ export interface operations {
     };
   };
   admin_applications_create_payment_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['ApplicationRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ApplicationRequest'];
+        'multipart/form-data': components['schemas']['ApplicationRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Application'];
+        };
+      };
+    };
+  };
+  admin_applications_start_pipeline_create: {
     parameters: {
       query?: never;
       header?: never;
@@ -8428,15 +19300,17 @@ export interface operations {
         ordering?: string;
         /**
          * @description * `INTERESTED` - Interested
-         *     * `NEEDS_TIME` - Needs Time
+         *     * `NEEDS_TIME` - Needs More Time
          *     * `NOT_INTERESTED` - Not Interested
-         *     * `CONVERTED` - Converted
+         *     * `READY_TO_APPLY` - Ready to Apply
+         *     * `FOLLOW_UP_NEEDED` - Follow-up Needed
          */
         outcome?:
-          | 'CONVERTED'
+          | 'FOLLOW_UP_NEEDED'
           | 'INTERESTED'
           | 'NEEDS_TIME'
           | 'NOT_INTERESTED'
+          | 'READY_TO_APPLY'
           | null;
         /** @description A page number within the paginated result set. */
         page?: number;
@@ -8952,6 +19826,33 @@ export interface operations {
     };
   };
   admin_documents_reject_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['DocumentQueueRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['DocumentQueueRequest'];
+        'multipart/form-data': components['schemas']['DocumentQueueRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['DocumentQueue'];
+        };
+      };
+    };
+  };
+  admin_documents_upload_create: {
     parameters: {
       query?: never;
       header?: never;
@@ -9788,6 +20689,10 @@ export interface operations {
          *     * `MEETING` - In-Person Meeting
          *     * `ORIENTATION` - Orientation Seminar
          *     * `DEPARTURE` - Departure
+         *     * `REQUIREMENT_SUBMITTED` - Requirement Submitted
+         *     * `REQUIREMENT_APPROVED` - Requirement Approved
+         *     * `REQUIREMENT_REJECTED` - Requirement Rejected
+         *     * `REQUIREMENT_ADDED` - Requirement Added
          *     * `NOTE` - Note
          *     * `TASK_ASSIGNED` - Task Assigned
          *     * `OTHER` - Other
@@ -9814,6 +20719,10 @@ export interface operations {
           | 'PAYMENT_COMPLETED'
           | 'PAYMENT_CREATED'
           | 'PHASE_CHANGED'
+          | 'REQUIREMENT_ADDED'
+          | 'REQUIREMENT_APPROVED'
+          | 'REQUIREMENT_REJECTED'
+          | 'REQUIREMENT_SUBMITTED'
           | 'SMS_SENT'
           | 'STAGE_BLOCKED'
           | 'STAGE_COMPLETED'
@@ -9973,6 +20882,7 @@ export interface operations {
       query?: {
         /** @description cuid-format identifier for this entity. */
         assigned_to?: string;
+        is_app_student?: boolean;
         /** @description Number of results to return per page. */
         limit?: number;
         /** @description Which field to use when ordering the results. */
@@ -9989,8 +20899,10 @@ export interface operations {
          *     * `REFERRAL` - Referral
          *     * `SOCIAL_MEDIA` - Social Media
          *     * `THIRD_PARTY` - Third Party (TV/Radio/Influencer)
+         *     * `APP` - App Student
          */
         source?:
+          | 'APP'
           | 'OFFICE_VISIT'
           | 'ONLINE'
           | 'REFERRAL'
@@ -10137,6 +21049,114 @@ export interface operations {
         'application/json': components['schemas']['PatchedLeadRequest'];
         'application/x-www-form-urlencoded': components['schemas']['PatchedLeadRequest'];
         'multipart/form-data': components['schemas']['PatchedLeadRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Lead'];
+        };
+      };
+    };
+  };
+  admin_leads_create_application_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['LeadRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['LeadRequest'];
+        'multipart/form-data': components['schemas']['LeadRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Lead'];
+        };
+      };
+    };
+  };
+  admin_leads_link_student_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['LeadRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['LeadRequest'];
+        'multipart/form-data': components['schemas']['LeadRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Lead'];
+        };
+      };
+    };
+  };
+  admin_leads_register_student_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['LeadRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['LeadRequest'];
+        'multipart/form-data': components['schemas']['LeadRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Lead'];
+        };
+      };
+    };
+  };
+  admin_leads_unlink_student_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['LeadRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['LeadRequest'];
+        'multipart/form-data': components['schemas']['LeadRequest'];
       };
     };
     responses: {
@@ -10477,6 +21497,166 @@ export interface operations {
           [name: string]: unknown;
         };
         content?: never;
+      };
+    };
+  };
+  admin_parent_links_list: {
+    parameters: {
+      query?: {
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description cuid-format identifier for this entity. */
+        parent?: string;
+        /**
+         * @description * `FATHER` - Father
+         *     * `MOTHER` - Mother
+         *     * `GUARDIAN` - Guardian
+         *     * `SPONSOR` - Sponsor
+         */
+        relationship?: 'FATHER' | 'GUARDIAN' | 'MOTHER' | 'SPONSOR';
+        /** @description A search term. */
+        search?: string;
+        /** @description cuid-format identifier for this entity. */
+        student?: string;
+        verified?: boolean;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedParentStudentLinkList'];
+        };
+      };
+    };
+  };
+  admin_parent_links_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ParentStudentLinkRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ParentStudentLinkRequest'];
+        'multipart/form-data': components['schemas']['ParentStudentLinkRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ParentStudentLink'];
+        };
+      };
+    };
+  };
+  admin_parent_links_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ParentStudentLink'];
+        };
+      };
+    };
+  };
+  admin_parent_links_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ParentStudentLinkRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ParentStudentLinkRequest'];
+        'multipart/form-data': components['schemas']['ParentStudentLinkRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ParentStudentLink'];
+        };
+      };
+    };
+  };
+  admin_parent_links_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  admin_parent_links_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedParentStudentLinkRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedParentStudentLinkRequest'];
+        'multipart/form-data': components['schemas']['PatchedParentStudentLinkRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ParentStudentLink'];
+        };
       };
     };
   };
@@ -11070,6 +22250,7 @@ export interface operations {
           | 'ORIENTATION'
           | 'POST_APPLICATION'
           | 'PRE_APPLICATION';
+        is_committed?: boolean;
         /** @description Number of results to return per page. */
         limit?: number;
         /** @description Which field to use when ordering the results. */
@@ -11078,6 +22259,8 @@ export interface operations {
         page?: number;
         /** @description A search term. */
         search?: string;
+        /** @description cuid-format identifier for this entity. */
+        student?: string;
       };
       header?: never;
       path?: never;
@@ -11215,6 +22398,33 @@ export interface operations {
       };
     };
   };
+  admin_pipelines_commit_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['StudentPipelineListRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['StudentPipelineListRequest'];
+        'multipart/form-data': components['schemas']['StudentPipelineListRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['StudentPipelineList'];
+        };
+      };
+    };
+  };
   admin_pipelines_journey_retrieve: {
     parameters: {
       query?: never;
@@ -11225,6 +22435,33 @@ export interface operations {
       cookie?: never;
     };
     requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['StudentPipelineList'];
+        };
+      };
+    };
+  };
+  admin_pipelines_uncommit_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['StudentPipelineListRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['StudentPipelineListRequest'];
+        'multipart/form-data': components['schemas']['StudentPipelineListRequest'];
+      };
+    };
     responses: {
       200: {
         headers: {
@@ -11401,6 +22638,627 @@ export interface operations {
         };
         content: {
           'application/json': components['schemas']['UserReferralSummary'];
+        };
+      };
+    };
+  };
+  admin_reminders_list: {
+    parameters: {
+      query?: {
+        auto_generated?: boolean;
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /**
+         * @description * `LOW` - Low
+         *     * `NORMAL` - Normal
+         *     * `HIGH` - High
+         *     * `URGENT` - Urgent
+         */
+        priority?: 'HIGH' | 'LOW' | 'NORMAL' | 'URGENT';
+        /**
+         * @description * `STUDENT` - Student Only
+         *     * `PARENT` - Parent Only
+         *     * `BOTH` - Student & Parent
+         */
+        recipient_type?: 'BOTH' | 'PARENT' | 'STUDENT';
+        /**
+         * @description * `PAYMENT_DUE` - Payment Due
+         *     * `PAYMENT_OVERDUE` - Payment Overdue
+         *     * `DOCUMENT_NEEDED` - Document Needed
+         *     * `SCHEDULE_UPCOMING` - Upcoming Appointment
+         *     * `STAGE_ACTION` - Stage Action Required
+         *     * `GENERAL` - General Reminder
+         */
+        reminder_type?:
+          | 'DOCUMENT_NEEDED'
+          | 'GENERAL'
+          | 'PAYMENT_DUE'
+          | 'PAYMENT_OVERDUE'
+          | 'SCHEDULE_UPCOMING'
+          | 'STAGE_ACTION';
+        /** @description A search term. */
+        search?: string;
+        /** @description cuid-format identifier for this entity. */
+        student?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedReminderList'];
+        };
+      };
+    };
+  };
+  admin_reminders_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ReminderRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ReminderRequest'];
+        'multipart/form-data': components['schemas']['ReminderRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Reminder'];
+        };
+      };
+    };
+  };
+  admin_reminders_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Reminder'];
+        };
+      };
+    };
+  };
+  admin_reminders_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ReminderRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ReminderRequest'];
+        'multipart/form-data': components['schemas']['ReminderRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Reminder'];
+        };
+      };
+    };
+  };
+  admin_reminders_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  admin_reminders_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedReminderRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedReminderRequest'];
+        'multipart/form-data': components['schemas']['PatchedReminderRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Reminder'];
+        };
+      };
+    };
+  };
+  admin_reminders_send_now_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ReminderRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ReminderRequest'];
+        'multipart/form-data': components['schemas']['ReminderRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Reminder'];
+        };
+      };
+    };
+  };
+  admin_requirement_responses_list: {
+    parameters: {
+      query?: {
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+        /**
+         * @description * `PENDING_REVIEW` - Pending Review
+         *     * `APPROVED` - Approved
+         *     * `REJECTED` - Rejected
+         */
+        status?: 'APPROVED' | 'PENDING_REVIEW' | 'REJECTED';
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedRequirementResponseList'];
+        };
+      };
+    };
+  };
+  admin_requirement_responses_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['RequirementResponseRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['RequirementResponseRequest'];
+        'multipart/form-data': components['schemas']['RequirementResponseRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['RequirementResponse'];
+        };
+      };
+    };
+  };
+  admin_requirement_responses_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['RequirementResponse'];
+        };
+      };
+    };
+  };
+  admin_requirement_responses_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['RequirementResponseRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['RequirementResponseRequest'];
+        'multipart/form-data': components['schemas']['RequirementResponseRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['RequirementResponse'];
+        };
+      };
+    };
+  };
+  admin_requirement_responses_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  admin_requirement_responses_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedRequirementResponseRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedRequirementResponseRequest'];
+        'multipart/form-data': components['schemas']['PatchedRequirementResponseRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['RequirementResponse'];
+        };
+      };
+    };
+  };
+  admin_requirements_list: {
+    parameters: {
+      query?: {
+        from_template?: boolean;
+        is_required?: boolean;
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /**
+         * @description * `DOCUMENT` - Document
+         *     * `MULTI_FILE` - Multiple Files
+         *     * `IMAGE` - Image
+         *     * `MULTI_IMAGE` - Multiple Images
+         *     * `TEXT` - Text
+         *     * `TEXTAREA` - Long Text
+         *     * `NUMBER` - Number
+         *     * `DATE` - Date
+         *     * `SELECT` - Selection
+         *     * `SCHEDULE` - Schedule
+         */
+        response_type?:
+          | 'DATE'
+          | 'DOCUMENT'
+          | 'IMAGE'
+          | 'MULTI_FILE'
+          | 'MULTI_IMAGE'
+          | 'NUMBER'
+          | 'SCHEDULE'
+          | 'SELECT'
+          | 'TEXT'
+          | 'TEXTAREA';
+        /** @description A search term. */
+        search?: string;
+        /**
+         * @description * `PENDING` - Pending
+         *     * `SUBMITTED` - Submitted
+         *     * `APPROVED` - Approved
+         *     * `REJECTED` - Rejected
+         */
+        status?: 'APPROVED' | 'PENDING' | 'REJECTED' | 'SUBMITTED';
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedStageRequirementList'];
+        };
+      };
+    };
+  };
+  admin_requirements_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['StageRequirementRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['StageRequirementRequest'];
+        'multipart/form-data': components['schemas']['StageRequirementRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['StageRequirement'];
+        };
+      };
+    };
+  };
+  admin_requirements_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['StageRequirement'];
+        };
+      };
+    };
+  };
+  admin_requirements_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['StageRequirementRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['StageRequirementRequest'];
+        'multipart/form-data': components['schemas']['StageRequirementRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['StageRequirement'];
+        };
+      };
+    };
+  };
+  admin_requirements_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  admin_requirements_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedStageRequirementRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedStageRequirementRequest'];
+        'multipart/form-data': components['schemas']['PatchedStageRequirementRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['StageRequirement'];
+        };
+      };
+    };
+  };
+  admin_requirements_approve_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['StageRequirementRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['StageRequirementRequest'];
+        'multipart/form-data': components['schemas']['StageRequirementRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['StageRequirement'];
+        };
+      };
+    };
+  };
+  admin_requirements_reject_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['StageRequirementRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['StageRequirementRequest'];
+        'multipart/form-data': components['schemas']['StageRequirementRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['StageRequirement'];
+        };
+      };
+    };
+  };
+  admin_requirements_submit_on_behalf_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'multipart/form-data': components['schemas']['StageRequirementRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['StageRequirementRequest'];
+        'application/json': components['schemas']['StageRequirementRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['StageRequirement'];
         };
       };
     };
@@ -11765,6 +23623,431 @@ export interface operations {
       };
     };
   };
+  admin_stage_instances_list: {
+    parameters: {
+      query?: {
+        /** @description cuid-format identifier for this entity. */
+        application?: string;
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+        /**
+         * @description * `PAYMENT` - Payment
+         *     * `DOCUMENT_UPLOAD` - Document Upload
+         *     * `SCHEDULE` - Schedule/Appointment
+         *     * `INFO` - Information
+         *     * `PHYSICAL_VISIT` - Physical Visit
+         *     * `APPROVAL` - Approval/Waiting
+         */
+        stage_type?:
+          | 'APPROVAL'
+          | 'DOCUMENT_UPLOAD'
+          | 'INFO'
+          | 'PAYMENT'
+          | 'PHYSICAL_VISIT'
+          | 'SCHEDULE';
+        /**
+         * @description * `PENDING` - Pending
+         *     * `ACTIVE` - Active
+         *     * `COMPLETED` - Completed
+         *     * `SKIPPED` - Skipped
+         *     * `BLOCKED` - Blocked
+         */
+        status?: 'ACTIVE' | 'BLOCKED' | 'COMPLETED' | 'PENDING' | 'SKIPPED';
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedApplicationStageInstanceList'];
+        };
+      };
+    };
+  };
+  admin_stage_instances_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ApplicationStageInstanceRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ApplicationStageInstanceRequest'];
+        'multipart/form-data': components['schemas']['ApplicationStageInstanceRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApplicationStageInstance'];
+        };
+      };
+    };
+  };
+  admin_stage_instances_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApplicationStageInstance'];
+        };
+      };
+    };
+  };
+  admin_stage_instances_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ApplicationStageInstanceRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ApplicationStageInstanceRequest'];
+        'multipart/form-data': components['schemas']['ApplicationStageInstanceRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApplicationStageInstance'];
+        };
+      };
+    };
+  };
+  admin_stage_instances_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  admin_stage_instances_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedApplicationStageInstanceRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedApplicationStageInstanceRequest'];
+        'multipart/form-data': components['schemas']['PatchedApplicationStageInstanceRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApplicationStageInstance'];
+        };
+      };
+    };
+  };
+  admin_stage_instances_add_requirement_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ApplicationStageInstanceRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ApplicationStageInstanceRequest'];
+        'multipart/form-data': components['schemas']['ApplicationStageInstanceRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApplicationStageInstance'];
+        };
+      };
+    };
+  };
+  admin_stage_instances_complete_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ApplicationStageInstanceRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ApplicationStageInstanceRequest'];
+        'multipart/form-data': components['schemas']['ApplicationStageInstanceRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApplicationStageInstance'];
+        };
+      };
+    };
+  };
+  admin_stage_instances_skip_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ApplicationStageInstanceRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ApplicationStageInstanceRequest'];
+        'multipart/form-data': components['schemas']['ApplicationStageInstanceRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApplicationStageInstance'];
+        };
+      };
+    };
+  };
+  admin_stage_templates_list: {
+    parameters: {
+      query?: {
+        /** @description cuid-format identifier for this entity. */
+        country?: string;
+        /**
+         * @description * `LOCAL` - Local (Tanzania)
+         *     * `ABROAD` - Abroad (International)
+         */
+        flow_type?: 'ABROAD' | 'LOCAL';
+        is_required?: boolean;
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+        /**
+         * @description * `PAYMENT` - Payment
+         *     * `DOCUMENT_UPLOAD` - Document Upload
+         *     * `SCHEDULE` - Schedule/Appointment
+         *     * `INFO` - Information
+         *     * `PHYSICAL_VISIT` - Physical Visit
+         *     * `APPROVAL` - Approval/Waiting
+         */
+        stage_type?:
+          | 'APPROVAL'
+          | 'DOCUMENT_UPLOAD'
+          | 'INFO'
+          | 'PAYMENT'
+          | 'PHYSICAL_VISIT'
+          | 'SCHEDULE';
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedApplicationStageTemplateList'];
+        };
+      };
+    };
+  };
+  admin_stage_templates_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ApplicationStageTemplateRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ApplicationStageTemplateRequest'];
+        'multipart/form-data': components['schemas']['ApplicationStageTemplateRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApplicationStageTemplate'];
+        };
+      };
+    };
+  };
+  admin_stage_templates_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApplicationStageTemplate'];
+        };
+      };
+    };
+  };
+  admin_stage_templates_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ApplicationStageTemplateRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ApplicationStageTemplateRequest'];
+        'multipart/form-data': components['schemas']['ApplicationStageTemplateRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApplicationStageTemplate'];
+        };
+      };
+    };
+  };
+  admin_stage_templates_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  admin_stage_templates_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedApplicationStageTemplateRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedApplicationStageTemplateRequest'];
+        'multipart/form-data': components['schemas']['PatchedApplicationStageTemplateRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ApplicationStageTemplate'];
+        };
+      };
+    };
+  };
   admin_students_list: {
     parameters: {
       query?: {
@@ -11802,7 +24085,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['PaginatedStudentDetailList'];
+          'application/json': components['schemas']['PaginatedStudentListList'];
         };
       };
     };
@@ -11923,6 +24206,166 @@ export interface operations {
         };
         content: {
           'application/json': components['schemas']['StudentDetail'];
+        };
+      };
+    };
+  };
+  admin_testimonials_list: {
+    parameters: {
+      query?: {
+        /** @description cuid-format identifier for this entity. */
+        country?: string;
+        is_active?: boolean;
+        is_featured?: boolean;
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+        /**
+         * @description * `PARENT` - Parent Testimonial
+         *     * `STUDENT` - Student Testimonial
+         *     * `SUCCESS_STORY` - Success Story
+         */
+        testimonial_type?: 'PARENT' | 'STUDENT' | 'SUCCESS_STORY';
+        /** @description cuid-format identifier for this entity. */
+        university?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedTestimonialList'];
+        };
+      };
+    };
+  };
+  admin_testimonials_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['TestimonialRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['TestimonialRequest'];
+        'multipart/form-data': components['schemas']['TestimonialRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Testimonial'];
+        };
+      };
+    };
+  };
+  admin_testimonials_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Testimonial'];
+        };
+      };
+    };
+  };
+  admin_testimonials_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['TestimonialRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['TestimonialRequest'];
+        'multipart/form-data': components['schemas']['TestimonialRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Testimonial'];
+        };
+      };
+    };
+  };
+  admin_testimonials_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  admin_testimonials_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedTestimonialRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedTestimonialRequest'];
+        'multipart/form-data': components['schemas']['PatchedTestimonialRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Testimonial'];
         };
       };
     };
@@ -12221,6 +24664,247 @@ export interface operations {
         };
         content: {
           'application/json': components['schemas']['AdminUser'];
+        };
+      };
+    };
+  };
+  admin_vault_documents_list: {
+    parameters: {
+      query?: {
+        /**
+         * @description * `PASSPORT` - Passport
+         *     * `PASSPORT_PHOTO` - Passport Size Photo
+         *     * `BLUE_BG_PHOTO` - Blue Background Photo
+         *     * `BIRTH_CERT` - Birth Certificate
+         *     * `NIDA` - NIDA Card
+         *     * `FORM_FOUR_CERT` - Form Four Certificate
+         *     * `FORM_SIX_CERT` - Form Six Certificate
+         *     * `FORM_SIX_LEAVING_CERT` - Form Six Leaving Certificate
+         *     * `RECOMMENDATION_LETTER` - Recommendation Letter
+         *     * `PARENT_ID` - Parent/Guardian ID
+         *     * `PARENT_BIRTH_CERT` - Parent Birth Certificate
+         *     * `LOCAL_GOV_LETTER` - Local Government Letter
+         *     * `AFFIDAVIT` - Affidavit
+         *     * `OTHER` - Other
+         */
+        document_type?:
+          | 'AFFIDAVIT'
+          | 'BIRTH_CERT'
+          | 'BLUE_BG_PHOTO'
+          | 'FORM_FOUR_CERT'
+          | 'FORM_SIX_CERT'
+          | 'FORM_SIX_LEAVING_CERT'
+          | 'LOCAL_GOV_LETTER'
+          | 'NIDA'
+          | 'OTHER'
+          | 'PARENT_BIRTH_CERT'
+          | 'PARENT_ID'
+          | 'PASSPORT'
+          | 'PASSPORT_PHOTO'
+          | 'RECOMMENDATION_LETTER';
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+        /** @description cuid-format identifier for this entity. */
+        student?: string;
+        /**
+         * @description * `PENDING` - Pending Review
+         *     * `VERIFIED` - Verified
+         *     * `REJECTED` - Rejected
+         */
+        verification_status?: 'PENDING' | 'REJECTED' | 'VERIFIED';
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedStudentDocumentAdminList'];
+        };
+      };
+    };
+  };
+  admin_vault_documents_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['StudentDocumentAdminRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['StudentDocumentAdminRequest'];
+        'multipart/form-data': components['schemas']['StudentDocumentAdminRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['StudentDocumentAdmin'];
+        };
+      };
+    };
+  };
+  admin_vault_documents_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['StudentDocumentAdmin'];
+        };
+      };
+    };
+  };
+  admin_vault_documents_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['StudentDocumentAdminRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['StudentDocumentAdminRequest'];
+        'multipart/form-data': components['schemas']['StudentDocumentAdminRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['StudentDocumentAdmin'];
+        };
+      };
+    };
+  };
+  admin_vault_documents_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  admin_vault_documents_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedStudentDocumentAdminRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedStudentDocumentAdminRequest'];
+        'multipart/form-data': components['schemas']['PatchedStudentDocumentAdminRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['StudentDocumentAdmin'];
+        };
+      };
+    };
+  };
+  admin_vault_documents_reject_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['StudentDocumentAdminRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['StudentDocumentAdminRequest'];
+        'multipart/form-data': components['schemas']['StudentDocumentAdminRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['StudentDocumentAdmin'];
+        };
+      };
+    };
+  };
+  admin_vault_documents_verify_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['StudentDocumentAdminRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['StudentDocumentAdminRequest'];
+        'multipart/form-data': components['schemas']['StudentDocumentAdminRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['StudentDocumentAdmin'];
         };
       };
     };
@@ -14166,15 +26850,17 @@ export interface operations {
         ordering?: string;
         /**
          * @description * `INTERESTED` - Interested
-         *     * `NEEDS_TIME` - Needs Time
+         *     * `NEEDS_TIME` - Needs More Time
          *     * `NOT_INTERESTED` - Not Interested
-         *     * `CONVERTED` - Converted
+         *     * `READY_TO_APPLY` - Ready to Apply
+         *     * `FOLLOW_UP_NEEDED` - Follow-up Needed
          */
         outcome?:
-          | 'CONVERTED'
+          | 'FOLLOW_UP_NEEDED'
           | 'INTERESTED'
           | 'NEEDS_TIME'
           | 'NOT_INTERESTED'
+          | 'READY_TO_APPLY'
           | null;
         /** @description A page number within the paginated result set. */
         page?: number;
@@ -14512,8 +27198,10 @@ export interface operations {
          *     * `REFERRAL` - Referral
          *     * `SOCIAL_MEDIA` - Social Media
          *     * `THIRD_PARTY` - Third Party (TV/Radio/Influencer)
+         *     * `APP` - App Student
          */
         source?:
+          | 'APP'
           | 'OFFICE_VISIT'
           | 'ONLINE'
           | 'REFERRAL'
@@ -16830,7 +29518,12145 @@ export interface operations {
       };
     };
   };
+  data_admin_alevel_combination_subjects_list: {
+    parameters: {
+      query?: {
+        /** @description cuid-format identifier for this entity. */
+        combination?: string;
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+        /** @description cuid-format identifier for this entity. */
+        subject?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedALevelCombinationSubjectListList'];
+        };
+      };
+    };
+  };
+  data_admin_alevel_combination_subjects_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ALevelCombinationSubjectDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ALevelCombinationSubjectDetailRequest'];
+        'multipart/form-data': components['schemas']['ALevelCombinationSubjectDetailRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ALevelCombinationSubjectDetail'];
+        };
+      };
+    };
+  };
+  data_admin_alevel_combination_subjects_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ALevelCombinationSubjectDetail'];
+        };
+      };
+    };
+  };
+  data_admin_alevel_combination_subjects_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ALevelCombinationSubjectDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ALevelCombinationSubjectDetailRequest'];
+        'multipart/form-data': components['schemas']['ALevelCombinationSubjectDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ALevelCombinationSubjectDetail'];
+        };
+      };
+    };
+  };
+  data_admin_alevel_combination_subjects_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  data_admin_alevel_combination_subjects_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedALevelCombinationSubjectDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedALevelCombinationSubjectDetailRequest'];
+        'multipart/form-data': components['schemas']['PatchedALevelCombinationSubjectDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ALevelCombinationSubjectDetail'];
+        };
+      };
+    };
+  };
+  data_admin_alevel_combinations_list: {
+    parameters: {
+      query?: {
+        /**
+         * @description * `ARTS` - ARTS
+         *     * `SCIENCE` - SCIENCE
+         *     * `BUSINESS` - BUSINESS
+         *     * `TECHNICAL` - TECHNICAL
+         */
+        category?: 'ARTS' | 'BUSINESS' | 'SCIENCE' | 'TECHNICAL';
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedALevelCombinationListList'];
+        };
+      };
+    };
+  };
+  data_admin_alevel_combinations_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ALevelCombinationDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ALevelCombinationDetailRequest'];
+        'multipart/form-data': components['schemas']['ALevelCombinationDetailRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ALevelCombinationDetail'];
+        };
+      };
+    };
+  };
+  data_admin_alevel_combinations_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ALevelCombinationDetail'];
+        };
+      };
+    };
+  };
+  data_admin_alevel_combinations_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ALevelCombinationDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ALevelCombinationDetailRequest'];
+        'multipart/form-data': components['schemas']['ALevelCombinationDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ALevelCombinationDetail'];
+        };
+      };
+    };
+  };
+  data_admin_alevel_combinations_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  data_admin_alevel_combinations_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedALevelCombinationDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedALevelCombinationDetailRequest'];
+        'multipart/form-data': components['schemas']['PatchedALevelCombinationDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ALevelCombinationDetail'];
+        };
+      };
+    };
+  };
+  data_admin_alevel_grades_list: {
+    parameters: {
+      query?: {
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedALevelGradeListList'];
+        };
+      };
+    };
+  };
+  data_admin_alevel_grades_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ALevelGradeDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ALevelGradeDetailRequest'];
+        'multipart/form-data': components['schemas']['ALevelGradeDetailRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ALevelGradeDetail'];
+        };
+      };
+    };
+  };
+  data_admin_alevel_grades_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ALevelGradeDetail'];
+        };
+      };
+    };
+  };
+  data_admin_alevel_grades_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ALevelGradeDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ALevelGradeDetailRequest'];
+        'multipart/form-data': components['schemas']['ALevelGradeDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ALevelGradeDetail'];
+        };
+      };
+    };
+  };
+  data_admin_alevel_grades_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  data_admin_alevel_grades_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedALevelGradeDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedALevelGradeDetailRequest'];
+        'multipart/form-data': components['schemas']['PatchedALevelGradeDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ALevelGradeDetail'];
+        };
+      };
+    };
+  };
+  data_admin_alevel_subjects_list: {
+    parameters: {
+      query?: {
+        /**
+         * @description * `ARTS` - ARTS
+         *     * `SCIENCE` - SCIENCE
+         *     * `BUSINESS` - BUSINESS
+         *     * `TECHNICAL` - TECHNICAL
+         */
+        category?: 'ARTS' | 'BUSINESS' | 'SCIENCE' | 'TECHNICAL';
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+        /**
+         * @description * `PRINCIPAL` - PRINCIPAL
+         *     * `ELECTIVE` - ELECTIVE
+         */
+        type?: 'ELECTIVE' | 'PRINCIPAL';
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedALevelSubjectListList'];
+        };
+      };
+    };
+  };
+  data_admin_alevel_subjects_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ALevelSubjectDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ALevelSubjectDetailRequest'];
+        'multipart/form-data': components['schemas']['ALevelSubjectDetailRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ALevelSubjectDetail'];
+        };
+      };
+    };
+  };
+  data_admin_alevel_subjects_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ALevelSubjectDetail'];
+        };
+      };
+    };
+  };
+  data_admin_alevel_subjects_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ALevelSubjectDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ALevelSubjectDetailRequest'];
+        'multipart/form-data': components['schemas']['ALevelSubjectDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ALevelSubjectDetail'];
+        };
+      };
+    };
+  };
+  data_admin_alevel_subjects_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  data_admin_alevel_subjects_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedALevelSubjectDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedALevelSubjectDetailRequest'];
+        'multipart/form-data': components['schemas']['PatchedALevelSubjectDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ALevelSubjectDetail'];
+        };
+      };
+    };
+  };
+  data_admin_career_courses_list: {
+    parameters: {
+      query?: {
+        /** @description cuid-format identifier for this entity. */
+        career?: string;
+        /** @description cuid-format identifier for this entity. */
+        course?: string;
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedCareerCourseListList'];
+        };
+      };
+    };
+  };
+  data_admin_career_courses_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CareerCourseDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['CareerCourseDetailRequest'];
+        'multipart/form-data': components['schemas']['CareerCourseDetailRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CareerCourseDetail'];
+        };
+      };
+    };
+  };
+  data_admin_career_courses_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CareerCourseDetail'];
+        };
+      };
+    };
+  };
+  data_admin_career_courses_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CareerCourseDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['CareerCourseDetailRequest'];
+        'multipart/form-data': components['schemas']['CareerCourseDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CareerCourseDetail'];
+        };
+      };
+    };
+  };
+  data_admin_career_courses_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  data_admin_career_courses_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedCareerCourseDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedCareerCourseDetailRequest'];
+        'multipart/form-data': components['schemas']['PatchedCareerCourseDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CareerCourseDetail'];
+        };
+      };
+    };
+  };
+  data_admin_career_disciplines_list: {
+    parameters: {
+      query?: {
+        /** @description cuid-format identifier for this entity. */
+        career?: string;
+        /** @description cuid-format identifier for this entity. */
+        discipline?: string;
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedCareerDisciplineListList'];
+        };
+      };
+    };
+  };
+  data_admin_career_disciplines_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CareerDisciplineDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['CareerDisciplineDetailRequest'];
+        'multipart/form-data': components['schemas']['CareerDisciplineDetailRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CareerDisciplineDetail'];
+        };
+      };
+    };
+  };
+  data_admin_career_disciplines_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CareerDisciplineDetail'];
+        };
+      };
+    };
+  };
+  data_admin_career_disciplines_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CareerDisciplineDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['CareerDisciplineDetailRequest'];
+        'multipart/form-data': components['schemas']['CareerDisciplineDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CareerDisciplineDetail'];
+        };
+      };
+    };
+  };
+  data_admin_career_disciplines_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  data_admin_career_disciplines_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedCareerDisciplineDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedCareerDisciplineDetailRequest'];
+        'multipart/form-data': components['schemas']['PatchedCareerDisciplineDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CareerDisciplineDetail'];
+        };
+      };
+    };
+  };
+  data_admin_career_salaries_list: {
+    parameters: {
+      query?: {
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedCareerSalaryListList'];
+        };
+      };
+    };
+  };
+  data_admin_career_salaries_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CareerSalaryDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['CareerSalaryDetailRequest'];
+        'multipart/form-data': components['schemas']['CareerSalaryDetailRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CareerSalaryDetail'];
+        };
+      };
+    };
+  };
+  data_admin_career_salaries_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CareerSalaryDetail'];
+        };
+      };
+    };
+  };
+  data_admin_career_salaries_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CareerSalaryDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['CareerSalaryDetailRequest'];
+        'multipart/form-data': components['schemas']['CareerSalaryDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CareerSalaryDetail'];
+        };
+      };
+    };
+  };
+  data_admin_career_salaries_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  data_admin_career_salaries_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedCareerSalaryDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedCareerSalaryDetailRequest'];
+        'multipart/form-data': components['schemas']['PatchedCareerSalaryDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CareerSalaryDetail'];
+        };
+      };
+    };
+  };
+  data_admin_career_specifics_list: {
+    parameters: {
+      query?: {
+        /** @description cuid-format identifier for this entity. */
+        career?: string;
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedCareerSpecificListList'];
+        };
+      };
+    };
+  };
+  data_admin_career_specifics_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CareerSpecificDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['CareerSpecificDetailRequest'];
+        'multipart/form-data': components['schemas']['CareerSpecificDetailRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CareerSpecificDetail'];
+        };
+      };
+    };
+  };
+  data_admin_career_specifics_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CareerSpecificDetail'];
+        };
+      };
+    };
+  };
+  data_admin_career_specifics_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CareerSpecificDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['CareerSpecificDetailRequest'];
+        'multipart/form-data': components['schemas']['CareerSpecificDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CareerSpecificDetail'];
+        };
+      };
+    };
+  };
+  data_admin_career_specifics_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  data_admin_career_specifics_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedCareerSpecificDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedCareerSpecificDetailRequest'];
+        'multipart/form-data': components['schemas']['PatchedCareerSpecificDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CareerSpecificDetail'];
+        };
+      };
+    };
+  };
+  data_admin_career_trends_list: {
+    parameters: {
+      query?: {
+        /** @description cuid-format identifier for this entity. */
+        career?: string;
+        category?: string;
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedCareerTrendListList'];
+        };
+      };
+    };
+  };
+  data_admin_career_trends_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CareerTrendDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['CareerTrendDetailRequest'];
+        'multipart/form-data': components['schemas']['CareerTrendDetailRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CareerTrendDetail'];
+        };
+      };
+    };
+  };
+  data_admin_career_trends_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description A unique integer value identifying this Career Trend. */
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CareerTrendDetail'];
+        };
+      };
+    };
+  };
+  data_admin_career_trends_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description A unique integer value identifying this Career Trend. */
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CareerTrendDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['CareerTrendDetailRequest'];
+        'multipart/form-data': components['schemas']['CareerTrendDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CareerTrendDetail'];
+        };
+      };
+    };
+  };
+  data_admin_career_trends_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description A unique integer value identifying this Career Trend. */
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  data_admin_career_trends_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description A unique integer value identifying this Career Trend. */
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedCareerTrendDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedCareerTrendDetailRequest'];
+        'multipart/form-data': components['schemas']['PatchedCareerTrendDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CareerTrendDetail'];
+        };
+      };
+    };
+  };
+  data_admin_careers_list: {
+    parameters: {
+      query?: {
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedCareerListList'];
+        };
+      };
+    };
+  };
+  data_admin_careers_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CareerDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['CareerDetailRequest'];
+        'multipart/form-data': components['schemas']['CareerDetailRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CareerDetail'];
+        };
+      };
+    };
+  };
+  data_admin_careers_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CareerDetail'];
+        };
+      };
+    };
+  };
+  data_admin_careers_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CareerDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['CareerDetailRequest'];
+        'multipart/form-data': components['schemas']['CareerDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CareerDetail'];
+        };
+      };
+    };
+  };
+  data_admin_careers_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  data_admin_careers_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedCareerDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedCareerDetailRequest'];
+        'multipart/form-data': components['schemas']['PatchedCareerDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CareerDetail'];
+        };
+      };
+    };
+  };
+  data_admin_consultant_applications_list: {
+    parameters: {
+      query?: {
+        /** @description cuid-format identifier for this entity. */
+        application?: string;
+        /** @description cuid-format identifier for this entity. */
+        consultant?: string;
+        is_paid?: boolean;
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+        /**
+         * @description * `PENDING` - Pending
+         *     * `APPROVED` - Approved
+         *     * `REJECTED` - Rejected
+         *     * `WAITING` - Waiting
+         *     * `COMPLETED` - Completed
+         */
+        status?: 'APPROVED' | 'COMPLETED' | 'PENDING' | 'REJECTED' | 'WAITING';
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedConsultantApplicationListList'];
+        };
+      };
+    };
+  };
+  data_admin_consultant_applications_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ConsultantApplicationDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ConsultantApplicationDetailRequest'];
+        'multipart/form-data': components['schemas']['ConsultantApplicationDetailRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ConsultantApplicationDetail'];
+        };
+      };
+    };
+  };
+  data_admin_consultant_applications_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ConsultantApplicationDetail'];
+        };
+      };
+    };
+  };
+  data_admin_consultant_applications_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ConsultantApplicationDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ConsultantApplicationDetailRequest'];
+        'multipart/form-data': components['schemas']['ConsultantApplicationDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ConsultantApplicationDetail'];
+        };
+      };
+    };
+  };
+  data_admin_consultant_applications_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  data_admin_consultant_applications_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedConsultantApplicationDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedConsultantApplicationDetailRequest'];
+        'multipart/form-data': components['schemas']['PatchedConsultantApplicationDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ConsultantApplicationDetail'];
+        };
+      };
+    };
+  };
+  data_admin_consultant_withdrawals_list: {
+    parameters: {
+      query?: {
+        /** @description cuid-format identifier for this entity. */
+        consultant?: string;
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedConsultantWithdrawalListList'];
+        };
+      };
+    };
+  };
+  data_admin_consultant_withdrawals_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ConsultantWithdrawalDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ConsultantWithdrawalDetailRequest'];
+        'multipart/form-data': components['schemas']['ConsultantWithdrawalDetailRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ConsultantWithdrawalDetail'];
+        };
+      };
+    };
+  };
+  data_admin_consultant_withdrawals_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ConsultantWithdrawalDetail'];
+        };
+      };
+    };
+  };
+  data_admin_consultant_withdrawals_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ConsultantWithdrawalDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ConsultantWithdrawalDetailRequest'];
+        'multipart/form-data': components['schemas']['ConsultantWithdrawalDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ConsultantWithdrawalDetail'];
+        };
+      };
+    };
+  };
+  data_admin_consultant_withdrawals_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  data_admin_consultant_withdrawals_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedConsultantWithdrawalDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedConsultantWithdrawalDetailRequest'];
+        'multipart/form-data': components['schemas']['PatchedConsultantWithdrawalDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ConsultantWithdrawalDetail'];
+        };
+      };
+    };
+  };
+  data_admin_consultants_list: {
+    parameters: {
+      query?: {
+        is_active?: boolean;
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /**
+         * @description * `BANK` - Bank
+         *     * `MOBILE` - Mobile
+         */
+        payment_type?: 'BANK' | 'MOBILE';
+        /** @description A search term. */
+        search?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedConsultantListList'];
+        };
+      };
+    };
+  };
+  data_admin_consultants_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ConsultantDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ConsultantDetailRequest'];
+        'multipart/form-data': components['schemas']['ConsultantDetailRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ConsultantDetail'];
+        };
+      };
+    };
+  };
+  data_admin_consultants_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ConsultantDetail'];
+        };
+      };
+    };
+  };
+  data_admin_consultants_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ConsultantDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ConsultantDetailRequest'];
+        'multipart/form-data': components['schemas']['ConsultantDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ConsultantDetail'];
+        };
+      };
+    };
+  };
+  data_admin_consultants_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  data_admin_consultants_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedConsultantDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedConsultantDetailRequest'];
+        'multipart/form-data': components['schemas']['PatchedConsultantDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ConsultantDetail'];
+        };
+      };
+    };
+  };
+  data_admin_countries_list: {
+    parameters: {
+      query?: {
+        code?: string;
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        scholarship_only?: boolean;
+        /** @description A search term. */
+        search?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedCountryListList'];
+        };
+      };
+    };
+  };
+  data_admin_countries_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CountryDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['CountryDetailRequest'];
+        'multipart/form-data': components['schemas']['CountryDetailRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CountryDetail'];
+        };
+      };
+    };
+  };
+  data_admin_countries_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CountryDetail'];
+        };
+      };
+    };
+  };
+  data_admin_countries_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CountryDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['CountryDetailRequest'];
+        'multipart/form-data': components['schemas']['CountryDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CountryDetail'];
+        };
+      };
+    };
+  };
+  data_admin_countries_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  data_admin_countries_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedCountryDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedCountryDetailRequest'];
+        'multipart/form-data': components['schemas']['PatchedCountryDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CountryDetail'];
+        };
+      };
+    };
+  };
+  data_admin_country_benefits_list: {
+    parameters: {
+      query?: {
+        /** @description cuid-format identifier for this entity. */
+        country?: string;
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedCountryBenefitListList'];
+        };
+      };
+    };
+  };
+  data_admin_country_benefits_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CountryBenefitDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['CountryBenefitDetailRequest'];
+        'multipart/form-data': components['schemas']['CountryBenefitDetailRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CountryBenefitDetail'];
+        };
+      };
+    };
+  };
+  data_admin_country_benefits_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CountryBenefitDetail'];
+        };
+      };
+    };
+  };
+  data_admin_country_benefits_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CountryBenefitDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['CountryBenefitDetailRequest'];
+        'multipart/form-data': components['schemas']['CountryBenefitDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CountryBenefitDetail'];
+        };
+      };
+    };
+  };
+  data_admin_country_benefits_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  data_admin_country_benefits_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedCountryBenefitDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedCountryBenefitDetailRequest'];
+        'multipart/form-data': components['schemas']['PatchedCountryBenefitDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CountryBenefitDetail'];
+        };
+      };
+    };
+  };
+  data_admin_country_expenses_list: {
+    parameters: {
+      query?: {
+        /** @description cuid-format identifier for this entity. */
+        country?: string;
+        /**
+         * @description * `TZS` - Tzs
+         *     * `USD` - Usd
+         */
+        currency?: 'TZS' | 'USD';
+        is_default?: boolean;
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+        tag?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedCountryExpenseListList'];
+        };
+      };
+    };
+  };
+  data_admin_country_expenses_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CountryExpenseDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['CountryExpenseDetailRequest'];
+        'multipart/form-data': components['schemas']['CountryExpenseDetailRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CountryExpenseDetail'];
+        };
+      };
+    };
+  };
+  data_admin_country_expenses_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CountryExpenseDetail'];
+        };
+      };
+    };
+  };
+  data_admin_country_expenses_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CountryExpenseDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['CountryExpenseDetailRequest'];
+        'multipart/form-data': components['schemas']['CountryExpenseDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CountryExpenseDetail'];
+        };
+      };
+    };
+  };
+  data_admin_country_expenses_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  data_admin_country_expenses_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedCountryExpenseDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedCountryExpenseDetailRequest'];
+        'multipart/form-data': components['schemas']['PatchedCountryExpenseDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CountryExpenseDetail'];
+        };
+      };
+    };
+  };
+  data_admin_country_faqs_list: {
+    parameters: {
+      query?: {
+        /** @description cuid-format identifier for this entity. */
+        country?: string;
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedCountryFAQListList'];
+        };
+      };
+    };
+  };
+  data_admin_country_faqs_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CountryFAQDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['CountryFAQDetailRequest'];
+        'multipart/form-data': components['schemas']['CountryFAQDetailRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CountryFAQDetail'];
+        };
+      };
+    };
+  };
+  data_admin_country_faqs_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CountryFAQDetail'];
+        };
+      };
+    };
+  };
+  data_admin_country_faqs_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CountryFAQDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['CountryFAQDetailRequest'];
+        'multipart/form-data': components['schemas']['CountryFAQDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CountryFAQDetail'];
+        };
+      };
+    };
+  };
+  data_admin_country_faqs_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  data_admin_country_faqs_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedCountryFAQDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedCountryFAQDetailRequest'];
+        'multipart/form-data': components['schemas']['PatchedCountryFAQDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CountryFAQDetail'];
+        };
+      };
+    };
+  };
+  data_admin_country_pictures_list: {
+    parameters: {
+      query?: {
+        /** @description cuid-format identifier for this entity. */
+        country?: string;
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedCountryPictureListList'];
+        };
+      };
+    };
+  };
+  data_admin_country_pictures_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CountryPictureDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['CountryPictureDetailRequest'];
+        'multipart/form-data': components['schemas']['CountryPictureDetailRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CountryPictureDetail'];
+        };
+      };
+    };
+  };
+  data_admin_country_pictures_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CountryPictureDetail'];
+        };
+      };
+    };
+  };
+  data_admin_country_pictures_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CountryPictureDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['CountryPictureDetailRequest'];
+        'multipart/form-data': components['schemas']['CountryPictureDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CountryPictureDetail'];
+        };
+      };
+    };
+  };
+  data_admin_country_pictures_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  data_admin_country_pictures_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedCountryPictureDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedCountryPictureDetailRequest'];
+        'multipart/form-data': components['schemas']['PatchedCountryPictureDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CountryPictureDetail'];
+        };
+      };
+    };
+  };
+  data_admin_country_reasons_list: {
+    parameters: {
+      query?: {
+        /** @description cuid-format identifier for this entity. */
+        country?: string;
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedCountryReasonListList'];
+        };
+      };
+    };
+  };
+  data_admin_country_reasons_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CountryReasonDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['CountryReasonDetailRequest'];
+        'multipart/form-data': components['schemas']['CountryReasonDetailRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CountryReasonDetail'];
+        };
+      };
+    };
+  };
+  data_admin_country_reasons_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CountryReasonDetail'];
+        };
+      };
+    };
+  };
+  data_admin_country_reasons_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CountryReasonDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['CountryReasonDetailRequest'];
+        'multipart/form-data': components['schemas']['CountryReasonDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CountryReasonDetail'];
+        };
+      };
+    };
+  };
+  data_admin_country_reasons_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  data_admin_country_reasons_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedCountryReasonDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedCountryReasonDetailRequest'];
+        'multipart/form-data': components['schemas']['PatchedCountryReasonDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CountryReasonDetail'];
+        };
+      };
+    };
+  };
+  data_admin_country_testimonials_list: {
+    parameters: {
+      query?: {
+        /** @description cuid-format identifier for this entity. */
+        country?: string;
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedCountryTestimonialListList'];
+        };
+      };
+    };
+  };
+  data_admin_country_testimonials_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CountryTestimonialDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['CountryTestimonialDetailRequest'];
+        'multipart/form-data': components['schemas']['CountryTestimonialDetailRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CountryTestimonialDetail'];
+        };
+      };
+    };
+  };
+  data_admin_country_testimonials_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CountryTestimonialDetail'];
+        };
+      };
+    };
+  };
+  data_admin_country_testimonials_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CountryTestimonialDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['CountryTestimonialDetailRequest'];
+        'multipart/form-data': components['schemas']['CountryTestimonialDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CountryTestimonialDetail'];
+        };
+      };
+    };
+  };
+  data_admin_country_testimonials_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  data_admin_country_testimonials_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedCountryTestimonialDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedCountryTestimonialDetailRequest'];
+        'multipart/form-data': components['schemas']['PatchedCountryTestimonialDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CountryTestimonialDetail'];
+        };
+      };
+    };
+  };
+  data_admin_course_disciplines_list: {
+    parameters: {
+      query?: {
+        /** @description cuid-format identifier for this entity. */
+        course?: string;
+        /** @description cuid-format identifier for this entity. */
+        discipline?: string;
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedCourseDisciplineListList'];
+        };
+      };
+    };
+  };
+  data_admin_course_disciplines_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CourseDisciplineDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['CourseDisciplineDetailRequest'];
+        'multipart/form-data': components['schemas']['CourseDisciplineDetailRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CourseDisciplineDetail'];
+        };
+      };
+    };
+  };
+  data_admin_course_disciplines_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CourseDisciplineDetail'];
+        };
+      };
+    };
+  };
+  data_admin_course_disciplines_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CourseDisciplineDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['CourseDisciplineDetailRequest'];
+        'multipart/form-data': components['schemas']['CourseDisciplineDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CourseDisciplineDetail'];
+        };
+      };
+    };
+  };
+  data_admin_course_disciplines_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  data_admin_course_disciplines_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedCourseDisciplineDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedCourseDisciplineDetailRequest'];
+        'multipart/form-data': components['schemas']['PatchedCourseDisciplineDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CourseDisciplineDetail'];
+        };
+      };
+    };
+  };
+  data_admin_course_modules_list: {
+    parameters: {
+      query?: {
+        /**
+         * @description * `ELECTIVE` - ELECTIVE
+         *     * `NON ELECTIVE` - NON ELECTIVE
+         */
+        category?: 'ELECTIVE' | 'NON ELECTIVE' | null;
+        /** @description cuid-format identifier for this entity. */
+        course_semister?: string;
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedCourseModuleListList'];
+        };
+      };
+    };
+  };
+  data_admin_course_modules_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CourseModuleDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['CourseModuleDetailRequest'];
+        'multipart/form-data': components['schemas']['CourseModuleDetailRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CourseModuleDetail'];
+        };
+      };
+    };
+  };
+  data_admin_course_modules_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CourseModuleDetail'];
+        };
+      };
+    };
+  };
+  data_admin_course_modules_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CourseModuleDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['CourseModuleDetailRequest'];
+        'multipart/form-data': components['schemas']['CourseModuleDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CourseModuleDetail'];
+        };
+      };
+    };
+  };
+  data_admin_course_modules_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  data_admin_course_modules_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedCourseModuleDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedCourseModuleDetailRequest'];
+        'multipart/form-data': components['schemas']['PatchedCourseModuleDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CourseModuleDetail'];
+        };
+      };
+    };
+  };
+  data_admin_course_offering_expenses_list: {
+    parameters: {
+      query?: {
+        /**
+         * @description * `TZS` - Tzs
+         *     * `USD` - Usd
+         */
+        currency?: 'TZS' | 'USD';
+        is_default?: boolean;
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+        tag?: string;
+        /** @description cuid-format identifier for this entity. */
+        uni_course?: string;
+        /** @description Multiple values may be separated by commas. */
+        uni_course__in?: string[];
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedCourseUniversityExpensesList'];
+        };
+      };
+    };
+  };
+  data_admin_course_offering_expenses_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CourseUniversityExpensesNestedRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['CourseUniversityExpensesNestedRequest'];
+        'multipart/form-data': components['schemas']['CourseUniversityExpensesNestedRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CourseUniversityExpensesNested'];
+        };
+      };
+    };
+  };
+  data_admin_course_offering_expenses_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CourseUniversityExpensesNested'];
+        };
+      };
+    };
+  };
+  data_admin_course_offering_expenses_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CourseUniversityExpensesNestedRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['CourseUniversityExpensesNestedRequest'];
+        'multipart/form-data': components['schemas']['CourseUniversityExpensesNestedRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CourseUniversityExpensesNested'];
+        };
+      };
+    };
+  };
+  data_admin_course_offering_expenses_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  data_admin_course_offering_expenses_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedCourseUniversityExpensesNestedRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedCourseUniversityExpensesNestedRequest'];
+        'multipart/form-data': components['schemas']['PatchedCourseUniversityExpensesNestedRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CourseUniversityExpensesNested'];
+        };
+      };
+    };
+  };
+  data_admin_course_offerings_list: {
+    parameters: {
+      query?: {
+        /** @description cuid-format identifier for this entity. */
+        course?: string;
+        is_active?: boolean;
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+        /** @description cuid-format identifier for this entity. */
+        university?: string;
+        /** @description cuid-format identifier for this entity. */
+        university__country?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedCourseUniversityListList'];
+        };
+      };
+    };
+  };
+  data_admin_course_offerings_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CourseUniversityDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['CourseUniversityDetailRequest'];
+        'multipart/form-data': components['schemas']['CourseUniversityDetailRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CourseUniversityDetail'];
+        };
+      };
+    };
+  };
+  data_admin_course_offerings_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CourseUniversityDetail'];
+        };
+      };
+    };
+  };
+  data_admin_course_offerings_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CourseUniversityDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['CourseUniversityDetailRequest'];
+        'multipart/form-data': components['schemas']['CourseUniversityDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CourseUniversityDetail'];
+        };
+      };
+    };
+  };
+  data_admin_course_offerings_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  data_admin_course_offerings_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedCourseUniversityDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedCourseUniversityDetailRequest'];
+        'multipart/form-data': components['schemas']['PatchedCourseUniversityDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CourseUniversityDetail'];
+        };
+      };
+    };
+  };
+  data_admin_course_pictures_list: {
+    parameters: {
+      query?: {
+        /** @description cuid-format identifier for this entity. */
+        course?: string;
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedCoursePictureListList'];
+        };
+      };
+    };
+  };
+  data_admin_course_pictures_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CoursePictureDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['CoursePictureDetailRequest'];
+        'multipart/form-data': components['schemas']['CoursePictureDetailRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CoursePictureDetail'];
+        };
+      };
+    };
+  };
+  data_admin_course_pictures_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CoursePictureDetail'];
+        };
+      };
+    };
+  };
+  data_admin_course_pictures_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CoursePictureDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['CoursePictureDetailRequest'];
+        'multipart/form-data': components['schemas']['CoursePictureDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CoursePictureDetail'];
+        };
+      };
+    };
+  };
+  data_admin_course_pictures_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  data_admin_course_pictures_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedCoursePictureDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedCoursePictureDetailRequest'];
+        'multipart/form-data': components['schemas']['PatchedCoursePictureDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CoursePictureDetail'];
+        };
+      };
+    };
+  };
+  data_admin_course_requirements_list: {
+    parameters: {
+      query?: {
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+        /** @description cuid-format identifier for this entity. */
+        uni_course?: string;
+        /** @description cuid-format identifier for this entity. */
+        uni_course__course?: string;
+        /** @description cuid-format identifier for this entity. */
+        uni_course__university?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedCourseRequirementsList'];
+        };
+      };
+    };
+  };
+  data_admin_course_requirements_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['CourseRequirementsNestedRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['CourseRequirementsNestedRequest'];
+        'multipart/form-data': components['schemas']['CourseRequirementsNestedRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CourseRequirementsNested'];
+        };
+      };
+    };
+  };
+  data_admin_course_requirements_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CourseRequirementsNested'];
+        };
+      };
+    };
+  };
+  data_admin_course_requirements_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['CourseRequirementsNestedRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['CourseRequirementsNestedRequest'];
+        'multipart/form-data': components['schemas']['CourseRequirementsNestedRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CourseRequirementsNested'];
+        };
+      };
+    };
+  };
+  data_admin_course_requirements_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  data_admin_course_requirements_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedCourseRequirementsNestedRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedCourseRequirementsNestedRequest'];
+        'multipart/form-data': components['schemas']['PatchedCourseRequirementsNestedRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CourseRequirementsNested'];
+        };
+      };
+    };
+  };
+  data_admin_course_semesters_list: {
+    parameters: {
+      query?: {
+        /** @description cuid-format identifier for this entity. */
+        course_year?: string;
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+        /** @description cuid-format identifier for this entity. */
+        semister?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedCourseSemisterListList'];
+        };
+      };
+    };
+  };
+  data_admin_course_semesters_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CourseSemisterDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['CourseSemisterDetailRequest'];
+        'multipart/form-data': components['schemas']['CourseSemisterDetailRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CourseSemisterDetail'];
+        };
+      };
+    };
+  };
+  data_admin_course_semesters_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CourseSemisterDetail'];
+        };
+      };
+    };
+  };
+  data_admin_course_semesters_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CourseSemisterDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['CourseSemisterDetailRequest'];
+        'multipart/form-data': components['schemas']['CourseSemisterDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CourseSemisterDetail'];
+        };
+      };
+    };
+  };
+  data_admin_course_semesters_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  data_admin_course_semesters_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedCourseSemisterDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedCourseSemisterDetailRequest'];
+        'multipart/form-data': components['schemas']['PatchedCourseSemisterDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CourseSemisterDetail'];
+        };
+      };
+    };
+  };
+  data_admin_course_trends_list: {
+    parameters: {
+      query?: {
+        /** @description cuid-format identifier for this entity. */
+        course?: string;
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedCourseTrendListList'];
+        };
+      };
+    };
+  };
+  data_admin_course_trends_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CourseTrendDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['CourseTrendDetailRequest'];
+        'multipart/form-data': components['schemas']['CourseTrendDetailRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CourseTrendDetail'];
+        };
+      };
+    };
+  };
+  data_admin_course_trends_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description A unique integer value identifying this Course Trend. */
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CourseTrendDetail'];
+        };
+      };
+    };
+  };
+  data_admin_course_trends_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description A unique integer value identifying this Course Trend. */
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CourseTrendDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['CourseTrendDetailRequest'];
+        'multipart/form-data': components['schemas']['CourseTrendDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CourseTrendDetail'];
+        };
+      };
+    };
+  };
+  data_admin_course_trends_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description A unique integer value identifying this Course Trend. */
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  data_admin_course_trends_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description A unique integer value identifying this Course Trend. */
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedCourseTrendDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedCourseTrendDetailRequest'];
+        'multipart/form-data': components['schemas']['PatchedCourseTrendDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CourseTrendDetail'];
+        };
+      };
+    };
+  };
+  data_admin_course_videos_list: {
+    parameters: {
+      query?: {
+        /** @description cuid-format identifier for this entity. */
+        course?: string;
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedCourseVideoListList'];
+        };
+      };
+    };
+  };
+  data_admin_course_videos_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CourseVideoDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['CourseVideoDetailRequest'];
+        'multipart/form-data': components['schemas']['CourseVideoDetailRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CourseVideoDetail'];
+        };
+      };
+    };
+  };
+  data_admin_course_videos_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CourseVideoDetail'];
+        };
+      };
+    };
+  };
+  data_admin_course_videos_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CourseVideoDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['CourseVideoDetailRequest'];
+        'multipart/form-data': components['schemas']['CourseVideoDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CourseVideoDetail'];
+        };
+      };
+    };
+  };
+  data_admin_course_videos_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  data_admin_course_videos_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedCourseVideoDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedCourseVideoDetailRequest'];
+        'multipart/form-data': components['schemas']['PatchedCourseVideoDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CourseVideoDetail'];
+        };
+      };
+    };
+  };
+  data_admin_course_years_list: {
+    parameters: {
+      query?: {
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+        /** @description cuid-format identifier for this entity. */
+        uni_course?: string;
+        year?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedCourseYearListList'];
+        };
+      };
+    };
+  };
+  data_admin_course_years_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CourseYearDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['CourseYearDetailRequest'];
+        'multipart/form-data': components['schemas']['CourseYearDetailRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CourseYearDetail'];
+        };
+      };
+    };
+  };
+  data_admin_course_years_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CourseYearDetail'];
+        };
+      };
+    };
+  };
+  data_admin_course_years_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CourseYearDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['CourseYearDetailRequest'];
+        'multipart/form-data': components['schemas']['CourseYearDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CourseYearDetail'];
+        };
+      };
+    };
+  };
+  data_admin_course_years_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  data_admin_course_years_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedCourseYearDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedCourseYearDetailRequest'];
+        'multipart/form-data': components['schemas']['PatchedCourseYearDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CourseYearDetail'];
+        };
+      };
+    };
+  };
+  data_admin_courses_list: {
+    parameters: {
+      query?: {
+        /** @description cuid-format identifier for this entity. */
+        category?: string;
+        is_active?: boolean;
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedCourseListList'];
+        };
+      };
+    };
+  };
+  data_admin_courses_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CourseDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['CourseDetailRequest'];
+        'multipart/form-data': components['schemas']['CourseDetailRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CourseDetail'];
+        };
+      };
+    };
+  };
+  data_admin_courses_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CourseDetail'];
+        };
+      };
+    };
+  };
+  data_admin_courses_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CourseDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['CourseDetailRequest'];
+        'multipart/form-data': components['schemas']['CourseDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CourseDetail'];
+        };
+      };
+    };
+  };
+  data_admin_courses_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  data_admin_courses_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedCourseDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedCourseDetailRequest'];
+        'multipart/form-data': components['schemas']['PatchedCourseDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CourseDetail'];
+        };
+      };
+    };
+  };
+  data_admin_disciplines_list: {
+    parameters: {
+      query?: {
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedDisciplineListList'];
+        };
+      };
+    };
+  };
+  data_admin_disciplines_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['DisciplineDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['DisciplineDetailRequest'];
+        'multipart/form-data': components['schemas']['DisciplineDetailRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['DisciplineDetail'];
+        };
+      };
+    };
+  };
+  data_admin_disciplines_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['DisciplineDetail'];
+        };
+      };
+    };
+  };
+  data_admin_disciplines_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['DisciplineDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['DisciplineDetailRequest'];
+        'multipart/form-data': components['schemas']['DisciplineDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['DisciplineDetail'];
+        };
+      };
+    };
+  };
+  data_admin_disciplines_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  data_admin_disciplines_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedDisciplineDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedDisciplineDetailRequest'];
+        'multipart/form-data': components['schemas']['PatchedDisciplineDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['DisciplineDetail'];
+        };
+      };
+    };
+  };
+  data_admin_expert_availability_list: {
+    parameters: {
+      query?: {
+        /**
+         * @description * `monday` - Monday
+         *     * `tuesday` - Tuesday
+         *     * `wednesday` - Wednesday
+         *     * `thursday` - Thursday
+         *     * `friday` - Friday
+         *     * `saturday` - Saturday
+         *     * `sunday` - Sunday
+         */
+        day?:
+          | 'friday'
+          | 'monday'
+          | 'saturday'
+          | 'sunday'
+          | 'thursday'
+          | 'tuesday'
+          | 'wednesday';
+        /** @description cuid-format identifier for this entity. */
+        expert?: string;
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedExpertAvailabilityListList'];
+        };
+      };
+    };
+  };
+  data_admin_expert_availability_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ExpertAvailabilityDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ExpertAvailabilityDetailRequest'];
+        'multipart/form-data': components['schemas']['ExpertAvailabilityDetailRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ExpertAvailabilityDetail'];
+        };
+      };
+    };
+  };
+  data_admin_expert_availability_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ExpertAvailabilityDetail'];
+        };
+      };
+    };
+  };
+  data_admin_expert_availability_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ExpertAvailabilityDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ExpertAvailabilityDetailRequest'];
+        'multipart/form-data': components['schemas']['ExpertAvailabilityDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ExpertAvailabilityDetail'];
+        };
+      };
+    };
+  };
+  data_admin_expert_availability_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  data_admin_expert_availability_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedExpertAvailabilityDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedExpertAvailabilityDetailRequest'];
+        'multipart/form-data': components['schemas']['PatchedExpertAvailabilityDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ExpertAvailabilityDetail'];
+        };
+      };
+    };
+  };
+  data_admin_expert_bookings_list: {
+    parameters: {
+      query?: {
+        /**
+         * @description * `quick_check` - Quick Check
+         *     * `video_call` - Video Call
+         */
+        booking_type?: 'quick_check' | 'video_call';
+        /** @description cuid-format identifier for this entity. */
+        expert?: string;
+        is_paid?: boolean;
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+        /**
+         * @description * `pending` - Pending
+         *     * `confirmed` - Confirmed
+         *     * `cancelled` - Cancelled
+         *     * `completed` - Completed
+         *     * `no_show` - No Show
+         */
+        status?:
+          | 'cancelled'
+          | 'completed'
+          | 'confirmed'
+          | 'no_show'
+          | 'pending';
+        /** @description cuid-format identifier for this entity. */
+        student?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedBookingListList'];
+        };
+      };
+    };
+  };
+  data_admin_expert_bookings_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['BookingDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['BookingDetailRequest'];
+        'multipart/form-data': components['schemas']['BookingDetailRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['BookingDetail'];
+        };
+      };
+    };
+  };
+  data_admin_expert_bookings_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['BookingDetail'];
+        };
+      };
+    };
+  };
+  data_admin_expert_bookings_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['BookingDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['BookingDetailRequest'];
+        'multipart/form-data': components['schemas']['BookingDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['BookingDetail'];
+        };
+      };
+    };
+  };
+  data_admin_expert_bookings_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  data_admin_expert_bookings_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedBookingDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedBookingDetailRequest'];
+        'multipart/form-data': components['schemas']['PatchedBookingDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['BookingDetail'];
+        };
+      };
+    };
+  };
+  data_admin_expert_credentials_list: {
+    parameters: {
+      query?: {
+        /**
+         * @description * `degree` - Degree
+         *     * `certification` - Certification
+         *     * `license` - License
+         *     * `other` - Other
+         */
+        credential_type?: 'certification' | 'degree' | 'license' | 'other';
+        /** @description cuid-format identifier for this entity. */
+        expert?: string;
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedExpertCredentialListList'];
+        };
+      };
+    };
+  };
+  data_admin_expert_credentials_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ExpertCredentialDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ExpertCredentialDetailRequest'];
+        'multipart/form-data': components['schemas']['ExpertCredentialDetailRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ExpertCredentialDetail'];
+        };
+      };
+    };
+  };
+  data_admin_expert_credentials_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ExpertCredentialDetail'];
+        };
+      };
+    };
+  };
+  data_admin_expert_credentials_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ExpertCredentialDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ExpertCredentialDetailRequest'];
+        'multipart/form-data': components['schemas']['ExpertCredentialDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ExpertCredentialDetail'];
+        };
+      };
+    };
+  };
+  data_admin_expert_credentials_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  data_admin_expert_credentials_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedExpertCredentialDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedExpertCredentialDetailRequest'];
+        'multipart/form-data': components['schemas']['PatchedExpertCredentialDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ExpertCredentialDetail'];
+        };
+      };
+    };
+  };
+  data_admin_expert_expertise_list: {
+    parameters: {
+      query?: {
+        /** @description cuid-format identifier for this entity. */
+        expert?: string;
+        is_primary?: boolean;
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+        /**
+         * @description * `o_level` - O Level
+         *     * `a_level` - A Level
+         *     * `university` - University
+         *     * `all` - All
+         */
+        target_level?: 'a_level' | 'all' | 'o_level' | 'university';
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedExpertExpertiseListList'];
+        };
+      };
+    };
+  };
+  data_admin_expert_expertise_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ExpertExpertiseDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ExpertExpertiseDetailRequest'];
+        'multipart/form-data': components['schemas']['ExpertExpertiseDetailRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ExpertExpertiseDetail'];
+        };
+      };
+    };
+  };
+  data_admin_expert_expertise_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ExpertExpertiseDetail'];
+        };
+      };
+    };
+  };
+  data_admin_expert_expertise_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ExpertExpertiseDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ExpertExpertiseDetailRequest'];
+        'multipart/form-data': components['schemas']['ExpertExpertiseDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ExpertExpertiseDetail'];
+        };
+      };
+    };
+  };
+  data_admin_expert_expertise_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  data_admin_expert_expertise_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedExpertExpertiseDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedExpertExpertiseDetailRequest'];
+        'multipart/form-data': components['schemas']['PatchedExpertExpertiseDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ExpertExpertiseDetail'];
+        };
+      };
+    };
+  };
+  data_admin_expert_group_memberships_list: {
+    parameters: {
+      query?: {
+        /** @description cuid-format identifier for this entity. */
+        group?: string;
+        is_active?: boolean;
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+        /** @description cuid-format identifier for this entity. */
+        user?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedGroupMembershipListList'];
+        };
+      };
+    };
+  };
+  data_admin_expert_group_memberships_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['GroupMembershipDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['GroupMembershipDetailRequest'];
+        'multipart/form-data': components['schemas']['GroupMembershipDetailRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['GroupMembershipDetail'];
+        };
+      };
+    };
+  };
+  data_admin_expert_group_memberships_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['GroupMembershipDetail'];
+        };
+      };
+    };
+  };
+  data_admin_expert_group_memberships_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['GroupMembershipDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['GroupMembershipDetailRequest'];
+        'multipart/form-data': components['schemas']['GroupMembershipDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['GroupMembershipDetail'];
+        };
+      };
+    };
+  };
+  data_admin_expert_group_memberships_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  data_admin_expert_group_memberships_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedGroupMembershipDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedGroupMembershipDetailRequest'];
+        'multipart/form-data': components['schemas']['PatchedGroupMembershipDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['GroupMembershipDetail'];
+        };
+      };
+    };
+  };
+  data_admin_expert_group_posts_list: {
+    parameters: {
+      query?: {
+        /** @description cuid-format identifier for this entity. */
+        author?: string;
+        /** @description cuid-format identifier for this entity. */
+        group?: string;
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedGroupPostListList'];
+        };
+      };
+    };
+  };
+  data_admin_expert_group_posts_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['GroupPostDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['GroupPostDetailRequest'];
+        'multipart/form-data': components['schemas']['GroupPostDetailRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['GroupPostDetail'];
+        };
+      };
+    };
+  };
+  data_admin_expert_group_posts_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['GroupPostDetail'];
+        };
+      };
+    };
+  };
+  data_admin_expert_group_posts_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['GroupPostDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['GroupPostDetailRequest'];
+        'multipart/form-data': components['schemas']['GroupPostDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['GroupPostDetail'];
+        };
+      };
+    };
+  };
+  data_admin_expert_group_posts_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  data_admin_expert_group_posts_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedGroupPostDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedGroupPostDetailRequest'];
+        'multipart/form-data': components['schemas']['PatchedGroupPostDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['GroupPostDetail'];
+        };
+      };
+    };
+  };
+  data_admin_expert_groups_list: {
+    parameters: {
+      query?: {
+        /** @description cuid-format identifier for this entity. */
+        expert?: string;
+        is_active?: boolean;
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedGroupListList'];
+        };
+      };
+    };
+  };
+  data_admin_expert_groups_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['GroupDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['GroupDetailRequest'];
+        'multipart/form-data': components['schemas']['GroupDetailRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['GroupDetail'];
+        };
+      };
+    };
+  };
+  data_admin_expert_groups_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['GroupDetail'];
+        };
+      };
+    };
+  };
+  data_admin_expert_groups_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['GroupDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['GroupDetailRequest'];
+        'multipart/form-data': components['schemas']['GroupDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['GroupDetail'];
+        };
+      };
+    };
+  };
+  data_admin_expert_groups_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  data_admin_expert_groups_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedGroupDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedGroupDetailRequest'];
+        'multipart/form-data': components['schemas']['PatchedGroupDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['GroupDetail'];
+        };
+      };
+    };
+  };
+  data_admin_expert_reviews_list: {
+    parameters: {
+      query?: {
+        /** @description cuid-format identifier for this entity. */
+        expert?: string;
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        rating?: number;
+        /** @description cuid-format identifier for this entity. */
+        reviewer?: string;
+        /** @description A search term. */
+        search?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedReviewListList'];
+        };
+      };
+    };
+  };
+  data_admin_expert_reviews_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ReviewDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ReviewDetailRequest'];
+        'multipart/form-data': components['schemas']['ReviewDetailRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ReviewDetail'];
+        };
+      };
+    };
+  };
+  data_admin_expert_reviews_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ReviewDetail'];
+        };
+      };
+    };
+  };
+  data_admin_expert_reviews_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ReviewDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ReviewDetailRequest'];
+        'multipart/form-data': components['schemas']['ReviewDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ReviewDetail'];
+        };
+      };
+    };
+  };
+  data_admin_expert_reviews_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  data_admin_expert_reviews_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedReviewDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedReviewDetailRequest'];
+        'multipart/form-data': components['schemas']['PatchedReviewDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ReviewDetail'];
+        };
+      };
+    };
+  };
+  data_admin_experts_list: {
+    parameters: {
+      query?: {
+        /**
+         * @description * `full_time` - Full Time
+         *     * `part_time` - Part Time
+         *     * `self_employed` - Self Employed
+         */
+        employment_type?: 'full_time' | 'part_time' | 'self_employed';
+        is_active?: boolean;
+        is_onboarding_complete?: boolean;
+        is_online?: boolean;
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+        /**
+         * @description * `none` - None
+         *     * `pending` - Pending
+         *     * `under_review` - Under Review
+         *     * `verified` - Verified
+         *     * `rejected` - Rejected
+         */
+        verification_status?:
+          | 'none'
+          | 'pending'
+          | 'rejected'
+          | 'under_review'
+          | 'verified';
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedExpertProfileListList'];
+        };
+      };
+    };
+  };
+  data_admin_experts_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ExpertProfileDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ExpertProfileDetailRequest'];
+        'multipart/form-data': components['schemas']['ExpertProfileDetailRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ExpertProfileDetail'];
+        };
+      };
+    };
+  };
+  data_admin_experts_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ExpertProfileDetail'];
+        };
+      };
+    };
+  };
+  data_admin_experts_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ExpertProfileDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ExpertProfileDetailRequest'];
+        'multipart/form-data': components['schemas']['ExpertProfileDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ExpertProfileDetail'];
+        };
+      };
+    };
+  };
+  data_admin_experts_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  data_admin_experts_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedExpertProfileDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedExpertProfileDetailRequest'];
+        'multipart/form-data': components['schemas']['PatchedExpertProfileDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ExpertProfileDetail'];
+        };
+      };
+    };
+  };
+  data_admin_general_expenses_list: {
+    parameters: {
+      query?: {
+        /**
+         * @description * `TZS` - Tzs
+         *     * `USD` - Usd
+         */
+        currency?: 'TZS' | 'USD';
+        is_default?: boolean;
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+        tag?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedGeneralExpenseListList'];
+        };
+      };
+    };
+  };
+  data_admin_general_expenses_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['GeneralExpenseDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['GeneralExpenseDetailRequest'];
+        'multipart/form-data': components['schemas']['GeneralExpenseDetailRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['GeneralExpenseDetail'];
+        };
+      };
+    };
+  };
+  data_admin_general_expenses_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['GeneralExpenseDetail'];
+        };
+      };
+    };
+  };
+  data_admin_general_expenses_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['GeneralExpenseDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['GeneralExpenseDetailRequest'];
+        'multipart/form-data': components['schemas']['GeneralExpenseDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['GeneralExpenseDetail'];
+        };
+      };
+    };
+  };
+  data_admin_general_expenses_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  data_admin_general_expenses_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedGeneralExpenseDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedGeneralExpenseDetailRequest'];
+        'multipart/form-data': components['schemas']['PatchedGeneralExpenseDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['GeneralExpenseDetail'];
+        };
+      };
+    };
+  };
+  data_admin_mailing_list_list: {
+    parameters: {
+      query?: {
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedMailingListListList'];
+        };
+      };
+    };
+  };
+  data_admin_mailing_list_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['MailingListDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['MailingListDetailRequest'];
+        'multipart/form-data': components['schemas']['MailingListDetailRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['MailingListDetail'];
+        };
+      };
+    };
+  };
+  data_admin_mailing_list_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['MailingListDetail'];
+        };
+      };
+    };
+  };
+  data_admin_mailing_list_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['MailingListDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['MailingListDetailRequest'];
+        'multipart/form-data': components['schemas']['MailingListDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['MailingListDetail'];
+        };
+      };
+    };
+  };
+  data_admin_mailing_list_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  data_admin_mailing_list_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedMailingListDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedMailingListDetailRequest'];
+        'multipart/form-data': components['schemas']['PatchedMailingListDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['MailingListDetail'];
+        };
+      };
+    };
+  };
+  data_admin_number_constants_list: {
+    parameters: {
+      query?: {
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedNumberConstantList'];
+        };
+      };
+    };
+  };
+  data_admin_number_constants_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['NumberConstantRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['NumberConstantRequest'];
+        'multipart/form-data': components['schemas']['NumberConstantRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['NumberConstant'];
+        };
+      };
+    };
+  };
+  data_admin_number_constants_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description A unique integer value identifying this Constant. */
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['NumberConstant'];
+        };
+      };
+    };
+  };
+  data_admin_number_constants_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description A unique integer value identifying this Constant. */
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['NumberConstantRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['NumberConstantRequest'];
+        'multipart/form-data': components['schemas']['NumberConstantRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['NumberConstant'];
+        };
+      };
+    };
+  };
+  data_admin_number_constants_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description A unique integer value identifying this Constant. */
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  data_admin_number_constants_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description A unique integer value identifying this Constant. */
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedNumberConstantRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedNumberConstantRequest'];
+        'multipart/form-data': components['schemas']['PatchedNumberConstantRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['NumberConstant'];
+        };
+      };
+    };
+  };
+  data_admin_olevel_grades_list: {
+    parameters: {
+      query?: {
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedOLevelGradeListList'];
+        };
+      };
+    };
+  };
+  data_admin_olevel_grades_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['OLevelGradeDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['OLevelGradeDetailRequest'];
+        'multipart/form-data': components['schemas']['OLevelGradeDetailRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['OLevelGradeDetail'];
+        };
+      };
+    };
+  };
+  data_admin_olevel_grades_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['OLevelGradeDetail'];
+        };
+      };
+    };
+  };
+  data_admin_olevel_grades_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['OLevelGradeDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['OLevelGradeDetailRequest'];
+        'multipart/form-data': components['schemas']['OLevelGradeDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['OLevelGradeDetail'];
+        };
+      };
+    };
+  };
+  data_admin_olevel_grades_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  data_admin_olevel_grades_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedOLevelGradeDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedOLevelGradeDetailRequest'];
+        'multipart/form-data': components['schemas']['PatchedOLevelGradeDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['OLevelGradeDetail'];
+        };
+      };
+    };
+  };
+  data_admin_olevel_subjects_list: {
+    parameters: {
+      query?: {
+        /**
+         * @description * `ARTS` - ARTS
+         *     * `SCIENCE` - SCIENCE
+         *     * `BUSINESS` - BUSINESS
+         *     * `TECHNICAL` - TECHNICAL
+         */
+        category?: 'ARTS' | 'BUSINESS' | 'SCIENCE' | 'TECHNICAL';
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+        /**
+         * @description * `PRINCIPAL` - PRINCIPAL
+         *     * `ELECTIVE` - ELECTIVE
+         */
+        type?: 'ELECTIVE' | 'PRINCIPAL';
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedOLevelSubjectListList'];
+        };
+      };
+    };
+  };
+  data_admin_olevel_subjects_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['OLevelSubjectDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['OLevelSubjectDetailRequest'];
+        'multipart/form-data': components['schemas']['OLevelSubjectDetailRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['OLevelSubjectDetail'];
+        };
+      };
+    };
+  };
+  data_admin_olevel_subjects_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['OLevelSubjectDetail'];
+        };
+      };
+    };
+  };
+  data_admin_olevel_subjects_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['OLevelSubjectDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['OLevelSubjectDetailRequest'];
+        'multipart/form-data': components['schemas']['OLevelSubjectDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['OLevelSubjectDetail'];
+        };
+      };
+    };
+  };
+  data_admin_olevel_subjects_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  data_admin_olevel_subjects_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedOLevelSubjectDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedOLevelSubjectDetailRequest'];
+        'multipart/form-data': components['schemas']['PatchedOLevelSubjectDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['OLevelSubjectDetail'];
+        };
+      };
+    };
+  };
+  data_admin_parents_list: {
+    parameters: {
+      query?: {
+        is_primary_contact?: boolean;
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+        /** @description cuid-format identifier for this entity. */
+        student?: string;
+        /**
+         * @description * `UNVERIFIED` - Unverified
+         *     * `VERIFIED` - Verified
+         */
+        verification_status?: 'UNVERIFIED' | 'VERIFIED';
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedParentListList'];
+        };
+      };
+    };
+  };
+  data_admin_parents_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ParentDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ParentDetailRequest'];
+        'multipart/form-data': components['schemas']['ParentDetailRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ParentDetail'];
+        };
+      };
+    };
+  };
+  data_admin_parents_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ParentDetail'];
+        };
+      };
+    };
+  };
+  data_admin_parents_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ParentDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ParentDetailRequest'];
+        'multipart/form-data': components['schemas']['ParentDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ParentDetail'];
+        };
+      };
+    };
+  };
+  data_admin_parents_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  data_admin_parents_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedParentDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedParentDetailRequest'];
+        'multipart/form-data': components['schemas']['PatchedParentDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ParentDetail'];
+        };
+      };
+    };
+  };
+  data_admin_scholarship_images_list: {
+    parameters: {
+      query?: {
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description cuid-format identifier for this entity. */
+        scholarship?: string;
+        /** @description A search term. */
+        search?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedScholarshipImageListList'];
+        };
+      };
+    };
+  };
+  data_admin_scholarship_images_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ScholarshipImageDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ScholarshipImageDetailRequest'];
+        'multipart/form-data': components['schemas']['ScholarshipImageDetailRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ScholarshipImageDetail'];
+        };
+      };
+    };
+  };
+  data_admin_scholarship_images_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ScholarshipImageDetail'];
+        };
+      };
+    };
+  };
+  data_admin_scholarship_images_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ScholarshipImageDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ScholarshipImageDetailRequest'];
+        'multipart/form-data': components['schemas']['ScholarshipImageDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ScholarshipImageDetail'];
+        };
+      };
+    };
+  };
+  data_admin_scholarship_images_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  data_admin_scholarship_images_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedScholarshipImageDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedScholarshipImageDetailRequest'];
+        'multipart/form-data': components['schemas']['PatchedScholarshipImageDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ScholarshipImageDetail'];
+        };
+      };
+    };
+  };
+  data_admin_scholarships_list: {
+    parameters: {
+      query?: {
+        /**
+         * @description * `INTERNATIONAL SCHOLARSHIP` - INTERNATIONAL SCHOLARSHIP
+         *     * `LOCAL SCHOLARSHIP` - LOCAL SCHOLARSHIP
+         *     * `COMMONWEALTH SCHOLARSHIP` - COMMONWEALTH SCHOLARSHIP
+         *     * `NATIONAL SCHOLARSHIP` - NATIONAL SCHOLARSHIP
+         */
+        category?:
+          | 'COMMONWEALTH SCHOLARSHIP'
+          | 'INTERNATIONAL SCHOLARSHIP'
+          | 'LOCAL SCHOLARSHIP'
+          | 'NATIONAL SCHOLARSHIP';
+        /** @description cuid-format identifier for this entity. */
+        country?: string;
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        region?: string;
+        /** @description A search term. */
+        search?: string;
+        /** @description cuid-format identifier for this entity. */
+        university?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedScholarshipListList'];
+        };
+      };
+    };
+  };
+  data_admin_scholarships_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ScholarshipDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ScholarshipDetailRequest'];
+        'multipart/form-data': components['schemas']['ScholarshipDetailRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ScholarshipDetail'];
+        };
+      };
+    };
+  };
+  data_admin_scholarships_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ScholarshipDetail'];
+        };
+      };
+    };
+  };
+  data_admin_scholarships_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ScholarshipDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ScholarshipDetailRequest'];
+        'multipart/form-data': components['schemas']['ScholarshipDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ScholarshipDetail'];
+        };
+      };
+    };
+  };
+  data_admin_scholarships_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  data_admin_scholarships_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedScholarshipDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedScholarshipDetailRequest'];
+        'multipart/form-data': components['schemas']['PatchedScholarshipDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ScholarshipDetail'];
+        };
+      };
+    };
+  };
+  data_admin_semesters_list: {
+    parameters: {
+      query?: {
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedSemisterListList'];
+        };
+      };
+    };
+  };
+  data_admin_semesters_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['SemisterDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['SemisterDetailRequest'];
+        'multipart/form-data': components['schemas']['SemisterDetailRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['SemisterDetail'];
+        };
+      };
+    };
+  };
+  data_admin_semesters_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['SemisterDetail'];
+        };
+      };
+    };
+  };
+  data_admin_semesters_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['SemisterDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['SemisterDetailRequest'];
+        'multipart/form-data': components['schemas']['SemisterDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['SemisterDetail'];
+        };
+      };
+    };
+  };
+  data_admin_semesters_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  data_admin_semesters_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedSemisterDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedSemisterDetailRequest'];
+        'multipart/form-data': components['schemas']['PatchedSemisterDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['SemisterDetail'];
+        };
+      };
+    };
+  };
+  data_admin_stats_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  data_admin_subscriptions_list: {
+    parameters: {
+      query?: {
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedSubscriptionListList'];
+        };
+      };
+    };
+  };
+  data_admin_subscriptions_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['SubscriptionDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['SubscriptionDetailRequest'];
+        'multipart/form-data': components['schemas']['SubscriptionDetailRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['SubscriptionDetail'];
+        };
+      };
+    };
+  };
+  data_admin_subscriptions_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['SubscriptionDetail'];
+        };
+      };
+    };
+  };
+  data_admin_subscriptions_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['SubscriptionDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['SubscriptionDetailRequest'];
+        'multipart/form-data': components['schemas']['SubscriptionDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['SubscriptionDetail'];
+        };
+      };
+    };
+  };
+  data_admin_subscriptions_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  data_admin_subscriptions_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedSubscriptionDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedSubscriptionDetailRequest'];
+        'multipart/form-data': components['schemas']['PatchedSubscriptionDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['SubscriptionDetail'];
+        };
+      };
+    };
+  };
+  data_admin_testimonials_list: {
+    parameters: {
+      query?: {
+        /** @description cuid-format identifier for this entity. */
+        country?: string;
+        is_active?: boolean;
+        is_featured?: boolean;
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+        /**
+         * @description * `PARENT` - Parent Testimonial
+         *     * `STUDENT` - Student Testimonial
+         *     * `SUCCESS_STORY` - Success Story
+         */
+        testimonial_type?: 'PARENT' | 'STUDENT' | 'SUCCESS_STORY';
+        /** @description cuid-format identifier for this entity. */
+        university?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedTestimonialListList'];
+        };
+      };
+    };
+  };
+  data_admin_testimonials_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['TestimonialDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['TestimonialDetailRequest'];
+        'multipart/form-data': components['schemas']['TestimonialDetailRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['TestimonialDetail'];
+        };
+      };
+    };
+  };
+  data_admin_testimonials_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['TestimonialDetail'];
+        };
+      };
+    };
+  };
+  data_admin_testimonials_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['TestimonialDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['TestimonialDetailRequest'];
+        'multipart/form-data': components['schemas']['TestimonialDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['TestimonialDetail'];
+        };
+      };
+    };
+  };
+  data_admin_testimonials_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  data_admin_testimonials_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedTestimonialDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedTestimonialDetailRequest'];
+        'multipart/form-data': components['schemas']['PatchedTestimonialDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['TestimonialDetail'];
+        };
+      };
+    };
+  };
+  data_admin_universities_list: {
+    parameters: {
+      query?: {
+        /**
+         * @description * `PUBLIC` - PUBLIC
+         *     * `PRIVATE` - PRIVATE
+         */
+        category?: 'PRIVATE' | 'PUBLIC';
+        /** @description cuid-format identifier for this entity. */
+        country?: string;
+        institution_type?: string;
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /**
+         * @description * `FULL` - FULL
+         *     * `TUITION` - TUITION
+         *     * `HALF` - HALF
+         *     * `NONE` - NONE
+         */
+        scholarship?: 'FULL' | 'HALF' | 'NONE' | 'TUITION';
+        /** @description A search term. */
+        search?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedUniversityListList'];
+        };
+      };
+    };
+  };
+  data_admin_universities_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UniversityDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['UniversityDetailRequest'];
+        'multipart/form-data': components['schemas']['UniversityDetailRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['UniversityDetail'];
+        };
+      };
+    };
+  };
+  data_admin_universities_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['UniversityDetail'];
+        };
+      };
+    };
+  };
+  data_admin_universities_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UniversityDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['UniversityDetailRequest'];
+        'multipart/form-data': components['schemas']['UniversityDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['UniversityDetail'];
+        };
+      };
+    };
+  };
+  data_admin_universities_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  data_admin_universities_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedUniversityDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedUniversityDetailRequest'];
+        'multipart/form-data': components['schemas']['PatchedUniversityDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['UniversityDetail'];
+        };
+      };
+    };
+  };
+  data_admin_university_expenses_list: {
+    parameters: {
+      query?: {
+        /**
+         * @description * `TZS` - Tzs
+         *     * `USD` - Usd
+         */
+        currency?: 'TZS' | 'USD';
+        is_default?: boolean;
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+        tag?: string;
+        /** @description cuid-format identifier for this entity. */
+        university?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedUniversityExpensesListList'];
+        };
+      };
+    };
+  };
+  data_admin_university_expenses_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UniversityExpensesDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['UniversityExpensesDetailRequest'];
+        'multipart/form-data': components['schemas']['UniversityExpensesDetailRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['UniversityExpensesDetail'];
+        };
+      };
+    };
+  };
+  data_admin_university_expenses_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['UniversityExpensesDetail'];
+        };
+      };
+    };
+  };
+  data_admin_university_expenses_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UniversityExpensesDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['UniversityExpensesDetailRequest'];
+        'multipart/form-data': components['schemas']['UniversityExpensesDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['UniversityExpensesDetail'];
+        };
+      };
+    };
+  };
+  data_admin_university_expenses_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  data_admin_university_expenses_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedUniversityExpensesDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedUniversityExpensesDetailRequest'];
+        'multipart/form-data': components['schemas']['PatchedUniversityExpensesDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['UniversityExpensesDetail'];
+        };
+      };
+    };
+  };
+  data_admin_university_locations_list: {
+    parameters: {
+      query?: {
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        region?: string;
+        /** @description A search term. */
+        search?: string;
+        /** @description cuid-format identifier for this entity. */
+        university?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedUniversityLocationList'];
+        };
+      };
+    };
+  };
+  data_admin_university_locations_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['UniversityLocationRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['UniversityLocationRequest'];
+        'multipart/form-data': components['schemas']['UniversityLocationRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['UniversityLocation'];
+        };
+      };
+    };
+  };
+  data_admin_university_locations_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['UniversityLocation'];
+        };
+      };
+    };
+  };
+  data_admin_university_locations_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['UniversityLocationRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['UniversityLocationRequest'];
+        'multipart/form-data': components['schemas']['UniversityLocationRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['UniversityLocation'];
+        };
+      };
+    };
+  };
+  data_admin_university_locations_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  data_admin_university_locations_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedUniversityLocationRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedUniversityLocationRequest'];
+        'multipart/form-data': components['schemas']['PatchedUniversityLocationRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['UniversityLocation'];
+        };
+      };
+    };
+  };
+  data_admin_university_pictures_list: {
+    parameters: {
+      query?: {
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /**
+         * @description * `labs` - labs
+         *     * `libraries` - libraries
+         *     * `hostels` - hostels
+         *     * `overview` - overview
+         *     * `lecture_rooms` - lecture_rooms
+         *     * `other` - other
+         */
+        name?:
+          | 'hostels'
+          | 'labs'
+          | 'lecture_rooms'
+          | 'libraries'
+          | 'other'
+          | 'overview';
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+        /** @description cuid-format identifier for this entity. */
+        university?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedUniversityPictureListList'];
+        };
+      };
+    };
+  };
+  data_admin_university_pictures_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UniversityPictureDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['UniversityPictureDetailRequest'];
+        'multipart/form-data': components['schemas']['UniversityPictureDetailRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['UniversityPictureDetail'];
+        };
+      };
+    };
+  };
+  data_admin_university_pictures_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['UniversityPictureDetail'];
+        };
+      };
+    };
+  };
+  data_admin_university_pictures_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UniversityPictureDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['UniversityPictureDetailRequest'];
+        'multipart/form-data': components['schemas']['UniversityPictureDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['UniversityPictureDetail'];
+        };
+      };
+    };
+  };
+  data_admin_university_pictures_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  data_admin_university_pictures_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedUniversityPictureDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedUniversityPictureDetailRequest'];
+        'multipart/form-data': components['schemas']['PatchedUniversityPictureDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['UniversityPictureDetail'];
+        };
+      };
+    };
+  };
+  data_admin_university_rankings_list: {
+    parameters: {
+      query?: {
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+        /** @description cuid-format identifier for this entity. */
+        university?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedUniversityRankingList'];
+        };
+      };
+    };
+  };
+  data_admin_university_rankings_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['UniversityRankingRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['UniversityRankingRequest'];
+        'multipart/form-data': components['schemas']['UniversityRankingRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['UniversityRanking'];
+        };
+      };
+    };
+  };
+  data_admin_university_rankings_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['UniversityRanking'];
+        };
+      };
+    };
+  };
+  data_admin_university_rankings_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['UniversityRankingRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['UniversityRankingRequest'];
+        'multipart/form-data': components['schemas']['UniversityRankingRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['UniversityRanking'];
+        };
+      };
+    };
+  };
+  data_admin_university_rankings_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  data_admin_university_rankings_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedUniversityRankingRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedUniversityRankingRequest'];
+        'multipart/form-data': components['schemas']['PatchedUniversityRankingRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['UniversityRanking'];
+        };
+      };
+    };
+  };
+  data_admin_university_study_reasons_list: {
+    parameters: {
+      query?: {
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+        /** @description cuid-format identifier for this entity. */
+        university?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedUniversityStudyReasonsListList'];
+        };
+      };
+    };
+  };
+  data_admin_university_study_reasons_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UniversityStudyReasonsDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['UniversityStudyReasonsDetailRequest'];
+        'multipart/form-data': components['schemas']['UniversityStudyReasonsDetailRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['UniversityStudyReasonsDetail'];
+        };
+      };
+    };
+  };
+  data_admin_university_study_reasons_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['UniversityStudyReasonsDetail'];
+        };
+      };
+    };
+  };
+  data_admin_university_study_reasons_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UniversityStudyReasonsDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['UniversityStudyReasonsDetailRequest'];
+        'multipart/form-data': components['schemas']['UniversityStudyReasonsDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['UniversityStudyReasonsDetail'];
+        };
+      };
+    };
+  };
+  data_admin_university_study_reasons_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  data_admin_university_study_reasons_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedUniversityStudyReasonsDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedUniversityStudyReasonsDetailRequest'];
+        'multipart/form-data': components['schemas']['PatchedUniversityStudyReasonsDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['UniversityStudyReasonsDetail'];
+        };
+      };
+    };
+  };
+  data_admin_university_videos_list: {
+    parameters: {
+      query?: {
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+        /** @description cuid-format identifier for this entity. */
+        university?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedUniversityVideoListList'];
+        };
+      };
+    };
+  };
+  data_admin_university_videos_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UniversityVideoDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['UniversityVideoDetailRequest'];
+        'multipart/form-data': components['schemas']['UniversityVideoDetailRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['UniversityVideoDetail'];
+        };
+      };
+    };
+  };
+  data_admin_university_videos_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['UniversityVideoDetail'];
+        };
+      };
+    };
+  };
+  data_admin_university_videos_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UniversityVideoDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['UniversityVideoDetailRequest'];
+        'multipart/form-data': components['schemas']['UniversityVideoDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['UniversityVideoDetail'];
+        };
+      };
+    };
+  };
+  data_admin_university_videos_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  data_admin_university_videos_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedUniversityVideoDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedUniversityVideoDetailRequest'];
+        'multipart/form-data': components['schemas']['PatchedUniversityVideoDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['UniversityVideoDetail'];
+        };
+      };
+    };
+  };
   expenses_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  expert_availability_list: {
+    parameters: {
+      query?: {
+        /**
+         * @description * `monday` - Monday
+         *     * `tuesday` - Tuesday
+         *     * `wednesday` - Wednesday
+         *     * `thursday` - Thursday
+         *     * `friday` - Friday
+         *     * `saturday` - Saturday
+         *     * `sunday` - Sunday
+         */
+        day?:
+          | 'friday'
+          | 'monday'
+          | 'saturday'
+          | 'sunday'
+          | 'thursday'
+          | 'tuesday'
+          | 'wednesday';
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedExpertAvailabilityList'];
+        };
+      };
+    };
+  };
+  expert_availability_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ExpertAvailabilityRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ExpertAvailabilityRequest'];
+        'multipart/form-data': components['schemas']['ExpertAvailabilityRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ExpertAvailability'];
+        };
+      };
+    };
+  };
+  expert_availability_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ExpertAvailability'];
+        };
+      };
+    };
+  };
+  expert_availability_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ExpertAvailabilityRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ExpertAvailabilityRequest'];
+        'multipart/form-data': components['schemas']['ExpertAvailabilityRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ExpertAvailability'];
+        };
+      };
+    };
+  };
+  expert_availability_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  expert_availability_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedExpertAvailabilityRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedExpertAvailabilityRequest'];
+        'multipart/form-data': components['schemas']['PatchedExpertAvailabilityRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ExpertAvailability'];
+        };
+      };
+    };
+  };
+  expert_availability_public_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        expert_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ExpertAvailability'];
+        };
+      };
+    };
+  };
+  expert_booking_list: {
+    parameters: {
+      query?: {
+        /**
+         * @description * `quick_check` - Quick Check
+         *     * `video_call` - Video Call
+         */
+        booking_type?: 'quick_check' | 'video_call';
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        scheduled_date?: string;
+        /** @description A search term. */
+        search?: string;
+        /**
+         * @description * `pending` - Pending
+         *     * `confirmed` - Confirmed
+         *     * `cancelled` - Cancelled
+         *     * `completed` - Completed
+         *     * `no_show` - No Show
+         */
+        status?:
+          | 'cancelled'
+          | 'completed'
+          | 'confirmed'
+          | 'no_show'
+          | 'pending';
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedBookingList'];
+        };
+      };
+    };
+  };
+  expert_booking_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['BookingRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['BookingRequest'];
+        'multipart/form-data': components['schemas']['BookingRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Booking'];
+        };
+      };
+    };
+  };
+  expert_booking_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Booking'];
+        };
+      };
+    };
+  };
+  expert_booking_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['BookingRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['BookingRequest'];
+        'multipart/form-data': components['schemas']['BookingRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Booking'];
+        };
+      };
+    };
+  };
+  expert_booking_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  expert_booking_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedBookingRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedBookingRequest'];
+        'multipart/form-data': components['schemas']['PatchedBookingRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Booking'];
+        };
+      };
+    };
+  };
+  expert_booking_cancel_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['BookingRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['BookingRequest'];
+        'multipart/form-data': components['schemas']['BookingRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Booking'];
+        };
+      };
+    };
+  };
+  expert_booking_confirm_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['BookingRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['BookingRequest'];
+        'multipart/form-data': components['schemas']['BookingRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Booking'];
+        };
+      };
+    };
+  };
+  expert_booking_reschedule_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['BookingRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['BookingRequest'];
+        'multipart/form-data': components['schemas']['BookingRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Booking'];
+        };
+      };
+    };
+  };
+  expert_call_list: {
+    parameters: {
+      query?: {
+        /**
+         * @description * `video` - Video
+         *     * `audio` - Audio
+         */
+        call_type?: 'audio' | 'video';
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+        /**
+         * @description * `scheduled` - Scheduled
+         *     * `active` - Active
+         *     * `grace_period` - Grace Period
+         *     * `extending` - Extending
+         *     * `payment_pending` - Payment Pending
+         *     * `extended` - Extended
+         *     * `completed` - Completed
+         *     * `cancelled` - Cancelled
+         *     * `no_show` - No Show
+         *     * `failed` - Failed
+         */
+        status?:
+          | 'active'
+          | 'cancelled'
+          | 'completed'
+          | 'extended'
+          | 'extending'
+          | 'failed'
+          | 'grace_period'
+          | 'no_show'
+          | 'payment_pending'
+          | 'scheduled';
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedCallList'];
+        };
+      };
+    };
+  };
+  expert_call_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CallRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['CallRequest'];
+        'multipart/form-data': components['schemas']['CallRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Call'];
+        };
+      };
+    };
+  };
+  expert_call_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Call'];
+        };
+      };
+    };
+  };
+  expert_call_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CallRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['CallRequest'];
+        'multipart/form-data': components['schemas']['CallRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Call'];
+        };
+      };
+    };
+  };
+  expert_call_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  expert_call_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedCallRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedCallRequest'];
+        'multipart/form-data': components['schemas']['PatchedCallRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Call'];
+        };
+      };
+    };
+  };
+  expert_call_accept_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CallRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['CallRequest'];
+        'multipart/form-data': components['schemas']['CallRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Call'];
+        };
+      };
+    };
+  };
+  expert_call_end_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CallRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['CallRequest'];
+        'multipart/form-data': components['schemas']['CallRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Call'];
+        };
+      };
+    };
+  };
+  expert_call_extensions_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Call'];
+        };
+      };
+    };
+  };
+  expert_call_extensions_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CallRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['CallRequest'];
+        'multipart/form-data': components['schemas']['CallRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Call'];
+        };
+      };
+    };
+  };
+  expert_call_extensions_approve_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        ext_id: string;
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CallRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['CallRequest'];
+        'multipart/form-data': components['schemas']['CallRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Call'];
+        };
+      };
+    };
+  };
+  expert_call_extensions_reject_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        ext_id: string;
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CallRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['CallRequest'];
+        'multipart/form-data': components['schemas']['CallRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Call'];
+        };
+      };
+    };
+  };
+  expert_call_reject_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CallRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['CallRequest'];
+        'multipart/form-data': components['schemas']['CallRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Call'];
+        };
+      };
+    };
+  };
+  expert_call_token_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CallRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['CallRequest'];
+        'multipart/form-data': components['schemas']['CallRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Call'];
+        };
+      };
+    };
+  };
+  expert_call_upload_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CallRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['CallRequest'];
+        'multipart/form-data': components['schemas']['CallRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Call'];
+        };
+      };
+    };
+  };
+  expert_call_book_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CallRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['CallRequest'];
+        'multipart/form-data': components['schemas']['CallRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Call'];
+        };
+      };
+    };
+  };
+  expert_call_create_payment_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CallRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['CallRequest'];
+        'multipart/form-data': components['schemas']['CallRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Call'];
+        };
+      };
+    };
+  };
+  expert_call_initiate_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CallRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['CallRequest'];
+        'multipart/form-data': components['schemas']['CallRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Call'];
+        };
+      };
+    };
+  };
+  expert_conversation_list: {
+    parameters: {
+      query?: {
+        is_active?: boolean;
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedConversationList'];
+        };
+      };
+    };
+  };
+  expert_conversation_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ConversationRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ConversationRequest'];
+        'multipart/form-data': components['schemas']['ConversationRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Conversation'];
+        };
+      };
+    };
+  };
+  expert_conversation_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Conversation'];
+        };
+      };
+    };
+  };
+  expert_conversation_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ConversationRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ConversationRequest'];
+        'multipart/form-data': components['schemas']['ConversationRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Conversation'];
+        };
+      };
+    };
+  };
+  expert_conversation_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  expert_conversation_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedConversationRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedConversationRequest'];
+        'multipart/form-data': components['schemas']['PatchedConversationRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Conversation'];
+        };
+      };
+    };
+  };
+  expert_conversation_mark_complete_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ConversationRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ConversationRequest'];
+        'multipart/form-data': components['schemas']['ConversationRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Conversation'];
+        };
+      };
+    };
+  };
+  expert_conversation_start_answering_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ConversationRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ConversationRequest'];
+        'multipart/form-data': components['schemas']['ConversationRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Conversation'];
+        };
+      };
+    };
+  };
+  expert_conversation_submit_to_expert_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ConversationRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ConversationRequest'];
+        'multipart/form-data': components['schemas']['ConversationRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Conversation'];
+        };
+      };
+    };
+  };
+  expert_conversation_typing_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ConversationRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ConversationRequest'];
+        'multipart/form-data': components['schemas']['ConversationRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Conversation'];
+        };
+      };
+    };
+  };
+  expert_conversation_create_payment_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ConversationRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ConversationRequest'];
+        'multipart/form-data': components['schemas']['ConversationRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Conversation'];
+        };
+      };
+    };
+  };
+  expert_conversation_unread_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Conversation'];
+        };
+      };
+    };
+  };
+  expert_credential_list: {
+    parameters: {
+      query?: {
+        /**
+         * @description * `degree` - Degree
+         *     * `certification` - Certification
+         *     * `license` - License
+         *     * `other` - Other
+         */
+        credential_type?: 'certification' | 'degree' | 'license' | 'other';
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedExpertCredentialList'];
+        };
+      };
+    };
+  };
+  expert_credential_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ExpertCredentialRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ExpertCredentialRequest'];
+        'multipart/form-data': components['schemas']['ExpertCredentialRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ExpertCredential'];
+        };
+      };
+    };
+  };
+  expert_credential_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ExpertCredential'];
+        };
+      };
+    };
+  };
+  expert_credential_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ExpertCredentialRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ExpertCredentialRequest'];
+        'multipart/form-data': components['schemas']['ExpertCredentialRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ExpertCredential'];
+        };
+      };
+    };
+  };
+  expert_credential_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  expert_credential_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedExpertCredentialRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedExpertCredentialRequest'];
+        'multipart/form-data': components['schemas']['PatchedExpertCredentialRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ExpertCredential'];
+        };
+      };
+    };
+  };
+  expert_dashboard_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  expert_dashboard_analytics_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  expert_earnings_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  expert_earnings_breakdown_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  expert_earnings_transactions_list: {
+    parameters: {
+      query?: {
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+        /**
+         * @description * `pending` - Pending
+         *     * `completed` - Completed
+         *     * `failed` - Failed
+         */
+        status?: 'completed' | 'failed' | 'pending';
+        /**
+         * @description * `message` - Message
+         *     * `call` - Call
+         *     * `group` - Group
+         *     * `booking` - Booking
+         *     * `withdrawal` - Withdrawal
+         *     * `refund` - Refund
+         */
+        transaction_type?:
+          | 'booking'
+          | 'call'
+          | 'group'
+          | 'message'
+          | 'refund'
+          | 'withdrawal';
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedEarningTransactionList'];
+        };
+      };
+    };
+  };
+  expert_earnings_transactions_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['EarningTransactionRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['EarningTransactionRequest'];
+        'multipart/form-data': components['schemas']['EarningTransactionRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['EarningTransaction'];
+        };
+      };
+    };
+  };
+  expert_earnings_transactions_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['EarningTransaction'];
+        };
+      };
+    };
+  };
+  expert_earnings_transactions_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['EarningTransactionRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['EarningTransactionRequest'];
+        'multipart/form-data': components['schemas']['EarningTransactionRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['EarningTransaction'];
+        };
+      };
+    };
+  };
+  expert_earnings_transactions_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  expert_earnings_transactions_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedEarningTransactionRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedEarningTransactionRequest'];
+        'multipart/form-data': components['schemas']['PatchedEarningTransactionRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['EarningTransaction'];
+        };
+      };
+    };
+  };
+  expert_expertise_list: {
+    parameters: {
+      query?: {
+        is_primary?: boolean;
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+        /**
+         * @description * `o_level` - O Level
+         *     * `a_level` - A Level
+         *     * `university` - University
+         *     * `all` - All
+         */
+        target_level?: 'a_level' | 'all' | 'o_level' | 'university';
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedExpertExpertiseList'];
+        };
+      };
+    };
+  };
+  expert_expertise_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ExpertExpertiseRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ExpertExpertiseRequest'];
+        'multipart/form-data': components['schemas']['ExpertExpertiseRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ExpertExpertise'];
+        };
+      };
+    };
+  };
+  expert_expertise_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ExpertExpertise'];
+        };
+      };
+    };
+  };
+  expert_expertise_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ExpertExpertiseRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ExpertExpertiseRequest'];
+        'multipart/form-data': components['schemas']['ExpertExpertiseRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ExpertExpertise'];
+        };
+      };
+    };
+  };
+  expert_expertise_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  expert_expertise_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedExpertExpertiseRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedExpertExpertiseRequest'];
+        'multipart/form-data': components['schemas']['PatchedExpertExpertiseRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ExpertExpertise'];
+        };
+      };
+    };
+  };
+  expert_group_list: {
+    parameters: {
+      query?: {
+        is_active?: boolean;
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedGroupList'];
+        };
+      };
+    };
+  };
+  expert_group_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['GroupRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['GroupRequest'];
+        'multipart/form-data': components['schemas']['GroupRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Group'];
+        };
+      };
+    };
+  };
+  expert_group_post_list: {
+    parameters: {
+      query?: {
+        /** @description cuid-format identifier for this entity. */
+        group?: string;
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedGroupPostList'];
+        };
+      };
+    };
+  };
+  expert_group_post_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['GroupPostRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['GroupPostRequest'];
+        'multipart/form-data': components['schemas']['GroupPostRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['GroupPost'];
+        };
+      };
+    };
+  };
+  expert_group_post_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['GroupPost'];
+        };
+      };
+    };
+  };
+  expert_group_post_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['GroupPostRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['GroupPostRequest'];
+        'multipart/form-data': components['schemas']['GroupPostRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['GroupPost'];
+        };
+      };
+    };
+  };
+  expert_group_post_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  expert_group_post_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedGroupPostRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedGroupPostRequest'];
+        'multipart/form-data': components['schemas']['PatchedGroupPostRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['GroupPost'];
+        };
+      };
+    };
+  };
+  expert_group_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Group'];
+        };
+      };
+    };
+  };
+  expert_group_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['GroupRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['GroupRequest'];
+        'multipart/form-data': components['schemas']['GroupRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Group'];
+        };
+      };
+    };
+  };
+  expert_group_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  expert_group_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedGroupRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedGroupRequest'];
+        'multipart/form-data': components['schemas']['PatchedGroupRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Group'];
+        };
+      };
+    };
+  };
+  expert_group_create_payment_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['GroupRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['GroupRequest'];
+        'multipart/form-data': components['schemas']['GroupRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Group'];
+        };
+      };
+    };
+  };
+  expert_group_join_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['GroupRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['GroupRequest'];
+        'multipart/form-data': components['schemas']['GroupRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Group'];
+        };
+      };
+    };
+  };
+  expert_group_leave_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['GroupRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['GroupRequest'];
+        'multipart/form-data': components['schemas']['GroupRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Group'];
+        };
+      };
+    };
+  };
+  expert_group_members_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Group'];
+        };
+      };
+    };
+  };
+  expert_message_list: {
+    parameters: {
+      query?: {
+        /** @description cuid-format identifier for this entity. */
+        conversation?: string;
+        is_read?: boolean;
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /**
+         * @description * `text` - Text
+         *     * `image` - Image
+         *     * `file` - File
+         *     * `system` - System
+         *     * `voice` - Voice
+         *     * `video` - Video
+         */
+        message_type?: 'file' | 'image' | 'system' | 'text' | 'video' | 'voice';
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedMessageList'];
+        };
+      };
+    };
+  };
+  expert_message_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['MessageRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['MessageRequest'];
+        'multipart/form-data': components['schemas']['MessageRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Message'];
+        };
+      };
+    };
+  };
+  expert_message_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Message'];
+        };
+      };
+    };
+  };
+  expert_message_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['MessageRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['MessageRequest'];
+        'multipart/form-data': components['schemas']['MessageRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Message'];
+        };
+      };
+    };
+  };
+  expert_message_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  expert_message_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedMessageRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedMessageRequest'];
+        'multipart/form-data': components['schemas']['PatchedMessageRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Message'];
+        };
+      };
+    };
+  };
+  expert_message_read_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['MessageRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['MessageRequest'];
+        'multipart/form-data': components['schemas']['MessageRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Message'];
+        };
+      };
+    };
+  };
+  expert_message_mark_all_read_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['MessageRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['MessageRequest'];
+        'multipart/form-data': components['schemas']['MessageRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Message'];
+        };
+      };
+    };
+  };
+  expert_profile_list: {
+    parameters: {
+      query?: {
+        is_active?: boolean;
+        is_online?: boolean;
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+        /**
+         * @description * `none` - None
+         *     * `pending` - Pending
+         *     * `under_review` - Under Review
+         *     * `verified` - Verified
+         *     * `rejected` - Rejected
+         */
+        verification_status?:
+          | 'none'
+          | 'pending'
+          | 'rejected'
+          | 'under_review'
+          | 'verified';
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedExpertProfileList'];
+        };
+      };
+    };
+  };
+  expert_profile_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['ExpertProfileRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ExpertProfileRequest'];
+        'multipart/form-data': components['schemas']['ExpertProfileRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ExpertProfile'];
+        };
+      };
+    };
+  };
+  expert_profile_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ExpertProfile'];
+        };
+      };
+    };
+  };
+  expert_profile_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['ExpertProfileRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ExpertProfileRequest'];
+        'multipart/form-data': components['schemas']['ExpertProfileRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ExpertProfile'];
+        };
+      };
+    };
+  };
+  expert_profile_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  expert_profile_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedExpertProfileRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedExpertProfileRequest'];
+        'multipart/form-data': components['schemas']['PatchedExpertProfileRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ExpertProfile'];
+        };
+      };
+    };
+  };
+  expert_profile_public_detail_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ExpertProfile'];
+        };
+      };
+    };
+  };
+  expert_profile_me_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ExpertProfile'];
+        };
+      };
+    };
+  };
+  expert_profile_me_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedExpertProfileRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedExpertProfileRequest'];
+        'multipart/form-data': components['schemas']['PatchedExpertProfileRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ExpertProfile'];
+        };
+      };
+    };
+  };
+  expert_profile_public_list_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ExpertProfilePublic'];
+        };
+      };
+    };
+  };
+  expert_review_list: {
+    parameters: {
+      query?: {
+        /** @description cuid-format identifier for this entity. */
+        expert?: string;
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        rating?: number;
+        /** @description A search term. */
+        search?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedReviewList'];
+        };
+      };
+    };
+  };
+  expert_review_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ReviewRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ReviewRequest'];
+        'multipart/form-data': components['schemas']['ReviewRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Review'];
+        };
+      };
+    };
+  };
+  expert_review_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Review'];
+        };
+      };
+    };
+  };
+  expert_review_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ReviewRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ReviewRequest'];
+        'multipart/form-data': components['schemas']['ReviewRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Review'];
+        };
+      };
+    };
+  };
+  expert_review_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  expert_review_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedReviewRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedReviewRequest'];
+        'multipart/form-data': components['schemas']['PatchedReviewRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Review'];
+        };
+      };
+    };
+  };
+  expert_verification_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  expert_verification_status_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  expert_verification_submit_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  expert_withdrawal_list: {
+    parameters: {
+      query?: {
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /**
+         * @description * `mobile_money` - Mobile Money
+         *     * `bank_transfer` - Bank Transfer
+         */
+        payment_method?: 'bank_transfer' | 'mobile_money';
+        /** @description A search term. */
+        search?: string;
+        /**
+         * @description * `pending` - Pending
+         *     * `processing` - Processing
+         *     * `completed` - Completed
+         *     * `rejected` - Rejected
+         */
+        status?: 'completed' | 'pending' | 'processing' | 'rejected';
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedWithdrawalList'];
+        };
+      };
+    };
+  };
+  expert_withdrawal_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['WithdrawalRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['WithdrawalRequest'];
+        'multipart/form-data': components['schemas']['WithdrawalRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Withdrawal'];
+        };
+      };
+    };
+  };
+  expert_withdrawal_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Withdrawal'];
+        };
+      };
+    };
+  };
+  expert_withdrawal_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['WithdrawalRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['WithdrawalRequest'];
+        'multipart/form-data': components['schemas']['WithdrawalRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Withdrawal'];
+        };
+      };
+    };
+  };
+  expert_withdrawal_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  expert_withdrawal_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedWithdrawalRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedWithdrawalRequest'];
+        'multipart/form-data': components['schemas']['PatchedWithdrawalRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Withdrawal'];
+        };
+      };
+    };
+  };
+  expert_ws_subscribe_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  expert_ws_token_retrieve: {
     parameters: {
       query?: never;
       header?: never;
@@ -16935,6 +41761,69 @@ export interface operations {
           [name: string]: unknown;
         };
         content?: never;
+      };
+    };
+  };
+  parent_dashboard_children_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ParentStudentLink'];
+        };
+      };
+    };
+  };
+  parent_dashboard_reminders_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ParentStudentLink'];
+        };
+      };
+    };
+  };
+  parent_verify_verify_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ParentVerificationRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ParentVerificationRequest'];
+        'multipart/form-data': components['schemas']['ParentVerificationRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ParentVerification'];
+        };
       };
     };
   };
@@ -18683,6 +43572,66 @@ export interface operations {
       };
     };
   };
+  shared_testimonials_list: {
+    parameters: {
+      query?: {
+        /** @description cuid-format identifier for this entity. */
+        country?: string;
+        is_featured?: boolean;
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+        /**
+         * @description * `PARENT` - Parent Testimonial
+         *     * `STUDENT` - Student Testimonial
+         *     * `SUCCESS_STORY` - Success Story
+         */
+        testimonial_type?: 'PARENT' | 'STUDENT' | 'SUCCESS_STORY';
+        /** @description cuid-format identifier for this entity. */
+        university?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedTestimonialList'];
+        };
+      };
+    };
+  };
+  shared_testimonials_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Testimonial'];
+        };
+      };
+    };
+  };
   shared_transaction_list: {
     parameters: {
       query?: {
@@ -19575,6 +44524,457 @@ export interface operations {
       };
     };
   };
+  student_journey_list: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['StudentStageInstanceDetail'][];
+        };
+      };
+    };
+  };
+  student_journey_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['StudentStageInstanceDetail'];
+        };
+      };
+    };
+  };
+  student_journey_submit_data_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['StudentStageInstanceDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['StudentStageInstanceDetailRequest'];
+        'multipart/form-data': components['schemas']['StudentStageInstanceDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['StudentStageInstanceDetail'];
+        };
+      };
+    };
+  };
+  student_journey_submit_requirement_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'multipart/form-data': components['schemas']['StudentStageInstanceDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['StudentStageInstanceDetailRequest'];
+        'application/json': components['schemas']['StudentStageInstanceDetailRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['StudentStageInstanceDetail'];
+        };
+      };
+    };
+  };
+  student_journey_action_items_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['StudentStageInstanceDetail'];
+        };
+      };
+    };
+  };
+  student_journey_action_items_count_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['StudentStageInstanceDetail'];
+        };
+      };
+    };
+  };
+  student_journey_by_application_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['StudentStageInstanceDetail'];
+        };
+      };
+    };
+  };
+  student_parent_links_list: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ParentStudentLink'][];
+        };
+      };
+    };
+  };
+  student_parent_links_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ParentStudentLinkRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ParentStudentLinkRequest'];
+        'multipart/form-data': components['schemas']['ParentStudentLinkRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ParentStudentLink'];
+        };
+      };
+    };
+  };
+  student_parent_links_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ParentStudentLink'];
+        };
+      };
+    };
+  };
+  student_parent_links_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ParentStudentLinkRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ParentStudentLinkRequest'];
+        'multipart/form-data': components['schemas']['ParentStudentLinkRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ParentStudentLink'];
+        };
+      };
+    };
+  };
+  student_parent_links_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  student_parent_links_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedParentStudentLinkRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedParentStudentLinkRequest'];
+        'multipart/form-data': components['schemas']['PatchedParentStudentLinkRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ParentStudentLink'];
+        };
+      };
+    };
+  };
+  student_parent_links_generate_code_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ParentStudentLinkRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ParentStudentLinkRequest'];
+        'multipart/form-data': components['schemas']['ParentStudentLinkRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ParentStudentLink'];
+        };
+      };
+    };
+  };
+  student_parent_links_pending_verifications_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ParentStudentLink'];
+        };
+      };
+    };
+  };
+  student_reminders_list: {
+    parameters: {
+      query?: {
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /**
+         * @description * `LOW` - Low
+         *     * `NORMAL` - Normal
+         *     * `HIGH` - High
+         *     * `URGENT` - Urgent
+         */
+        priority?: 'HIGH' | 'LOW' | 'NORMAL' | 'URGENT';
+        /**
+         * @description * `PAYMENT_DUE` - Payment Due
+         *     * `PAYMENT_OVERDUE` - Payment Overdue
+         *     * `DOCUMENT_NEEDED` - Document Needed
+         *     * `SCHEDULE_UPCOMING` - Upcoming Appointment
+         *     * `STAGE_ACTION` - Stage Action Required
+         *     * `GENERAL` - General Reminder
+         */
+        reminder_type?:
+          | 'DOCUMENT_NEEDED'
+          | 'GENERAL'
+          | 'PAYMENT_DUE'
+          | 'PAYMENT_OVERDUE'
+          | 'SCHEDULE_UPCOMING'
+          | 'STAGE_ACTION';
+        /** @description A search term. */
+        search?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedReminderList'];
+        };
+      };
+    };
+  };
+  student_reminders_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Reminder'];
+        };
+      };
+    };
+  };
+  student_reminders_mark_read_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ReminderRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ReminderRequest'];
+        'multipart/form-data': components['schemas']['ReminderRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Reminder'];
+        };
+      };
+    };
+  };
+  student_reminders_unread_count_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Reminder'];
+        };
+      };
+    };
+  };
   student_result_alevel_result_list: {
     parameters: {
       query?: {
@@ -20135,6 +45535,210 @@ export interface operations {
       };
     };
   };
+  student_vault_list: {
+    parameters: {
+      query?: {
+        /**
+         * @description * `PASSPORT` - Passport
+         *     * `PASSPORT_PHOTO` - Passport Size Photo
+         *     * `BLUE_BG_PHOTO` - Blue Background Photo
+         *     * `BIRTH_CERT` - Birth Certificate
+         *     * `NIDA` - NIDA Card
+         *     * `FORM_FOUR_CERT` - Form Four Certificate
+         *     * `FORM_SIX_CERT` - Form Six Certificate
+         *     * `FORM_SIX_LEAVING_CERT` - Form Six Leaving Certificate
+         *     * `RECOMMENDATION_LETTER` - Recommendation Letter
+         *     * `PARENT_ID` - Parent/Guardian ID
+         *     * `PARENT_BIRTH_CERT` - Parent Birth Certificate
+         *     * `LOCAL_GOV_LETTER` - Local Government Letter
+         *     * `AFFIDAVIT` - Affidavit
+         *     * `OTHER` - Other
+         */
+        document_type?:
+          | 'AFFIDAVIT'
+          | 'BIRTH_CERT'
+          | 'BLUE_BG_PHOTO'
+          | 'FORM_FOUR_CERT'
+          | 'FORM_SIX_CERT'
+          | 'FORM_SIX_LEAVING_CERT'
+          | 'LOCAL_GOV_LETTER'
+          | 'NIDA'
+          | 'OTHER'
+          | 'PARENT_BIRTH_CERT'
+          | 'PARENT_ID'
+          | 'PASSPORT'
+          | 'PASSPORT_PHOTO'
+          | 'RECOMMENDATION_LETTER';
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+        /**
+         * @description * `PENDING` - Pending Review
+         *     * `VERIFIED` - Verified
+         *     * `REJECTED` - Rejected
+         */
+        verification_status?: 'PENDING' | 'REJECTED' | 'VERIFIED';
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedStudentDocumentList'];
+        };
+      };
+    };
+  };
+  student_vault_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['StudentDocumentRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['StudentDocumentRequest'];
+        'multipart/form-data': components['schemas']['StudentDocumentRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['StudentDocument'];
+        };
+      };
+    };
+  };
+  student_vault_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['StudentDocument'];
+        };
+      };
+    };
+  };
+  student_vault_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['StudentDocumentRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['StudentDocumentRequest'];
+        'multipart/form-data': components['schemas']['StudentDocumentRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['StudentDocument'];
+        };
+      };
+    };
+  };
+  student_vault_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  student_vault_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedStudentDocumentRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedStudentDocumentRequest'];
+        'multipart/form-data': components['schemas']['PatchedStudentDocumentRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['StudentDocument'];
+        };
+      };
+    };
+  };
+  student_vault_summary_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['StudentDocument'];
+        };
+      };
+    };
+  };
   summary_retrieve: {
     parameters: {
       query?: never;
@@ -20489,6 +46093,52 @@ export interface operations {
         'multipart/form-data': components['schemas']['PatchedUniversityApplicationModelRequest'];
       };
     };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['UniversityApplicationModel'];
+        };
+      };
+    };
+  };
+  university_application_update_courses_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedUniversityApplicationModelRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedUniversityApplicationModelRequest'];
+        'multipart/form-data': components['schemas']['PatchedUniversityApplicationModelRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['UniversityApplicationModel'];
+        };
+      };
+    };
+  };
+  university_application_check_eligibility_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
     responses: {
       200: {
         headers: {
@@ -20994,6 +46644,24 @@ export interface operations {
     responses: {
       /** @description No response body */
       204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  user_device_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      200: {
         headers: {
           [name: string]: unknown;
         };

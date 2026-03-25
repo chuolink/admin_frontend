@@ -7,97 +7,12 @@ import type { Metadata } from 'next';
 import { getServerSession } from 'next-auth';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import type { NavGroup } from '@/components/layout/types';
 import RegistrationProvider from './providers/RegistrationProvider';
-import {
-  LayoutDashboard,
-  Kanban,
-  UserSearch,
-  Phone,
-  Users,
-  FileText,
-  CreditCard,
-  Wallet,
-  User
-} from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'Chuolink Portal',
   description: 'Search, Discover, Apply'
 };
-
-const navGroups: NavGroup[] = [
-  {
-    title: 'General',
-    items: [
-      {
-        title: 'Dashboard',
-        url: '/consultant/overview',
-        icon: LayoutDashboard
-      },
-      {
-        title: 'My Pipeline',
-        url: '/consultant/pipeline',
-        icon: Kanban
-      }
-    ]
-  },
-  {
-    title: 'CRM',
-    items: [
-      {
-        title: 'My Leads',
-        url: '/consultant/leads',
-        icon: UserSearch
-      },
-      {
-        title: 'My Calls',
-        url: '/consultant/sales-calls',
-        icon: Phone
-      }
-    ]
-  },
-  {
-    title: 'Students',
-    items: [
-      {
-        title: 'My Students',
-        url: '/consultant/students',
-        icon: Users
-      },
-      {
-        title: 'Applications',
-        url: '/consultant/applications',
-        icon: FileText
-      }
-    ]
-  },
-  {
-    title: 'Finance',
-    items: [
-      {
-        title: 'Payments',
-        url: '/consultant/payments',
-        icon: CreditCard
-      },
-      {
-        title: 'Withdrawals',
-        url: '/consultant/withdrawals',
-        icon: Wallet
-      }
-    ]
-  },
-  {
-    title: 'Settings',
-    items: [
-      {
-        title: 'Profile',
-        url: '/consultant/profile',
-        icon: User
-      }
-    ]
-  }
-];
 
 export default async function ConsultantLayout({
   children
@@ -115,7 +30,7 @@ export default async function ConsultantLayout({
   return (
     <KBar>
       <SidebarProvider defaultOpen={defaultOpen}>
-        <AppSidebar navGroups={navGroups} />
+        <AppSidebar variant='consultant' />
         <SidebarInset>
           <Header fixed />
           <RegistrationProvider>{children}</RegistrationProvider>

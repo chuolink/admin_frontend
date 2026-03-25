@@ -2,34 +2,83 @@
 
 import { useMemo, useState } from 'react';
 import {
-  MaterialReactTable,
-  type MRT_ColumnDef,
-  type MRT_Cell,
-  type MRT_Row,
-  MRT_ToggleFiltersButton
-} from 'material-react-table';
-import {
-  Box,
-  Button,
-  MenuItem,
-  ListItemIcon,
-  Chip,
-  Stack,
-  Typography
-} from '@mui/material';
-import { Edit, Delete, Visibility, Download, Add } from '@mui/icons-material';
+  useReactTable,
+  getCoreRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  getFilteredRowModel,
+  getFacetedRowModel,
+  getFacetedUniqueValues,
+  flexRender,
+  type ColumnDef,
+  type SortingState,
+  type ColumnFiltersState,
+  type VisibilityState
+} from '@tanstack/react-table';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import useClientApi from '@/lib/axios/clientSide';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { format, parseISO } from 'date-fns';
 import { Student, StudentsResponse } from '@/types/student-details';
-import { ColumnFiltersState, SortingState } from '@tanstack/react-table';
-import { LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { useTheme } from 'next-themes';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { formatCurrency } from '@/lib/utils';
+import {
+  Eye,
+  MoreHorizontal,
+  Trash2,
+  GitBranch,
+  UserCircle,
+  CircleCheck,
+  CircleX,
+  GraduationCap,
+  Crown,
+  Star,
+  Zap
+} from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Progress } from '@/components/ui/progress';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table';
+import { DataTableToolbar } from '@/components/data-table/data-table-toolbar';
+import { DataTablePagination } from '@/components/data-table/data-table-pagination';
+import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header';
+import { Skeleton } from '@/components/ui/skeleton';
+
+// Status filter options
+const statusOptions = [
+  { label: 'Active', value: 'true', icon: CircleCheck },
+  { label: 'Inactive', value: 'false', icon: CircleX }
+];
+
+// Subscription type filter options
+const subscriptionOptions = [
+  { label: 'Premium', value: 'premium', icon: Crown },
+  { label: 'Standard', value: 'standard', icon: Star },
+  { label: 'Basic', value: 'basic', icon: Zap }
+];
+
+// Education filter options
+const educationOptions = [
+  { label: 'Form Four', value: 'form_four', icon: GraduationCap },
+  { label: 'Form Six', value: 'form_six', icon: GraduationCap },
+  { label: 'Diploma', value: 'diploma', icon: GraduationCap },
+  { label: 'Degree', value: 'degree', icon: GraduationCap }
+];
 
 interface StudentsTableProps {
   onExport?: () => void;
@@ -40,82 +89,41 @@ export default function StudentsTable({
   onExport,
   onAddNew
 }: StudentsTableProps) {
-  const { resolvedTheme } = useTheme();
   const { api } = useClientApi();
   const router = useRouter();
   const queryClient = useQueryClient();
 
-  // State for server-side operations
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [globalFilter, setGlobalFilter] = useState('');
+  // Table state
   const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
+    education_level: false,
+    referral_count: false
+  });
+  const [rowSelection, setRowSelection] = useState({});
+  const [globalFilter, setGlobalFilter] = useState('');
   const [pagination, setPagination] = useState({
     pageIndex: 0,
-    pageSize: 25
+    pageSize: 20
   });
 
   // Build query params from table state
   const queryParams = useMemo(() => {
-    const params: Record<string, any> = {
+    const params: Record<string, string | number> = {
       page: pagination.pageIndex + 1,
       page_size: pagination.pageSize
     };
-
-    // Add search param
-    if (globalFilter) {
-      params.search = globalFilter;
-    }
-
-    // Add sorting param
+    if (globalFilter) params.search = globalFilter;
     if (sorting.length > 0) {
       params.ordering = sorting
-        .map((sort) => (sort.desc ? '-' : '') + sort.id)
+        .map((s) => (s.desc ? '-' : '') + s.id)
         .join(',');
     }
-
-    // Add column filters
-    columnFilters.forEach((filter) => {
-      const { id, value } = filter;
-
-      // Handle different filter types based on your backend API
-      if (id === 'user.is_active') {
-        params.is_active = value;
-      } else if (id === 'subscription_status') {
-        params.subscription_status = value;
-      } else if (id === 'subscription_type') {
-        // Map the frontend type to backend query param
-        if (value === 'standard') {
-          params.subscription_status = 'none';
-        } else {
-          params.subscription_status = value;
-        }
-      } else if (id === 'reg_prog') {
-        if (Array.isArray(value)) {
-          params.min_progress = value[0];
-          params.max_progress = value[1];
-        }
-      } else if (id === 'referral_count') {
-        if (Array.isArray(value)) {
-          params.min_referrals = value[0];
-          params.max_referrals = value[1];
-        }
-      } else if (id === 'user.date_joined') {
-        if (Array.isArray(value) && value[0] && value[1]) {
-          params.created_after = value[0].toISOString();
-          params.created_before = value[1].toISOString();
-        }
-      } else if (id === 'has_payments') {
-        params.has_payments = value;
-      } else if (id === 'education_level') {
-        params.education_level = value;
-      }
-    });
-
     return params;
-  }, [columnFilters, globalFilter, sorting, pagination]);
+  }, [globalFilter, sorting, pagination]);
 
-  // Fetch data with server-side filtering
-  const { data, isLoading, isFetching } = useQuery<StudentsResponse>({
+  // Fetch data
+  const { data, isLoading } = useQuery<StudentsResponse>({
     queryKey: ['students', queryParams],
     queryFn: async () => {
       if (!api) throw new Error('API not initialized');
@@ -123,7 +131,8 @@ export default function StudentsTable({
         params: queryParams
       });
       return response.data;
-    }
+    },
+    enabled: !!api
   });
 
   // Delete mutation
@@ -141,423 +150,419 @@ export default function StudentsTable({
     }
   });
 
-  // Define columns with proper responsive settings
-  const columns = useMemo<MRT_ColumnDef<Student>[]>(
+  // Column definitions
+  const columns = useMemo<ColumnDef<Student>[]>(
     () => [
       {
-        accessorKey: 'user_name',
-        header: 'Name',
-        size: 150,
-        minSize: 100,
-        maxSize: 200,
-        enableColumnFilter: true,
-        filterVariant: 'text',
-        muiTableHeadCellProps: {
-          sx: { minWidth: '100px' }
-        },
-        muiTableBodyCellProps: {
-          sx: { minWidth: '100px' }
-        }
-      },
-      {
-        accessorKey: 'user_email',
-        header: 'Email',
-        size: 200,
-        minSize: 150,
-        maxSize: 300,
-        enableColumnFilter: true,
-        filterVariant: 'text',
-        muiTableBodyCellProps: {
-          sx: {
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-            maxWidth: '200px'
-          }
-        }
-      },
-      {
-        accessorKey: 'user.is_active',
-        header: 'Status',
-        size: 100,
-        enableColumnFilter: true,
-        filterVariant: 'checkbox',
-        Cell: ({ cell }: { cell: MRT_Cell<Student> }) => (
-          <Chip
-            label={cell.getValue<boolean>() ? 'Active' : 'Inactive'}
-            color={cell.getValue<boolean>() ? 'success' : 'default'}
-            size='small'
+        id: 'select',
+        header: ({ table }) => (
+          <Checkbox
+            checked={
+              table.getIsAllPageRowsSelected() ||
+              (table.getIsSomePageRowsSelected() && 'indeterminate')
+            }
+            onCheckedChange={(value) =>
+              table.toggleAllPageRowsSelected(!!value)
+            }
+            aria-label='Select all'
           />
-        )
+        ),
+        cell: ({ row }) => (
+          <Checkbox
+            checked={row.getIsSelected()}
+            onCheckedChange={(value) => row.toggleSelected(!!value)}
+            aria-label='Select row'
+          />
+        ),
+        enableSorting: false,
+        enableHiding: false
       },
       {
-        id: 'subscription_status',
-        accessorFn: (row) => row.subscription.status,
-        header: 'Subscription',
-        size: 120,
-        enableColumnFilter: true,
-        filterVariant: 'select',
-        filterSelectOptions: [
-          { label: 'Active', value: 'active' },
-          { label: 'Expired', value: 'expired' },
-          { label: 'None', value: 'none' }
-        ],
-        Cell: ({ row }: { row: MRT_Row<Student> }) => {
-          const status = row.original.subscription.status;
+        accessorKey: 'user_name',
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title='Student' />
+        ),
+        cell: ({ row }) => {
+          const name = row.getValue('user_name') as string;
+          const email = row.original.user_email;
+          const initials = name
+            .split(' ')
+            .map((n) => n[0])
+            .join('')
+            .toUpperCase()
+            .slice(0, 2);
           return (
-            <Chip
-              label={status.charAt(0).toUpperCase() + status.slice(1)}
-              color={status === 'active' ? 'success' : 'default'}
-              size='small'
-            />
+            <div className='flex items-center gap-3'>
+              <div className='bg-primary/10 text-primary flex h-8 w-8 items-center justify-center rounded-full text-xs font-medium'>
+                {initials}
+              </div>
+              <div className='min-w-0'>
+                <div className='truncate font-medium'>{name}</div>
+                <div className='text-muted-foreground truncate text-xs'>
+                  {email}
+                </div>
+              </div>
+            </div>
           );
         }
       },
       {
-        id: 'subscription_type',
-        accessorFn: (row) => row.subscription.type,
-        header: 'Type',
-        size: 100,
-        enableColumnFilter: true,
-        filterVariant: 'select',
-        filterSelectOptions: [
-          { label: 'Premium', value: 'premium' },
-          { label: 'Standard', value: 'standard' },
-          { label: 'Basic', value: 'basic' }
-        ],
-        Cell: ({ row }: { row: MRT_Row<Student> }) => {
-          const type = row.original.subscription.type;
-          const colors: Record<string, 'secondary' | 'primary' | 'default'> = {
-            premium: 'secondary',
-            standard: 'primary',
-            basic: 'default'
-          };
+        accessorKey: 'user.phone_number',
+        id: 'phone',
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title='Phone' />
+        ),
+        accessorFn: (row) => row.user.phone_number,
+        cell: ({ row }) => {
+          const phone = row.original.user.phone_number;
           return (
-            <Chip
-              label={type.charAt(0).toUpperCase() + type.slice(1)}
-              color={colors[type] || 'default'}
-              size='small'
-              variant='outlined'
-            />
+            <span className='text-muted-foreground text-sm'>
+              {phone || 'N/A'}
+            </span>
           );
-        }
+        },
+        enableSorting: false
+      },
+      {
+        accessorKey: 'status',
+        id: 'status',
+        accessorFn: (row) => String(row.user.is_active),
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title='Status' />
+        ),
+        cell: ({ row }) => {
+          const isActive = row.original.user.is_active;
+          return (
+            <Badge variant={isActive ? 'default' : 'secondary'}>
+              {isActive ? 'Active' : 'Inactive'}
+            </Badge>
+          );
+        },
+        filterFn: (row, id, value) => value.includes(row.getValue(id)),
+        enableSorting: false
       },
       {
         accessorKey: 'education_level',
-        header: 'Education',
-        size: 150,
-        enableColumnFilter: true,
-        filterVariant: 'text',
-        Cell: ({ cell }: { cell: MRT_Cell<Student> }) =>
-          cell.getValue<string>() || 'Not Set'
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title='Education' />
+        ),
+        cell: ({ row }) => {
+          const level = row.getValue('education_level') as string;
+          return (
+            <span className='text-sm'>
+              {level
+                ? level
+                    .replace(/_/g, ' ')
+                    .replace(/\b\w/g, (l) => l.toUpperCase())
+                : 'Not Set'}
+            </span>
+          );
+        },
+        filterFn: (row, id, value) => value.includes(row.getValue(id))
+      },
+      {
+        id: 'subscription',
+        accessorFn: (row) => row.subscription?.type || 'basic',
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title='Plan' />
+        ),
+        cell: ({ row }) => {
+          const type = row.original.subscription?.type || 'basic';
+          const status = row.original.subscription?.status || 'none';
+          const variant =
+            type === 'premium'
+              ? 'default'
+              : type === 'standard'
+                ? 'secondary'
+                : 'outline';
+          return (
+            <div className='flex flex-col gap-0.5'>
+              <Badge variant={variant} className='w-fit text-xs capitalize'>
+                {type}
+              </Badge>
+              {status !== 'none' && (
+                <span
+                  className={`text-[10px] ${status === 'active' ? 'text-green-600' : 'text-muted-foreground'}`}
+                >
+                  {status}
+                </span>
+              )}
+            </div>
+          );
+        },
+        filterFn: (row, id, value) => value.includes(row.getValue(id))
       },
       {
         accessorKey: 'reg_prog',
-        header: 'Progress',
-        size: 100,
-        enableColumnFilter: true,
-        filterVariant: 'range-slider',
-        muiFilterSliderProps: {
-          min: 0,
-          max: 100,
-          step: 10
-        },
-        Cell: ({ cell }: { cell: MRT_Cell<Student> }) => (
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Box
-              sx={{ width: 60, height: 8, bgcolor: '#e5e7eb', borderRadius: 1 }}
-            >
-              <Box
-                sx={{
-                  width: `${cell.getValue<number>()}%`,
-                  height: '100%',
-                  bgcolor: '#3b82f6',
-                  borderRadius: 1
-                }}
-              />
-            </Box>
-            <Box sx={{ fontSize: '0.875rem', minWidth: '35px' }}>
-              {cell.getValue<number>()}%
-            </Box>
-          </Box>
-        )
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title='Progress' />
+        ),
+        cell: ({ row }) => {
+          const progress = row.getValue('reg_prog') as number;
+          return (
+            <div className='flex items-center gap-2'>
+              <Progress value={progress} className='h-2 w-16' />
+              <span className='text-muted-foreground text-xs'>{progress}%</span>
+            </div>
+          );
+        }
+      },
+      {
+        id: 'applications',
+        accessorFn: (row) => row.no_abroad_apps || 0,
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title='Apps' />
+        ),
+        cell: ({ row }) => {
+          const count = row.original.no_abroad_apps || 0;
+          return (
+            <span className='text-sm font-medium'>
+              {count > 0 ? count : '-'}
+            </span>
+          );
+        }
+      },
+      {
+        id: 'payments',
+        accessorFn: (row) => row.payments?.total_amount || 0,
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title='Payments' />
+        ),
+        cell: ({ row }) => {
+          const amount = row.original.payments?.total_amount || 0;
+          const count = row.original.payments?.total_count || 0;
+          if (amount === 0)
+            return <span className='text-muted-foreground text-sm'>None</span>;
+          return (
+            <div>
+              <div className='text-sm font-medium'>
+                {formatCurrency(amount)}
+              </div>
+              <div className='text-muted-foreground text-[10px]'>
+                {count} payment{count !== 1 ? 's' : ''}
+              </div>
+            </div>
+          );
+        }
       },
       {
         accessorKey: 'referral_count',
-        header: 'Referrals',
-        size: 80,
-        enableColumnFilter: true,
-        filterVariant: 'range',
-        muiFilterTextFieldProps: {
-          type: 'number'
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title='Referrals' />
+        ),
+        cell: ({ row }) => {
+          const count = row.getValue('referral_count') as number;
+          return <span className='text-sm'>{count}</span>;
         }
       },
       {
-        accessorKey: 'user.created_at',
-        header: 'Joined',
-        size: 100,
-        enableColumnFilter: true,
-        filterVariant: 'date-range',
-        Cell: ({ cell }: { cell: MRT_Cell<Student> }) => {
-          const date = cell.getValue<string>();
-          return date ? format(parseISO(date), 'MMM d, yyyy') : 'N/A';
-        }
-      },
-      {
-        id: 'has_payments',
-        accessorFn: (row) => (row.payments?.total_amount || 0) > 0,
-        header: 'Has Payments',
-        size: 120,
-        enableColumnFilter: true,
-        filterVariant: 'checkbox',
-        Cell: ({ row }: { row: MRT_Row<Student> }) => {
-          const amount = row.original.payments?.total_amount || 0;
-          const count = row.original.payments?.total_count || 0;
-          return amount > 0 ? (
-            <Box>
-              <Box sx={{ fontWeight: 500, fontSize: '0.875rem' }}>
-                {formatCurrency(amount)}
-              </Box>
-              <Box sx={{ fontSize: '0.75rem', color: '#6b7280' }}>
-                {count} payments
-              </Box>
-            </Box>
-          ) : (
-            <Typography variant='body2' color='text.secondary'>
-              No payments
-            </Typography>
+        id: 'joined',
+        accessorFn: (row) => row.user.date_joined,
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title='Joined' />
+        ),
+        cell: ({ row }) => {
+          const date = row.original.user.date_joined;
+          if (!date) return <span className='text-muted-foreground'>N/A</span>;
+          return (
+            <span className='text-muted-foreground text-sm'>
+              {format(parseISO(date), 'MMM d, yyyy')}
+            </span>
           );
         }
+      },
+      {
+        id: 'actions',
+        cell: ({ row }) => {
+          const student = row.original;
+          return (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant='ghost'
+                  className='data-[state=open]:bg-muted flex h-8 w-8 p-0'
+                >
+                  <MoreHorizontal className='h-4 w-4' />
+                  <span className='sr-only'>Open menu</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align='end' className='w-[160px]'>
+                <DropdownMenuItem
+                  onClick={() => router.push(`/admin/students/${student.id}`)}
+                >
+                  <Eye className='mr-2 h-4 w-4' />
+                  View Details
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() =>
+                    router.push(`/admin/pipeline?student=${student.id}`)
+                  }
+                >
+                  <GitBranch className='mr-2 h-4 w-4' />
+                  Pipeline
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => router.push(`/admin/students/${student.id}`)}
+                >
+                  <UserCircle className='mr-2 h-4 w-4' />
+                  Profile
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className='text-destructive focus:text-destructive'
+                  onClick={() => {
+                    if (
+                      confirm(
+                        `Are you sure you want to delete ${student.user_name}?`
+                      )
+                    ) {
+                      deleteMutation.mutate(student.id.toString());
+                    }
+                  }}
+                >
+                  <Trash2 className='mr-2 h-4 w-4' />
+                  Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          );
+        },
+        enableSorting: false,
+        enableHiding: false
       }
     ],
-    []
+    [router, deleteMutation]
   );
 
-  // Create MUI theme based on next-themes
-  const theme = useMemo(
-    () =>
-      createTheme({
-        palette: {
-          mode: resolvedTheme === 'dark' ? 'dark' : 'light'
-        },
-        components: {
-          MuiPaper: {
-            styleOverrides: {
-              root: {
-                backgroundImage: 'none'
-              }
-            }
-          },
-          MuiTableCell: {
-            styleOverrides: {
-              root: {
-                padding: '8px 16px'
-              }
-            }
-          }
-        }
-      }),
-    [resolvedTheme]
-  );
+  const table = useReactTable({
+    data: data?.results ?? [],
+    columns,
+    pageCount: data ? Math.ceil(data.count / pagination.pageSize) : -1,
+    state: {
+      sorting,
+      columnFilters,
+      columnVisibility,
+      rowSelection,
+      pagination
+    },
+    enableRowSelection: true,
+    manualPagination: true,
+    manualSorting: true,
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    onColumnVisibilityChange: setColumnVisibility,
+    onRowSelectionChange: setRowSelection,
+    onPaginationChange: setPagination,
+    getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFacetedRowModel: getFacetedRowModel(),
+    getFacetedUniqueValues: getFacetedUniqueValues()
+  });
+
+  if (isLoading) {
+    return (
+      <div className='space-y-4 p-4'>
+        <div className='flex items-center gap-2'>
+          <Skeleton className='h-8 w-[250px]' />
+          <Skeleton className='h-8 w-[100px]' />
+        </div>
+        {Array.from({ length: 8 }).map((_, i) => (
+          <Skeleton key={i} className='h-12 w-full' />
+        ))}
+      </div>
+    );
+  }
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDateFns}>
-      <ThemeProvider theme={theme}>
-        <Box sx={{ width: '100%', overflowX: 'auto' }}>
-          <MaterialReactTable
-            columns={columns}
-            data={data?.results ?? []}
-            rowCount={data?.count ?? 0}
-            // Server-side operations
-            manualFiltering
-            manualPagination
-            manualSorting
-            // State
-            state={{
-              columnFilters,
-              globalFilter,
-              isLoading,
-              pagination,
-              showAlertBanner: false,
-              showProgressBars: isFetching,
-              sorting
-            }}
-            // State setters
-            onColumnFiltersChange={setColumnFilters}
-            onGlobalFilterChange={setGlobalFilter}
-            onPaginationChange={setPagination}
-            onSortingChange={setSorting}
-            // Features
-            enableColumnFilters
-            enableGlobalFilter
-            enablePagination
-            enableSorting
-            enableRowActions
-            enableRowSelection
-            positionActionsColumn='last'
-            enableDensityToggle={false}
-            enableFullScreenToggle
-            enableColumnResizing
-            enableStickyHeader
-            enableColumnPinning
-            // Layout
-            layoutMode='grid'
-            // Custom toolbar
-            renderTopToolbar={({ table }) => (
-              <Box
-                sx={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  p: 2,
-                  flexWrap: 'wrap',
-                  gap: 2
-                }}
-              >
-                <Stack direction='row' spacing={1} flexWrap='wrap' useFlexGap>
-                  <MRT_ToggleFiltersButton table={table} />
-                  {onExport && (
-                    <Button
-                      variant='outlined'
-                      onClick={onExport}
-                      startIcon={<Download />}
-                      size='small'
-                    >
-                      Export
-                    </Button>
-                  )}
-                  {onAddNew && (
-                    <Button
-                      variant='contained'
-                      onClick={onAddNew}
-                      startIcon={<Add />}
-                      size='small'
-                    >
-                      Add Student
-                    </Button>
-                  )}
-                </Stack>
-              </Box>
-            )}
-            // Row actions
-            renderRowActionMenuItems={({ row, closeMenu }) => [
-              <MenuItem
-                key='view'
-                onClick={() => {
-                  router.push(`/admin/students/${row.original.id}`);
-                  closeMenu();
-                }}
-              >
-                <ListItemIcon>
-                  <Visibility />
-                </ListItemIcon>
-                View Details
-              </MenuItem>,
-              <MenuItem
-                key='edit'
-                onClick={() => {
-                  router.push(`/admin/students/${row.original.id}/edit`);
-                  closeMenu();
-                }}
-              >
-                <ListItemIcon>
-                  <Edit />
-                </ListItemIcon>
-                Edit
-              </MenuItem>,
-              <MenuItem
-                key='delete'
-                onClick={() => {
-                  if (
-                    confirm(
-                      `Are you sure you want to delete ${row.original.user_name}?`
-                    )
-                  ) {
-                    deleteMutation.mutate(row.original.id.toString());
+    <div className='flex flex-col gap-4'>
+      <DataTableToolbar
+        table={table}
+        globalFilter={globalFilter}
+        onGlobalFilterChange={setGlobalFilter}
+        searchPlaceholder='Search students by name or email...'
+        filters={[
+          { columnId: 'status', title: 'Status', options: statusOptions },
+          {
+            columnId: 'subscription',
+            title: 'Plan',
+            options: subscriptionOptions
+          }
+        ]}
+      >
+        {onAddNew && (
+          <Button size='sm' className='h-8' onClick={onAddNew}>
+            Add Student
+          </Button>
+        )}
+      </DataTableToolbar>
+
+      <div className='rounded-md border'>
+        <Table>
+          <TableHeader>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <TableHead key={header.id} colSpan={header.colSpan}>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                  </TableHead>
+                ))}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {table.getRowModel().rows?.length ? (
+              table.getRowModel().rows.map((row) => (
+                <TableRow
+                  key={row.id}
+                  data-state={row.getIsSelected() && 'selected'}
+                  className='cursor-pointer'
+                  onClick={() =>
+                    router.push(`/admin/students/${row.original.id}`)
                   }
-                  closeMenu();
-                }}
-                sx={{ color: 'error.main' }}
-              >
-                <ListItemIcon>
-                  <Delete color='error' />
-                </ListItemIcon>
-                Delete
-              </MenuItem>
-            ]}
-            // Pagination options
-            muiPaginationProps={{
-              rowsPerPageOptions: [10, 25, 50, 100],
-              showFirstButton: true,
-              showLastButton: true
-            }}
-            // Initial state
-            initialState={{
-              density: 'compact',
-              columnVisibility: {
-                education_level: false
-              },
-              columnPinning: {
-                left: ['mrt-row-select', 'user_name'],
-                right: ['mrt-row-actions']
-              }
-            }}
-            // Display column options
-            displayColumnDefOptions={{
-              'mrt-row-select': {
-                size: 50,
-                muiTableHeadCellProps: {
-                  align: 'center'
-                },
-                muiTableBodyCellProps: {
-                  align: 'center'
-                }
-              },
-              'mrt-row-actions': {
-                header: 'Actions',
-                size: 100,
-                muiTableHeadCellProps: {
-                  align: 'center'
-                },
-                muiTableBodyCellProps: {
-                  align: 'center'
-                }
-              }
-            }}
-            // Container styling
-            muiTableContainerProps={{
-              sx: {
-                maxHeight: 'calc(100vh - 400px)',
-                minHeight: '400px',
-                '&::-webkit-scrollbar': {
-                  height: '10px',
-                  width: '10px'
-                },
-                '&::-webkit-scrollbar-track': {
-                  background: 'rgba(0,0,0,0.1)'
-                },
-                '&::-webkit-scrollbar-thumb': {
-                  background: 'rgba(0,0,0,0.5)',
-                  borderRadius: '5px'
-                }
-              }
-            }}
-            // Table styling
-            muiTableProps={{
-              sx: {
-                tableLayout: 'fixed'
-              }
-            }}
-            // Paper styling
-            muiTablePaperProps={{
-              sx: {
-                boxShadow: 'none',
-                border: '1px solid rgba(0,0,0,0.1)'
-              }
-            }}
-          />
-        </Box>
-      </ThemeProvider>
-    </LocalizationProvider>
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell
+                      key={cell.id}
+                      onClick={(e) => {
+                        // Don't navigate for select/actions columns
+                        if (
+                          cell.column.id === 'select' ||
+                          cell.column.id === 'actions'
+                        ) {
+                          e.stopPropagation();
+                        }
+                      }}
+                    >
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className='h-24 text-center'
+                >
+                  No students found.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+
+      <DataTablePagination table={table} />
+    </div>
   );
 }

@@ -5,7 +5,8 @@ export type LeadSource =
   | 'SALES_CALL'
   | 'REFERRAL'
   | 'SOCIAL_MEDIA'
-  | 'THIRD_PARTY';
+  | 'THIRD_PARTY'
+  | 'APP';
 
 export type LeadStatus =
   | 'NEW'
@@ -27,6 +28,10 @@ export interface Lead {
   assigned_to: string | null;
   assigned_to_name?: string;
   converted_student: string | null;
+  converted_student_name: string | null;
+  converted_student_email: string | null;
+  converted_student_phone: string | null;
+  is_app_student: boolean;
   follow_up_date: string | null;
   created_at: string;
   updated_at: string;
@@ -46,7 +51,8 @@ export const LEAD_SOURCE_OPTIONS: { label: string; value: LeadSource }[] = [
   { label: 'Sales Call', value: 'SALES_CALL' },
   { label: 'Referral', value: 'REFERRAL' },
   { label: 'Social Media', value: 'SOCIAL_MEDIA' },
-  { label: 'Third Party', value: 'THIRD_PARTY' }
+  { label: 'Third Party', value: 'THIRD_PARTY' },
+  { label: 'App Student', value: 'APP' }
 ];
 
 export const LEAD_STATUS_OPTIONS: { label: string; value: LeadStatus }[] = [
