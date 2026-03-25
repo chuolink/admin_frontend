@@ -23,7 +23,18 @@ export type StageInstanceStatus =
   | 'SKIPPED'
   | 'BLOCKED';
 
-export type RequirementResponseType = 'DOCUMENT' | 'TEXT' | 'SCHEDULE';
+export type RequirementResponseType =
+  | 'DOCUMENT'
+  | 'MULTI_FILE'
+  | 'IMAGE'
+  | 'MULTI_IMAGE'
+  | 'TEXT'
+  | 'TEXTAREA'
+  | 'NUMBER'
+  | 'DATE'
+  | 'SELECT'
+  | 'SCHEDULE'
+  | 'INFO';
 
 export type RequirementStatus =
   | 'PENDING'

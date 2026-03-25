@@ -44,19 +44,14 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 
-interface StudentInfo {
-  id: string;
-  name: string;
-  email: string;
-  educationLevel?: string;
-}
+import type { StudentSearchResult } from '@/components/student-picker';
 
 export default function NewApplicationPage() {
   const router = useRouter();
   const { api } = useClientApi();
 
   // Form state
-  const [student, setStudent] = useState<StudentInfo | null>(null);
+  const [student, setStudent] = useState<StudentSearchResult | null>(null);
   const [university, setUniversity] = useState<PickerItem[]>([]);
   const [courses, setCourses] = useState<PickerItem[]>([]);
   const [flowType, setFlowType] = useState<string>('LOCAL');
@@ -188,19 +183,19 @@ export default function NewApplicationPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className='space-y-4'>
-              <StudentPicker value={student} onChange={(s) => setStudent(s)} />
+              <StudentPicker value={student} onSelect={(s) => setStudent(s)} />
 
               {student && (
                 <div className='rounded-lg border p-4'>
                   <div className='flex items-center justify-between'>
                     <div>
-                      <p className='font-medium'>{student.name}</p>
+                      <p className='font-medium'>{student.user_name}</p>
                       <p className='text-muted-foreground text-sm'>
-                        {student.email}
+                        {student.user_email}
                       </p>
                     </div>
                     <Badge variant='secondary'>
-                      {student.educationLevel || 'Student'}
+                      {student.education_level || 'Student'}
                     </Badge>
                   </div>
                 </div>
@@ -351,7 +346,7 @@ export default function NewApplicationPage() {
               <div className='bg-muted/50 space-y-2 rounded-lg p-4'>
                 <div className='flex items-center justify-between text-sm'>
                   <span className='text-muted-foreground'>Student</span>
-                  <span className='font-medium'>{student?.name}</span>
+                  <span className='font-medium'>{student?.user_name}</span>
                 </div>
                 <div className='flex items-center justify-between text-sm'>
                   <span className='text-muted-foreground'>University</span>

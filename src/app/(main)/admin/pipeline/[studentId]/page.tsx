@@ -524,10 +524,8 @@ export default function PipelineDetailPage() {
                   {pipeline.app_id}
                 </Badge>
               )}
-              {(pipeline.application_id || pipeline.application) && (
-                <Link
-                  href={`/admin/applications/${pipeline.application_id || pipeline.application}`}
-                >
+              {pipeline.application && (
+                <Link href={`/admin/applications/${pipeline.application}`}>
                   <Badge
                     variant='outline'
                     className='hover:bg-primary/10 hover:text-primary cursor-pointer px-1.5 py-0.5 text-[10px] transition-colors'
@@ -677,6 +675,9 @@ export default function PipelineDetailPage() {
                 }}
                 onSubmitOnBehalf={(reqId, data) =>
                   submitOnBehalf.mutate({ reqId, ...data })
+                }
+                onUpdateRequirement={(reqId, data) =>
+                  updateRequirement.mutate({ reqId, data })
                 }
                 isStagePending={isStagePending}
                 isReqPending={isReqPending}
@@ -880,6 +881,7 @@ function StageRow({
   onRejectReq,
   onAddReq,
   onSubmitOnBehalf,
+  onUpdateRequirement,
   isStagePending,
   isReqPending
 }: {
@@ -901,6 +903,7 @@ function StageRow({
       scheduleResponse?: string;
     }
   ) => void;
+  onUpdateRequirement: (reqId: string, data: Record<string, unknown>) => void;
   isStagePending: boolean;
   isReqPending: boolean;
 }) {
@@ -1030,6 +1033,7 @@ function StageRow({
                       onApprove={onApproveReq}
                       onReject={onRejectReq}
                       onSubmitOnBehalf={onSubmitOnBehalf}
+                      onUpdateRequirement={onUpdateRequirement}
                       isPending={isReqPending}
                     />
                   ))}
@@ -1162,6 +1166,7 @@ function RequirementCard({
   onApprove,
   onReject,
   onSubmitOnBehalf,
+  onUpdateRequirement,
   isPending
 }: {
   requirement: StageRequirement;
@@ -1175,6 +1180,7 @@ function RequirementCard({
       scheduleResponse?: string;
     }
   ) => void;
+  onUpdateRequirement: (reqId: string, data: Record<string, unknown>) => void;
   isPending: boolean;
 }) {
   const [showHistory, setShowHistory] = useState(false);
@@ -1472,12 +1478,9 @@ function RequirementCard({
                       isPending={isPending}
                       onSubmit={(date, location) => {
                         // Update location on requirement + submit schedule response
-                        updateRequirement.mutate({
-                          reqId: requirement.id,
-                          data: {
-                            scheduled_date: date,
-                            scheduled_location: location || ''
-                          }
+                        onUpdateRequirement(requirement.id, {
+                          scheduled_date: date,
+                          scheduled_location: location || ''
                         });
                         onSubmitOnBehalf(requirement.id, {
                           scheduleResponse: date
@@ -1589,12 +1592,9 @@ function RequirementCard({
                 scheduledLocation={requirement.scheduled_location}
                 isPending={isPending}
                 onSubmit={(date, location) => {
-                  updateRequirement.mutate({
-                    reqId: requirement.id,
-                    data: {
-                      scheduled_date: date,
-                      scheduled_location: location || ''
-                    }
+                  onUpdateRequirement(requirement.id, {
+                    scheduled_date: date,
+                    scheduled_location: location || ''
                   });
                   onSubmitOnBehalf(requirement.id, { scheduleResponse: date });
                 }}
