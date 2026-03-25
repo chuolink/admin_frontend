@@ -15,7 +15,7 @@ export interface StaffTask {
   status: TaskStatus;
   title: string;
   description: string;
-  assigned_to: number;
+  assigned_to: string;
   assigned_to_name?: string;
   student: string | null;
   student_name?: string;

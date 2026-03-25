@@ -377,7 +377,7 @@ export default function TasksPage() {
           </DialogHeader>
           <div className='space-y-4'>
             <div>
-              <Label>Title</Label>
+              <Label required>Title</Label>
               <Input
                 placeholder='Task title...'
                 value={form.title}
@@ -388,7 +388,7 @@ export default function TasksPage() {
             </div>
             <div className='grid grid-cols-2 gap-3'>
               <div>
-                <Label>Type</Label>
+                <Label required>Type</Label>
                 <Select
                   value={form.task_type}
                   onValueChange={(val) =>

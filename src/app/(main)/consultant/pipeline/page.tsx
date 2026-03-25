@@ -5,18 +5,19 @@ import useClientApi from '@/lib/axios/clientSide';
 import PageContainer from '@/components/layout/page-container';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
 import {
   Users,
-  FileCheck,
   AlertTriangle,
   ArrowRight,
-  Kanban
+  Kanban,
+  Globe,
+  MapPin
 } from 'lucide-react';
 import {
   type StudentPipeline,
   type PipelinesResponse,
-  type StageStatus,
-  PIPELINE_STAGES
+  FLOW_TYPE_COLOR
 } from '@/features/pipeline/types';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
@@ -36,15 +37,9 @@ export default function ConsultantPipelinePage() {
 
   const pipelines = data?.results ?? [];
   const total = data?.count ?? 0;
-  const preApp = pipelines.filter(
-    (p) => p.current_phase === 'PRE_APPLICATION'
-  ).length;
-  const postApp = pipelines.filter(
-    (p) => p.current_phase === 'POST_APPLICATION'
-  ).length;
-  const blocked = pipelines.filter((p) =>
-    p.stages?.some((s) => s.status === 'BLOCKED')
-  ).length;
+  const localCount = pipelines.filter((p) => p.flow_type === 'LOCAL').length;
+  const abroadCount = pipelines.filter((p) => p.flow_type === 'ABROAD').length;
+  const blocked = pipelines.filter((p) => p.has_blocked).length;
 
   return (
     <PageContainer className='w-full'>
@@ -69,26 +64,26 @@ export default function ConsultantPipelinePage() {
           </Card>
           <Card>
             <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-              <CardTitle className='text-sm font-medium'>
-                Pre-Application
-              </CardTitle>
-              <FileCheck className='text-muted-foreground h-4 w-4' />
+              <CardTitle className='text-sm font-medium'>Local</CardTitle>
+              <MapPin className='text-muted-foreground h-4 w-4' />
             </CardHeader>
             <CardContent>
-              <div className='text-2xl font-bold'>{preApp}</div>
-              <p className='text-muted-foreground text-xs'>Stages 1-7</p>
+              <div className='text-2xl font-bold'>{localCount}</div>
+              <p className='text-muted-foreground text-xs'>
+                Tanzania universities
+              </p>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-              <CardTitle className='text-sm font-medium'>
-                Post-Application
-              </CardTitle>
-              <Kanban className='text-muted-foreground h-4 w-4' />
+              <CardTitle className='text-sm font-medium'>Abroad</CardTitle>
+              <Globe className='text-muted-foreground h-4 w-4' />
             </CardHeader>
             <CardContent>
-              <div className='text-2xl font-bold'>{postApp}</div>
-              <p className='text-muted-foreground text-xs'>Stages 8-16</p>
+              <div className='text-2xl font-bold'>{abroadCount}</div>
+              <p className='text-muted-foreground text-xs'>
+                International universities
+              </p>
             </CardContent>
           </Card>
           <Card>
@@ -120,15 +115,22 @@ export default function ConsultantPipelinePage() {
             ) : (
               <div className='space-y-3'>
                 {pipelines.map((pipeline) => {
-                  const completedCount =
-                    pipeline.stages?.filter((s) => s.status === 'COMPLETED')
-                      .length ?? 0;
-                  const activeStage = pipeline.stages?.find(
-                    (s) => s.status === 'IN_PROGRESS'
-                  );
-                  const activeLabel = PIPELINE_STAGES.find(
-                    (s) => s.key === activeStage?.stage_type
-                  )?.label;
+                  const totalStages = pipeline.total_stages ?? 0;
+                  const completedCount = pipeline.completed_stages ?? 0;
+                  const progressPct =
+                    totalStages > 0
+                      ? Math.round((completedCount / totalStages) * 100)
+                      : 0;
+
+                  // active_stage comes from list serializer as {stage_name, stage_type, stage_order}
+                  const activeStageInfo = pipeline.active_stage as unknown as {
+                    stage_name?: string;
+                    stage_order?: number;
+                  } | null;
+                  const activeLabel = activeStageInfo
+                    ? `${activeStageInfo.stage_order ?? ''}. ${activeStageInfo.stage_name ?? ''}`
+                    : null;
+
                   const phaseLabel: Record<string, string> = {
                     CONSULTATION: 'Consultation',
                     PRE_APPLICATION: 'Pre-Application',
@@ -145,9 +147,23 @@ export default function ConsultantPipelinePage() {
                     >
                       <div className='hover:bg-muted/50 flex cursor-pointer items-center gap-4 rounded-lg border p-3 transition-colors'>
                         <div className='min-w-0 flex-1'>
-                          <p className='truncate font-medium'>
-                            {pipeline.student_name ?? 'Unknown'}
-                          </p>
+                          <div className='flex items-center gap-2'>
+                            <p className='truncate font-medium'>
+                              {pipeline.student_name ?? 'Unknown'}
+                            </p>
+                            {pipeline.flow_type && (
+                              <Badge
+                                className={cn(
+                                  'px-1.5 py-0 text-[10px]',
+                                  FLOW_TYPE_COLOR[pipeline.flow_type]
+                                )}
+                              >
+                                {pipeline.flow_type === 'LOCAL'
+                                  ? 'Local'
+                                  : 'Abroad'}
+                              </Badge>
+                            )}
+                          </div>
                           <p className='text-muted-foreground truncate text-sm'>
                             {pipeline.university_name}
                             {pipeline.country_name &&
@@ -166,30 +182,12 @@ export default function ConsultantPipelinePage() {
                         </div>
                         <div className='text-right'>
                           <span className='text-sm font-medium'>
-                            {completedCount}/16
+                            {completedCount}/{totalStages}
                           </span>
-                          <div className='mt-1 flex w-[96px] gap-0.5'>
-                            {PIPELINE_STAGES.map((stage) => {
-                              const s = pipeline.stages?.find(
-                                (ps) => ps.stage_type === stage.key
-                              );
-                              const status: StageStatus =
-                                s?.status ?? 'NOT_STARTED';
-                              return (
-                                <div
-                                  key={stage.key}
-                                  className={cn(
-                                    'h-1 flex-1 rounded-full',
-                                    status === 'COMPLETED' && 'bg-green-500',
-                                    status === 'IN_PROGRESS' && 'bg-blue-500',
-                                    status === 'BLOCKED' && 'bg-red-500',
-                                    status === 'SKIPPED' && 'bg-yellow-500',
-                                    status === 'NOT_STARTED' && 'bg-muted'
-                                  )}
-                                />
-                              );
-                            })}
-                          </div>
+                          <Progress
+                            value={progressPct}
+                            className='mt-1 h-1.5 w-[96px]'
+                          />
                         </div>
                       </div>
                     </Link>

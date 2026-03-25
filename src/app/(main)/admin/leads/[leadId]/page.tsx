@@ -11,6 +11,8 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
+import { Separator } from '@/components/ui/separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Select,
   SelectContent,
@@ -30,16 +32,26 @@ import {
   Phone,
   CalendarPlus,
   MessageSquarePlus,
-  TrendingUp,
   User,
   Mail,
   Clock,
   CheckCircle,
-  AlertCircle,
   PhoneOutgoing,
   PhoneIncoming,
   Calendar,
-  FileText
+  GraduationCap,
+  Link2,
+  Kanban,
+  ExternalLink,
+  Unlink,
+  MapPin,
+  Hash,
+  StickyNote,
+  Activity,
+  CircleDot,
+  XCircle,
+  FileText as FileTextIcon,
+  ArrowRight
 } from 'lucide-react';
 import {
   type Lead,
@@ -58,43 +70,85 @@ import {
 import {
   type Consultation,
   type ConsultationType,
-  CONSULTATION_TYPE_OPTIONS
+  type ConsultationOutcome,
+  CONSULTATION_TYPE_OPTIONS,
+  CONSULTATION_OUTCOME_OPTIONS
 } from '@/features/consultations/types';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
-import { format } from 'date-fns';
+import { useParams, useRouter } from 'next/navigation';
+import { format, formatDistanceToNow } from 'date-fns';
 import { toast } from 'sonner';
+import {
+  StudentPicker,
+  type StudentSearchResult
+} from '@/components/student-picker';
+import {
+  UniversityPicker,
+  CoursePicker,
+  type PickerItem
+} from '@/components/entity-multi-picker';
 
-// Unified timeline item
 interface TimelineItem {
   id: string;
-  type: 'call' | 'consultation' | 'status_change';
+  type: 'call' | 'consultation' | 'note';
   title: string;
   description: string;
   date: string;
   icon: React.ReactNode;
+  iconBg: string;
   meta?: Record<string, string>;
 }
 
-const statusSteps: { value: LeadStatus; label: string }[] = [
-  { value: 'NEW', label: 'New' },
-  { value: 'CONTACTED', label: 'Contacted' },
-  { value: 'CONSULTATION_SCHEDULED', label: 'Scheduled' },
-  { value: 'CONSULTATION_DONE', label: 'Consulted' },
-  { value: 'CONVERTED', label: 'Converted' }
+const statusSteps: {
+  value: LeadStatus;
+  label: string;
+  icon: React.ReactNode;
+}[] = [
+  {
+    value: 'NEW',
+    label: 'New',
+    icon: <CircleDot className='h-3.5 w-3.5' />
+  },
+  {
+    value: 'CONTACTED',
+    label: 'Contacted',
+    icon: <Phone className='h-3.5 w-3.5' />
+  },
+  {
+    value: 'CONSULTATION_SCHEDULED',
+    label: 'Scheduled',
+    icon: <Calendar className='h-3.5 w-3.5' />
+  },
+  {
+    value: 'CONSULTATION_DONE',
+    label: 'Consulted',
+    icon: <CheckCircle className='h-3.5 w-3.5' />
+  },
+  {
+    value: 'CONVERTED',
+    label: 'Converted',
+    icon: <GraduationCap className='h-3.5 w-3.5' />
+  }
 ];
 
 export default function LeadDetailPage() {
   const params = useParams<{ leadId: string }>();
+  const router = useRouter();
   const { api } = useClientApi();
   const queryClient = useQueryClient();
   const [callDialogOpen, setCallDialogOpen] = useState(false);
   const [consultationDialogOpen, setConsultationDialogOpen] = useState(false);
   const [noteDialogOpen, setNoteDialogOpen] = useState(false);
   const [noteText, setNoteText] = useState('');
+  const [linkDialogOpen, setLinkDialogOpen] = useState(false);
+  const [linkStudent, setLinkStudent] = useState<StudentSearchResult | null>(
+    null
+  );
+  const [createAppDialogOpen, setCreateAppDialogOpen] = useState(false);
+  const [appUniversity, setAppUniversity] = useState<PickerItem[]>([]);
+  const [appCourses, setAppCourses] = useState<PickerItem[]>([]);
 
-  // Call form
   const [callForm, setCallForm] = useState({
     call_type: 'OUTBOUND' as CallType,
     purpose: 'LEAD_FOLLOW_UP' as CallPurpose,
@@ -105,14 +159,16 @@ export default function LeadDetailPage() {
     follow_up_date: ''
   });
 
-  // Consultation form
   const [consultForm, setConsultForm] = useState({
     consultation_type: 'IN_PERSON' as ConsultationType,
     scheduled_at: '',
     summary: '',
-    recommended_courses: '',
-    recommended_universities: ''
+    outcome: '' as ConsultationOutcome | ''
   });
+  const [selectedCourses, setSelectedCourses] = useState<PickerItem[]>([]);
+  const [selectedUniversities, setSelectedUniversities] = useState<
+    PickerItem[]
+  >([]);
 
   const { data: lead, isLoading } = useQuery<Lead>({
     queryKey: ['lead', params.leadId],
@@ -124,7 +180,6 @@ export default function LeadDetailPage() {
     enabled: !!api && !!params.leadId
   });
 
-  // Fetch calls for this lead
   const { data: callsData } = useQuery<{ results: SalesCall[] }>({
     queryKey: ['lead-calls', params.leadId],
     queryFn: async () => {
@@ -137,7 +192,6 @@ export default function LeadDetailPage() {
     enabled: !!api && !!params.leadId
   });
 
-  // Fetch consultations for this lead
   const { data: consultsData } = useQuery<{ results: Consultation[] }>({
     queryKey: ['lead-consultations', params.leadId],
     queryFn: async () => {
@@ -150,6 +204,34 @@ export default function LeadDetailPage() {
     enabled: !!api && !!params.leadId
   });
 
+  // Fetch linked student's applications
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: studentAppsData } = useQuery<{ results: any[] }>({
+    queryKey: ['student-applications', lead?.converted_student],
+    queryFn: async () => {
+      if (!api) throw new Error('API not initialized');
+      const response = await api.get('/admin/applications/', {
+        params: { student: lead?.converted_student, page_size: 10 }
+      });
+      return response.data;
+    },
+    enabled: !!api && !!lead?.converted_student
+  });
+
+  // Fetch linked student's pipelines
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: studentPipelinesData } = useQuery<{ results: any[] }>({
+    queryKey: ['student-pipelines', lead?.converted_student],
+    queryFn: async () => {
+      if (!api) throw new Error('API not initialized');
+      const response = await api.get('/admin/pipelines/', {
+        params: { student: lead?.converted_student, page_size: 10 }
+      });
+      return response.data;
+    },
+    enabled: !!api && !!lead?.converted_student
+  });
+
   const invalidateAll = () => {
     queryClient.invalidateQueries({ queryKey: ['lead', params.leadId] });
     queryClient.invalidateQueries({ queryKey: ['lead-calls', params.leadId] });
@@ -157,6 +239,12 @@ export default function LeadDetailPage() {
       queryKey: ['lead-consultations', params.leadId]
     });
     queryClient.invalidateQueries({ queryKey: ['leads'] });
+    queryClient.invalidateQueries({
+      queryKey: ['student-applications', lead?.converted_student]
+    });
+    queryClient.invalidateQueries({
+      queryKey: ['student-pipelines', lead?.converted_student]
+    });
   };
 
   const updateStatus = useMutation({
@@ -204,10 +292,16 @@ export default function LeadDetailPage() {
   const scheduleConsultation = useMutation({
     mutationFn: async (data: typeof consultForm) => {
       if (!api) throw new Error('API not initialized');
-      const response = await api.post('/admin/consultations/', {
+      const payload: Record<string, unknown> = {
         ...data,
-        lead: params.leadId
-      });
+        lead: params.leadId,
+        recommended_courses: selectedCourses.map((c) => c.name).join(', '),
+        recommended_universities: selectedUniversities
+          .map((u) => u.name)
+          .join(', ')
+      };
+      if (!payload.outcome) delete payload.outcome;
+      const response = await api.post('/admin/consultations/', payload);
       return response.data;
     },
     onSuccess: () => {
@@ -217,9 +311,10 @@ export default function LeadDetailPage() {
         consultation_type: 'IN_PERSON',
         scheduled_at: '',
         summary: '',
-        recommended_courses: '',
-        recommended_universities: ''
+        outcome: ''
       });
+      setSelectedCourses([]);
+      setSelectedUniversities([]);
       toast.success('Consultation scheduled');
     },
     onError: () => toast.error('Failed to schedule consultation')
@@ -247,12 +342,97 @@ export default function LeadDetailPage() {
     onError: () => toast.error('Failed to add note')
   });
 
+  const createApplicationMutation = useMutation({
+    mutationFn: async ({
+      universityId,
+      courseIds
+    }: {
+      universityId: string;
+      courseIds: string[];
+    }) => {
+      if (!api) throw new Error('API not initialized');
+      const response = await api.post(
+        `/admin/leads/${params.leadId}/create-application/`,
+        { university_id: universityId, course_ids: courseIds }
+      );
+      return response.data;
+    },
+    onSuccess: (data) => {
+      invalidateAll();
+      setCreateAppDialogOpen(false);
+      setAppUniversity([]);
+      setAppCourses([]);
+      toast.success('Application + pipeline created');
+      router.push(`/admin/pipeline/${data.pipeline_id}`);
+    },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.error || 'Failed to create application');
+    }
+  });
+
+  const registerStudentMutation = useMutation({
+    mutationFn: async () => {
+      if (!api) throw new Error('API not initialized');
+      const response = await api.post(
+        `/admin/leads/${params.leadId}/register-student/`
+      );
+      return response.data;
+    },
+    onSuccess: (data) => {
+      invalidateAll();
+      if (data.created) {
+        toast.success('Student account created and linked');
+      } else {
+        toast.success('Existing student found and linked');
+      }
+    },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.error || 'Failed to register student');
+    }
+  });
+
+  const linkStudentMutation = useMutation({
+    mutationFn: async (studentId: string) => {
+      if (!api) throw new Error('API not initialized');
+      const response = await api.post(
+        `/admin/leads/${params.leadId}/link-student/`,
+        { student_id: studentId }
+      );
+      return response.data;
+    },
+    onSuccess: () => {
+      invalidateAll();
+      setLinkDialogOpen(false);
+      setLinkStudent(null);
+      toast.success('Student linked successfully');
+    },
+    onError: () => toast.error('Failed to link student')
+  });
+
+  const unlinkStudentMutation = useMutation({
+    mutationFn: async () => {
+      if (!api) throw new Error('API not initialized');
+      const response = await api.post(
+        `/admin/leads/${params.leadId}/unlink-student/`
+      );
+      return response.data;
+    },
+    onSuccess: () => {
+      invalidateAll();
+      toast.success('Student unlinked');
+    },
+    onError: () => toast.error('Failed to unlink student')
+  });
+
   if (isLoading) {
     return (
       <PageContainer className='w-full'>
-        <p className='text-muted-foreground py-12 text-center'>
-          Loading lead...
-        </p>
+        <div className='space-y-4 py-12'>
+          <div className='bg-muted mx-auto h-8 w-48 animate-pulse rounded' />
+          <div className='bg-muted mx-auto h-4 w-32 animate-pulse rounded' />
+        </div>
       </PageContainer>
     );
   }
@@ -270,7 +450,7 @@ export default function LeadDetailPage() {
     );
   }
 
-  // Build unified timeline
+  // Build timeline
   const timeline: TimelineItem[] = [];
 
   (callsData?.results ?? []).forEach((call) => {
@@ -283,20 +463,22 @@ export default function LeadDetailPage() {
     timeline.push({
       id: `call-${call.id}`,
       type: 'call',
-      title: `${call.call_type === 'OUTBOUND' ? 'Outbound' : 'Inbound'} Call — ${purposeLabel}`,
+      title: `${call.call_type === 'OUTBOUND' ? 'Outbound' : 'Inbound'} Call`,
       description:
-        call.notes || `Outcome: ${outcomeLabel}, ${call.duration_minutes} min`,
+        call.notes ||
+        `${purposeLabel} — ${outcomeLabel}, ${call.duration_minutes} min`,
       date: call.created_at,
       icon:
         call.call_type === 'OUTBOUND' ? (
-          <PhoneOutgoing className='h-3.5 w-3.5 text-blue-500' />
+          <PhoneOutgoing className='h-3.5 w-3.5' />
         ) : (
-          <PhoneIncoming className='h-3.5 w-3.5 text-green-500' />
+          <PhoneIncoming className='h-3.5 w-3.5' />
         ),
-      meta: {
-        outcome: outcomeLabel,
-        duration: `${call.duration_minutes} min`
-      }
+      iconBg:
+        call.call_type === 'OUTBOUND'
+          ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400'
+          : 'bg-green-500/10 text-green-600 dark:text-green-400',
+      meta: { outcome: outcomeLabel, duration: `${call.duration_minutes} min` }
     });
   });
 
@@ -311,15 +493,12 @@ export default function LeadDetailPage() {
       title: `${typeLabel} Consultation`,
       description: consult.summary || `Status: ${consult.status}`,
       date: consult.scheduled_at,
-      icon: <Calendar className='h-3.5 w-3.5 text-purple-500' />,
-      meta: {
-        status: consult.status,
-        outcome: consult.outcome ?? '—'
-      }
+      icon: <Calendar className='h-3.5 w-3.5' />,
+      iconBg: 'bg-purple-500/10 text-purple-600 dark:text-purple-400',
+      meta: { status: consult.status, outcome: consult.outcome ?? '—' }
     });
   });
 
-  // Sort newest first
   timeline.sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
   );
@@ -327,285 +506,681 @@ export default function LeadDetailPage() {
   const sourceLabel =
     LEAD_SOURCE_OPTIONS.find((o) => o.value === lead.source)?.label ??
     lead.source;
-  const currentStatusLabel =
-    LEAD_STATUS_OPTIONS.find((o) => o.value === lead.status)?.label ??
-    lead.status;
 
-  // Status progress
   const currentIdx = statusSteps.findIndex((s) => s.value === lead.status);
   const isLost = lead.status === 'LOST';
+
+  const followUpOverdue =
+    lead.follow_up_date && new Date(lead.follow_up_date) < new Date();
 
   return (
     <PageContainer className='w-full'>
       <div className='w-full space-y-6'>
-        {/* Header */}
-        <div className='flex items-center gap-4'>
-          <Link href='/admin/leads'>
-            <Button variant='ghost' size='icon'>
-              <ArrowLeft className='h-4 w-4' />
-            </Button>
+        {/* Back + Header */}
+        <div>
+          <Link
+            href='/admin/leads'
+            className='text-muted-foreground hover:text-foreground mb-4 inline-flex items-center gap-1.5 text-sm transition-colors'
+          >
+            <ArrowLeft className='h-3.5 w-3.5' />
+            Back to Leads
           </Link>
-          <div className='flex-1'>
-            <h1 className='text-3xl font-bold'>{lead.student_name}</h1>
-            <div className='mt-1 flex items-center gap-3'>
-              <Badge variant='outline'>{sourceLabel}</Badge>
-              <Badge
-                variant={
-                  isLost
-                    ? 'destructive'
-                    : lead.status === 'CONVERTED'
-                      ? 'default'
-                      : 'secondary'
-                }
-              >
-                {currentStatusLabel}
-              </Badge>
-              {lead.assigned_to_name && (
-                <span className='text-muted-foreground text-sm'>
-                  Assigned to {lead.assigned_to_name}
-                </span>
-              )}
+
+          <div className='mt-2 flex items-start justify-between'>
+            <div className='space-y-1'>
+              <div className='flex items-center gap-3'>
+                <div className='bg-primary/10 flex h-10 w-10 items-center justify-center rounded-full'>
+                  <User className='text-primary h-5 w-5' />
+                </div>
+                <div>
+                  <h1 className='text-2xl font-bold tracking-tight'>
+                    {lead.student_name}
+                  </h1>
+                  <div className='mt-0.5 flex items-center gap-2'>
+                    {lead.email && (
+                      <span className='text-muted-foreground text-sm'>
+                        {lead.email}
+                      </span>
+                    )}
+                    {lead.email && lead.phone_number && (
+                      <span className='text-muted-foreground text-xs'>
+                        &middot;
+                      </span>
+                    )}
+                    <span className='text-muted-foreground text-sm'>
+                      {lead.phone_number}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div className='mt-2 flex items-center gap-2 pl-[52px]'>
+                <Badge variant='outline' className='text-xs'>
+                  {sourceLabel}
+                </Badge>
+                {lead.is_app_student && (
+                  <Badge
+                    variant='outline'
+                    className='border-green-500/30 bg-green-500/10 text-green-600 dark:text-green-400'
+                  >
+                    <GraduationCap className='mr-1 h-3 w-3' />
+                    App Student
+                  </Badge>
+                )}
+                {isLost && (
+                  <Badge variant='destructive' className='text-xs'>
+                    <XCircle className='mr-1 h-3 w-3' />
+                    Lost
+                  </Badge>
+                )}
+                {lead.assigned_to_name && (
+                  <span className='text-muted-foreground text-xs'>
+                    Assigned to {lead.assigned_to_name}
+                  </span>
+                )}
+              </div>
             </div>
-          </div>
-          <div className='flex gap-2'>
-            <Button variant='outline' onClick={() => setCallDialogOpen(true)}>
-              <Phone className='mr-2 h-4 w-4' />
-              Log Call
-            </Button>
-            <Button
-              variant='outline'
-              onClick={() => setConsultationDialogOpen(true)}
-            >
-              <CalendarPlus className='mr-2 h-4 w-4' />
-              Consultation
-            </Button>
-            <Button variant='outline' onClick={() => setNoteDialogOpen(true)}>
-              <MessageSquarePlus className='mr-2 h-4 w-4' />
-              Note
-            </Button>
+
+            <div className='flex items-center gap-2'>
+              {lead.converted_student && (
+                <>
+                  <Button
+                    size='sm'
+                    onClick={() => setCreateAppDialogOpen(true)}
+                  >
+                    <FileTextIcon className='mr-1.5 h-3.5 w-3.5' />
+                    Create Application
+                  </Button>
+                  <Link href={`/admin/students/${lead.converted_student}`}>
+                    <Button variant='outline' size='sm'>
+                      <GraduationCap className='mr-1.5 h-3.5 w-3.5' />
+                      Student
+                    </Button>
+                  </Link>
+                </>
+              )}
+              <Button
+                variant='outline'
+                size='sm'
+                onClick={() => setCallDialogOpen(true)}
+              >
+                <Phone className='mr-1.5 h-3.5 w-3.5' />
+                Log Call
+              </Button>
+              <Button
+                variant='outline'
+                size='sm'
+                onClick={() => setConsultationDialogOpen(true)}
+              >
+                <CalendarPlus className='mr-1.5 h-3.5 w-3.5' />
+                Consultation
+              </Button>
+              <Button
+                variant='outline'
+                size='sm'
+                onClick={() => setNoteDialogOpen(true)}
+              >
+                <MessageSquarePlus className='mr-1.5 h-3.5 w-3.5' />
+                Note
+              </Button>
+            </div>
           </div>
         </div>
 
-        {/* Status Pipeline */}
+        {/* Status Steps */}
         {!isLost && (
-          <Card>
-            <CardContent className='py-4'>
-              <div className='flex items-center gap-1'>
-                {statusSteps.map((step, idx) => {
-                  const isCompleted = idx <= currentIdx;
-                  const isCurrent = idx === currentIdx;
-                  return (
-                    <div key={step.value} className='flex flex-1 items-center'>
-                      <button
-                        className={cn(
-                          'flex flex-1 flex-col items-center gap-1 rounded-lg p-2 transition-colors',
-                          isCurrent && 'bg-primary/10',
-                          !isCompleted && 'hover:bg-muted/50 cursor-pointer'
-                        )}
-                        onClick={() => {
-                          if (!isCompleted && !updateStatus.isPending) {
-                            updateStatus.mutate(step.value);
-                          }
-                        }}
-                        disabled={isCompleted || updateStatus.isPending}
-                      >
-                        <div
-                          className={cn(
-                            'flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold',
-                            isCompleted
-                              ? 'bg-primary text-primary-foreground'
-                              : 'bg-muted text-muted-foreground'
-                          )}
-                        >
-                          {isCompleted ? (
-                            <CheckCircle className='h-4 w-4' />
-                          ) : (
-                            idx + 1
-                          )}
-                        </div>
-                        <span
-                          className={cn(
-                            'text-xs font-medium',
-                            !isCompleted && 'text-muted-foreground'
-                          )}
-                        >
-                          {step.label}
-                        </span>
-                      </button>
-                      {idx < statusSteps.length - 1 && (
-                        <div
-                          className={cn(
-                            'h-0.5 w-4 shrink-0',
-                            idx < currentIdx ? 'bg-primary' : 'bg-muted'
-                          )}
-                        />
+          <div className='rounded-lg border p-4'>
+            <div className='flex items-center'>
+              {statusSteps.map((step, idx) => {
+                const isCompleted = idx <= currentIdx;
+                const isCurrent = idx === currentIdx;
+                return (
+                  <div key={step.value} className='flex flex-1 items-center'>
+                    <button
+                      className={cn(
+                        'group flex flex-1 items-center gap-2 rounded-md px-3 py-2 transition-all',
+                        isCurrent && 'bg-primary/10',
+                        !isCompleted && 'hover:bg-muted/50 cursor-pointer'
                       )}
-                    </div>
-                  );
-                })}
-              </div>
-              {lead.status !== 'CONVERTED' && lead.status !== 'LOST' && (
-                <div className='mt-3 flex justify-end'>
-                  <Button
-                    variant='ghost'
-                    size='sm'
-                    className='text-destructive'
-                    onClick={() => updateStatus.mutate('LOST')}
-                    disabled={updateStatus.isPending}
-                  >
-                    Mark as Lost
-                  </Button>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        )}
-
-        <div className='grid grid-cols-1 gap-6 lg:grid-cols-3'>
-          {/* Left: Contact Info + Notes */}
-          <div className='space-y-6'>
-            <Card>
-              <CardHeader>
-                <CardTitle className='text-sm font-medium'>
-                  Contact Information
-                </CardTitle>
-              </CardHeader>
-              <CardContent className='space-y-3'>
-                <div className='flex items-center gap-2'>
-                  <User className='text-muted-foreground h-4 w-4' />
-                  <div>
-                    <p className='text-sm font-medium'>{lead.student_name}</p>
-                    <p className='text-muted-foreground text-xs'>Student</p>
+                      onClick={() => {
+                        if (!isCompleted && !updateStatus.isPending) {
+                          updateStatus.mutate(step.value);
+                        }
+                      }}
+                      disabled={isCompleted || updateStatus.isPending}
+                    >
+                      <div
+                        className={cn(
+                          'flex h-7 w-7 shrink-0 items-center justify-center rounded-full transition-all',
+                          isCompleted
+                            ? 'bg-primary text-primary-foreground'
+                            : 'bg-muted text-muted-foreground group-hover:bg-muted/80'
+                        )}
+                      >
+                        {isCompleted ? (
+                          <CheckCircle className='h-3.5 w-3.5' />
+                        ) : (
+                          step.icon
+                        )}
+                      </div>
+                      <span
+                        className={cn(
+                          'text-sm font-medium',
+                          isCompleted
+                            ? 'text-foreground'
+                            : 'text-muted-foreground'
+                        )}
+                      >
+                        {step.label}
+                      </span>
+                    </button>
+                    {idx < statusSteps.length - 1 && (
+                      <div
+                        className={cn(
+                          'h-px w-6 shrink-0',
+                          idx < currentIdx ? 'bg-primary' : 'bg-border'
+                        )}
+                      />
+                    )}
                   </div>
-                </div>
-                {lead.parent_name && (
-                  <div className='flex items-center gap-2'>
-                    <User className='text-muted-foreground h-4 w-4' />
-                    <div>
-                      <p className='text-sm font-medium'>{lead.parent_name}</p>
-                      <p className='text-muted-foreground text-xs'>Parent</p>
-                    </div>
-                  </div>
-                )}
-                <div className='flex items-center gap-2'>
-                  <Phone className='text-muted-foreground h-4 w-4' />
-                  <p className='text-sm'>{lead.phone_number}</p>
-                </div>
-                {lead.email && (
-                  <div className='flex items-center gap-2'>
-                    <Mail className='text-muted-foreground h-4 w-4' />
-                    <p className='text-sm'>{lead.email}</p>
-                  </div>
-                )}
-                {lead.follow_up_date && (
-                  <div className='flex items-center gap-2'>
-                    <Clock className='text-muted-foreground h-4 w-4' />
-                    <div>
-                      <p className='text-sm'>
-                        {format(new Date(lead.follow_up_date), 'MMM d, yyyy')}
-                      </p>
-                      <p className='text-muted-foreground text-xs'>
-                        Follow-up date
-                      </p>
-                    </div>
-                  </div>
-                )}
-                <div className='text-muted-foreground text-xs'>
-                  Created {format(new Date(lead.created_at), 'MMM d, yyyy')}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Notes */}
-            <Card>
-              <CardHeader className='flex flex-row items-center justify-between'>
-                <CardTitle className='text-sm font-medium'>Notes</CardTitle>
+                );
+              })}
+            </div>
+            {lead.status !== 'CONVERTED' && lead.status !== 'LOST' && (
+              <div className='mt-2 flex justify-end'>
                 <Button
                   variant='ghost'
                   size='sm'
-                  onClick={() => setNoteDialogOpen(true)}
+                  className='text-destructive hover:text-destructive h-7 text-xs'
+                  onClick={() => updateStatus.mutate('LOST')}
+                  disabled={updateStatus.isPending}
                 >
-                  <MessageSquarePlus className='mr-1 h-3 w-3' />
-                  Add
+                  <XCircle className='mr-1 h-3 w-3' />
+                  Mark as Lost
                 </Button>
-              </CardHeader>
-              <CardContent>
-                {lead.notes ? (
-                  <pre className='text-muted-foreground text-sm whitespace-pre-wrap'>
-                    {lead.notes}
-                  </pre>
-                ) : (
-                  <p className='text-muted-foreground text-sm'>No notes yet.</p>
-                )}
-              </CardContent>
-            </Card>
+              </div>
+            )}
           </div>
+        )}
 
-          {/* Right: Activity Timeline */}
-          <div className='lg:col-span-2'>
+        {/* Main Content */}
+        <div className='grid grid-cols-1 gap-6 lg:grid-cols-12'>
+          {/* Left Sidebar */}
+          <div className='space-y-4 lg:col-span-4'>
+            {/* Contact & Student Info Card */}
             <Card>
-              <CardHeader>
-                <div className='flex items-center justify-between'>
-                  <CardTitle>Activity Timeline</CardTitle>
-                  <div className='flex gap-2'>
-                    <Badge variant='outline' className='text-xs'>
-                      {callsData?.results?.length ?? 0} calls
-                    </Badge>
-                    <Badge variant='outline' className='text-xs'>
-                      {consultsData?.results?.length ?? 0} consultations
-                    </Badge>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                {timeline.length === 0 ? (
-                  <div className='py-8 text-center'>
-                    <p className='text-muted-foreground text-sm'>
-                      No activity yet. Log a call or schedule a consultation.
-                    </p>
-                  </div>
-                ) : (
-                  <div className='relative space-y-0'>
-                    {timeline.map((item, idx) => (
-                      <div key={item.id} className='flex gap-3 pb-4'>
-                        <div className='flex flex-col items-center'>
-                          <div className='bg-muted flex h-7 w-7 shrink-0 items-center justify-center rounded-full'>
-                            {item.icon}
-                          </div>
-                          {idx < timeline.length - 1 && (
-                            <div className='bg-border w-px flex-1' />
-                          )}
+              <CardContent className='pt-6'>
+                <div className='space-y-4'>
+                  {/* Contact Details */}
+                  <div className='space-y-3'>
+                    <h3 className='text-muted-foreground text-xs font-semibold tracking-wider uppercase'>
+                      Contact Details
+                    </h3>
+                    <div className='space-y-2.5'>
+                      <div className='flex items-center gap-3'>
+                        <div className='bg-muted flex h-8 w-8 shrink-0 items-center justify-center rounded-md'>
+                          <User className='text-muted-foreground h-3.5 w-3.5' />
                         </div>
-                        <div className='min-w-0 flex-1 pb-2'>
-                          <div className='flex items-center justify-between'>
-                            <p className='text-sm font-medium'>{item.title}</p>
-                            <span className='text-muted-foreground text-xs'>
-                              {format(new Date(item.date), 'MMM d, yyyy HH:mm')}
-                            </span>
-                          </div>
-                          <p className='text-muted-foreground mt-0.5 text-sm'>
-                            {item.description}
+                        <div className='min-w-0'>
+                          <p className='text-sm font-medium'>
+                            {lead.student_name}
                           </p>
-                          {item.meta && (
-                            <div className='mt-1 flex gap-2'>
-                              {Object.entries(item.meta).map(([key, val]) => (
-                                <Badge
-                                  key={key}
-                                  variant='outline'
-                                  className='text-xs'
-                                >
-                                  {val}
-                                </Badge>
-                              ))}
-                            </div>
-                          )}
+                          <p className='text-muted-foreground text-xs'>
+                            Student
+                          </p>
                         </div>
                       </div>
-                    ))}
+                      {lead.parent_name && (
+                        <div className='flex items-center gap-3'>
+                          <div className='bg-muted flex h-8 w-8 shrink-0 items-center justify-center rounded-md'>
+                            <User className='text-muted-foreground h-3.5 w-3.5' />
+                          </div>
+                          <div className='min-w-0'>
+                            <p className='text-sm font-medium'>
+                              {lead.parent_name}
+                            </p>
+                            <p className='text-muted-foreground text-xs'>
+                              Parent / Guardian
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                      <div className='flex items-center gap-3'>
+                        <div className='bg-muted flex h-8 w-8 shrink-0 items-center justify-center rounded-md'>
+                          <Phone className='text-muted-foreground h-3.5 w-3.5' />
+                        </div>
+                        <p className='text-sm'>{lead.phone_number}</p>
+                      </div>
+                      {lead.email && (
+                        <div className='flex items-center gap-3'>
+                          <div className='bg-muted flex h-8 w-8 shrink-0 items-center justify-center rounded-md'>
+                            <Mail className='text-muted-foreground h-3.5 w-3.5' />
+                          </div>
+                          <p className='truncate text-sm'>{lead.email}</p>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                )}
+
+                  <Separator />
+
+                  {/* Student Account */}
+                  <div className='space-y-3'>
+                    <h3 className='text-muted-foreground text-xs font-semibold tracking-wider uppercase'>
+                      Student Account
+                    </h3>
+                    {lead.converted_student ? (
+                      <div className='space-y-2'>
+                        <div className='flex items-center gap-3 rounded-lg border bg-green-500/5 p-3'>
+                          <div className='flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-green-500/10'>
+                            <GraduationCap className='h-4 w-4 text-green-600 dark:text-green-400' />
+                          </div>
+                          <div className='min-w-0 flex-1'>
+                            <p className='text-sm font-medium'>
+                              {lead.converted_student_name ?? 'Linked'}
+                            </p>
+                            {lead.converted_student_email && (
+                              <p className='text-muted-foreground truncate text-xs'>
+                                {lead.converted_student_email}
+                              </p>
+                            )}
+                          </div>
+                          <Link
+                            href={`/admin/students/${lead.converted_student}`}
+                          >
+                            <Button
+                              variant='ghost'
+                              size='sm'
+                              className='h-7 px-2 text-xs'
+                            >
+                              <ExternalLink className='mr-1 h-3 w-3' />
+                              View
+                            </Button>
+                          </Link>
+                        </div>
+                        {lead.status !== 'CONVERTED' && (
+                          <Button
+                            variant='ghost'
+                            size='sm'
+                            className='text-muted-foreground h-6 w-full text-xs'
+                            onClick={() => unlinkStudentMutation.mutate()}
+                            disabled={unlinkStudentMutation.isPending}
+                          >
+                            <Unlink className='mr-1 h-3 w-3' />
+                            Unlink Student
+                          </Button>
+                        )}
+                      </div>
+                    ) : (
+                      <div className='space-y-2'>
+                        <p className='text-muted-foreground text-sm'>
+                          No student account linked yet.
+                        </p>
+                        <div className='grid grid-cols-2 gap-2'>
+                          <Button
+                            variant='outline'
+                            size='sm'
+                            onClick={() => setLinkDialogOpen(true)}
+                            className='w-full'
+                          >
+                            <Link2 className='mr-1 h-3.5 w-3.5' />
+                            Link
+                          </Button>
+                          <Button
+                            size='sm'
+                            onClick={() => registerStudentMutation.mutate()}
+                            disabled={registerStudentMutation.isPending}
+                            className='w-full'
+                          >
+                            <User className='mr-1 h-3.5 w-3.5' />
+                            {registerStudentMutation.isPending
+                              ? 'Creating...'
+                              : 'Register'}
+                          </Button>
+                        </div>
+                        <p className='text-muted-foreground text-center text-[10px]'>
+                          Link an existing student or register a new one
+                        </p>
+                      </div>
+                    )}
+                  </div>
+
+                  <Separator />
+
+                  {/* Meta */}
+                  <div className='space-y-3'>
+                    <h3 className='text-muted-foreground text-xs font-semibold tracking-wider uppercase'>
+                      Lead Info
+                    </h3>
+                    <div className='grid grid-cols-2 gap-3'>
+                      <div>
+                        <p className='text-muted-foreground text-xs'>Source</p>
+                        <p className='text-sm font-medium'>{sourceLabel}</p>
+                      </div>
+                      <div>
+                        <p className='text-muted-foreground text-xs'>Created</p>
+                        <p className='text-sm font-medium'>
+                          {format(new Date(lead.created_at), 'MMM d, yyyy')}
+                        </p>
+                      </div>
+                      {lead.follow_up_date && (
+                        <div className='col-span-2'>
+                          <p className='text-muted-foreground text-xs'>
+                            Follow-up
+                          </p>
+                          <p
+                            className={cn(
+                              'text-sm font-medium',
+                              followUpOverdue && 'text-destructive'
+                            )}
+                          >
+                            {format(
+                              new Date(lead.follow_up_date),
+                              'MMM d, yyyy'
+                            )}
+                            {followUpOverdue && (
+                              <span className='ml-1.5 text-xs font-normal'>
+                                (overdue)
+                              </span>
+                            )}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
               </CardContent>
             </Card>
+
+            {/* Student Applications & Pipelines */}
+            {lead.converted_student && (
+              <Card>
+                <CardHeader className='pb-3'>
+                  <CardTitle className='text-muted-foreground text-xs font-semibold tracking-wider uppercase'>
+                    Applications & Pipelines
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {(() => {
+                    const apps = studentAppsData?.results ?? [];
+                    const pipelines = studentPipelinesData?.results ?? [];
+
+                    if (apps.length === 0 && pipelines.length === 0) {
+                      return (
+                        <div className='rounded-lg border border-dashed p-4 text-center'>
+                          <FileTextIcon className='text-muted-foreground mx-auto mb-2 h-5 w-5' />
+                          <p className='text-muted-foreground text-sm'>
+                            No applications yet
+                          </p>
+                          <p className='text-muted-foreground text-xs'>
+                            Applications will appear here when the student
+                            applies via the app.
+                          </p>
+                        </div>
+                      );
+                    }
+
+                    return (
+                      <div className='space-y-2'>
+                        {apps.map((app) => {
+                          const pipeline = pipelines.find(
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                            (p: any) => p.application === app.id
+                          );
+                          return (
+                            <div
+                              key={app.id}
+                              className='hover:bg-accent/50 rounded-lg border p-3 transition-colors'
+                            >
+                              <div className='flex items-start justify-between gap-2'>
+                                <div className='min-w-0 flex-1'>
+                                  <p className='text-sm font-medium'>
+                                    {app.university?.name ??
+                                      app.university_name ??
+                                      'University'}
+                                  </p>
+                                  <p className='text-muted-foreground text-xs'>
+                                    {app.app_id}
+                                  </p>
+                                </div>
+                                <Badge
+                                  variant={
+                                    app.status === 'APPROVED' ||
+                                    app.status === 'ADMITTED'
+                                      ? 'default'
+                                      : app.status === 'REJECTED' ||
+                                          app.status === 'CANCELLED'
+                                        ? 'destructive'
+                                        : 'secondary'
+                                  }
+                                  className='text-xs'
+                                >
+                                  {app.status}
+                                </Badge>
+                              </div>
+                              {pipeline ? (
+                                <Link
+                                  href={`/admin/pipeline/${pipeline.id}`}
+                                  className='bg-muted/50 hover:bg-muted mt-2 flex items-center justify-between rounded-md px-2.5 py-1.5 text-xs transition-colors'
+                                >
+                                  <span className='flex items-center gap-1.5'>
+                                    <Kanban className='h-3 w-3' />
+                                    Pipeline:{' '}
+                                    {pipeline.current_phase?.replace(/_/g, ' ')}
+                                  </span>
+                                  <span className='text-muted-foreground'>
+                                    {pipeline.completed_stages ?? 0}/
+                                    {pipeline.total_stages ?? 0}
+                                  </span>
+                                </Link>
+                              ) : (
+                                <p className='text-muted-foreground mt-2 text-xs'>
+                                  No pipeline started
+                                </p>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    );
+                  })()}
+                </CardContent>
+              </Card>
+            )}
+          </div>
+
+          {/* Right Content */}
+          <div className='lg:col-span-8'>
+            <Tabs defaultValue='activity' className='w-full'>
+              <TabsList>
+                <TabsTrigger value='activity' className='gap-1.5'>
+                  <Activity className='h-3.5 w-3.5' />
+                  Activity
+                  {timeline.length > 0 && (
+                    <Badge
+                      variant='secondary'
+                      className='ml-1 h-5 min-w-5 justify-center rounded-full px-1.5 text-xs'
+                    >
+                      {timeline.length}
+                    </Badge>
+                  )}
+                </TabsTrigger>
+                <TabsTrigger value='notes' className='gap-1.5'>
+                  <StickyNote className='h-3.5 w-3.5' />
+                  Notes
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value='activity' className='mt-4'>
+                <Card>
+                  <CardHeader className='pb-3'>
+                    <div className='flex items-center justify-between'>
+                      <CardTitle className='text-base'>
+                        Activity Timeline
+                      </CardTitle>
+                      <div className='flex gap-1.5'>
+                        <Badge variant='outline' className='text-xs'>
+                          {callsData?.results?.length ?? 0} calls
+                        </Badge>
+                        <Badge variant='outline' className='text-xs'>
+                          {consultsData?.results?.length ?? 0} consultations
+                        </Badge>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    {timeline.length === 0 ? (
+                      <div className='flex flex-col items-center justify-center rounded-lg border border-dashed py-12'>
+                        <div className='bg-muted mb-3 rounded-full p-3'>
+                          <Activity className='text-muted-foreground h-5 w-5' />
+                        </div>
+                        <p className='text-sm font-medium'>No activity yet</p>
+                        <p className='text-muted-foreground mt-1 text-xs'>
+                          Log a call or schedule a consultation to get started
+                        </p>
+                        <div className='mt-4 flex gap-2'>
+                          <Button
+                            variant='outline'
+                            size='sm'
+                            onClick={() => setCallDialogOpen(true)}
+                          >
+                            <Phone className='mr-1.5 h-3.5 w-3.5' />
+                            Log Call
+                          </Button>
+                          <Button
+                            variant='outline'
+                            size='sm'
+                            onClick={() => setConsultationDialogOpen(true)}
+                          >
+                            <CalendarPlus className='mr-1.5 h-3.5 w-3.5' />
+                            Consultation
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className='relative'>
+                        {timeline.map((item, idx) => (
+                          <div
+                            key={item.id}
+                            className='flex gap-3 pb-6 last:pb-0'
+                          >
+                            <div className='flex flex-col items-center'>
+                              <div
+                                className={cn(
+                                  'flex h-8 w-8 shrink-0 items-center justify-center rounded-full',
+                                  item.iconBg
+                                )}
+                              >
+                                {item.icon}
+                              </div>
+                              {idx < timeline.length - 1 && (
+                                <div className='bg-border mt-1 w-px flex-1' />
+                              )}
+                            </div>
+                            <div className='min-w-0 flex-1 pt-0.5'>
+                              <div className='flex items-center justify-between'>
+                                <p className='text-sm font-medium'>
+                                  {item.title}
+                                </p>
+                                <span className='text-muted-foreground text-xs'>
+                                  {formatDistanceToNow(new Date(item.date), {
+                                    addSuffix: true
+                                  })}
+                                </span>
+                              </div>
+                              <p className='text-muted-foreground mt-0.5 text-sm'>
+                                {item.description}
+                              </p>
+                              {item.meta && (
+                                <div className='mt-2 flex flex-wrap gap-1.5'>
+                                  {Object.entries(item.meta).map(
+                                    ([key, val]) => (
+                                      <Badge
+                                        key={key}
+                                        variant='secondary'
+                                        className='text-xs'
+                                      >
+                                        {val}
+                                      </Badge>
+                                    )
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value='notes' className='mt-4'>
+                <Card>
+                  <CardHeader className='flex flex-row items-center justify-between pb-3'>
+                    <CardTitle className='text-base'>Notes</CardTitle>
+                    <Button
+                      variant='outline'
+                      size='sm'
+                      onClick={() => setNoteDialogOpen(true)}
+                    >
+                      <MessageSquarePlus className='mr-1.5 h-3.5 w-3.5' />
+                      Add Note
+                    </Button>
+                  </CardHeader>
+                  <CardContent>
+                    {lead.notes ? (
+                      <div className='space-y-3'>
+                        {lead.notes.split('\n\n').map((note, i) => {
+                          const timestampMatch = note.match(
+                            /^\[(.+?)\]\s*([\s\S]*)/
+                          );
+                          if (timestampMatch) {
+                            return (
+                              <div
+                                key={i}
+                                className='bg-muted/30 rounded-lg border p-3'
+                              >
+                                <p className='text-sm'>{timestampMatch[2]}</p>
+                                <p className='text-muted-foreground mt-1.5 text-xs'>
+                                  {timestampMatch[1]}
+                                </p>
+                              </div>
+                            );
+                          }
+                          return (
+                            <div
+                              key={i}
+                              className='bg-muted/30 rounded-lg border p-3'
+                            >
+                              <p className='text-sm'>{note}</p>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <div className='flex flex-col items-center justify-center rounded-lg border border-dashed py-12'>
+                        <div className='bg-muted mb-3 rounded-full p-3'>
+                          <StickyNote className='text-muted-foreground h-5 w-5' />
+                        </div>
+                        <p className='text-sm font-medium'>No notes yet</p>
+                        <p className='text-muted-foreground mt-1 text-xs'>
+                          Add notes to track important information
+                        </p>
+                        <Button
+                          variant='outline'
+                          size='sm'
+                          className='mt-4'
+                          onClick={() => setNoteDialogOpen(true)}
+                        >
+                          <MessageSquarePlus className='mr-1.5 h-3.5 w-3.5' />
+                          Add First Note
+                        </Button>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
           </div>
         </div>
       </div>
@@ -614,12 +1189,12 @@ export default function LeadDetailPage() {
       <Dialog open={callDialogOpen} onOpenChange={setCallDialogOpen}>
         <DialogContent className='max-w-md'>
           <DialogHeader>
-            <DialogTitle>Log Call — {lead.student_name}</DialogTitle>
+            <DialogTitle>Log Call</DialogTitle>
           </DialogHeader>
           <div className='space-y-4'>
-            <div className='grid grid-cols-2 gap-3'>
-              <div>
-                <Label>Type</Label>
+            <div className='grid grid-cols-2 gap-4'>
+              <div className='space-y-1.5'>
+                <Label required>Type</Label>
                 <Select
                   value={callForm.call_type}
                   onValueChange={(val) =>
@@ -638,7 +1213,7 @@ export default function LeadDetailPage() {
                   </SelectContent>
                 </Select>
               </div>
-              <div>
+              <div className='space-y-1.5'>
                 <Label>Duration (min)</Label>
                 <Input
                   type='number'
@@ -653,9 +1228,9 @@ export default function LeadDetailPage() {
                 />
               </div>
             </div>
-            <div className='grid grid-cols-2 gap-3'>
-              <div>
-                <Label>Purpose</Label>
+            <div className='grid grid-cols-2 gap-4'>
+              <div className='space-y-1.5'>
+                <Label required>Purpose</Label>
                 <Select
                   value={callForm.purpose}
                   onValueChange={(val) =>
@@ -677,8 +1252,8 @@ export default function LeadDetailPage() {
                   </SelectContent>
                 </Select>
               </div>
-              <div>
-                <Label>Outcome</Label>
+              <div className='space-y-1.5'>
+                <Label required>Outcome</Label>
                 <Select
                   value={callForm.outcome}
                   onValueChange={(val) =>
@@ -701,7 +1276,7 @@ export default function LeadDetailPage() {
                 </Select>
               </div>
             </div>
-            <div>
+            <div className='space-y-1.5'>
               <Label>Notes</Label>
               <Textarea
                 value={callForm.notes}
@@ -721,7 +1296,7 @@ export default function LeadDetailPage() {
               <Label>Follow-up Required</Label>
             </div>
             {callForm.follow_up_required && (
-              <div>
+              <div className='space-y-1.5'>
                 <Label>Follow-up Date</Label>
                 <Input
                   type='date'
@@ -757,14 +1332,12 @@ export default function LeadDetailPage() {
       >
         <DialogContent className='max-w-md'>
           <DialogHeader>
-            <DialogTitle>
-              Schedule Consultation — {lead.student_name}
-            </DialogTitle>
+            <DialogTitle>Schedule Consultation</DialogTitle>
           </DialogHeader>
           <div className='space-y-4'>
-            <div className='grid grid-cols-2 gap-3'>
-              <div>
-                <Label>Type</Label>
+            <div className='grid grid-cols-2 gap-4'>
+              <div className='space-y-1.5'>
+                <Label required>Type</Label>
                 <Select
                   value={consultForm.consultation_type}
                   onValueChange={(val) =>
@@ -786,8 +1359,8 @@ export default function LeadDetailPage() {
                   </SelectContent>
                 </Select>
               </div>
-              <div>
-                <Label>Date & Time</Label>
+              <div className='space-y-1.5'>
+                <Label required>Date & Time</Label>
                 <Input
                   type='datetime-local'
                   value={consultForm.scheduled_at}
@@ -800,33 +1373,48 @@ export default function LeadDetailPage() {
                 />
               </div>
             </div>
-            <div>
+            <div className='space-y-1.5'>
               <Label>Recommended Courses</Label>
-              <Input
-                placeholder='e.g. Computer Science, Medicine...'
-                value={consultForm.recommended_courses}
-                onChange={(e) =>
-                  setConsultForm((f) => ({
-                    ...f,
-                    recommended_courses: e.target.value
-                  }))
-                }
+              <CoursePicker
+                value={selectedCourses}
+                onChange={setSelectedCourses}
               />
             </div>
-            <div>
+            <div className='space-y-1.5'>
               <Label>Recommended Universities</Label>
-              <Input
-                placeholder='e.g. Altai State University...'
-                value={consultForm.recommended_universities}
-                onChange={(e) =>
-                  setConsultForm((f) => ({
-                    ...f,
-                    recommended_universities: e.target.value
-                  }))
-                }
+              <UniversityPicker
+                value={selectedUniversities}
+                onChange={setSelectedUniversities}
               />
             </div>
-            <div>
+            <div className='space-y-1.5'>
+              <Label>Outcome</Label>
+              <Select
+                value={consultForm.outcome || undefined}
+                onValueChange={(val) =>
+                  setConsultForm((f) => ({
+                    ...f,
+                    outcome: val as ConsultationOutcome
+                  }))
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder='Select outcome (optional)' />
+                </SelectTrigger>
+                <SelectContent>
+                  {CONSULTATION_OUTCOME_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className='text-muted-foreground text-xs'>
+                Mark as &ldquo;Ready to Apply&rdquo; when the student agrees to
+                proceed with a university application.
+              </p>
+            </div>
+            <div className='space-y-1.5'>
               <Label>Summary</Label>
               <Textarea
                 value={consultForm.summary}
@@ -856,11 +1444,81 @@ export default function LeadDetailPage() {
         </DialogContent>
       </Dialog>
 
+      {/* Create Application Dialog */}
+      <Dialog
+        open={createAppDialogOpen}
+        onOpenChange={(open) => {
+          setCreateAppDialogOpen(open);
+          if (!open) {
+            setAppUniversity([]);
+            setAppCourses([]);
+          }
+        }}
+      >
+        <DialogContent className='max-w-md'>
+          <DialogHeader>
+            <DialogTitle>Create Application</DialogTitle>
+          </DialogHeader>
+          <p className='text-muted-foreground text-sm'>
+            Create an application on behalf of the student. This will also start
+            a processing pipeline.
+          </p>
+          <div className='space-y-4'>
+            <div className='space-y-1.5'>
+              <Label required>University</Label>
+              <UniversityPicker
+                value={appUniversity}
+                onChange={(items) => {
+                  setAppUniversity(
+                    items.length > 0 ? [items[items.length - 1]] : []
+                  );
+                  setAppCourses([]);
+                }}
+              />
+            </div>
+            <div className='space-y-1.5'>
+              <Label>Courses</Label>
+              <CoursePicker
+                value={appCourses}
+                onChange={setAppCourses}
+                universityId={appUniversity[0]?.id}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant='outline'
+              onClick={() => setCreateAppDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                if (appUniversity.length > 0) {
+                  createApplicationMutation.mutate({
+                    universityId: appUniversity[0].id,
+                    courseIds: appCourses.map((c) => c.id)
+                  });
+                }
+              }}
+              disabled={
+                appUniversity.length === 0 ||
+                createApplicationMutation.isPending
+              }
+            >
+              {createApplicationMutation.isPending
+                ? 'Creating...'
+                : 'Create & Start Pipeline'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* Add Note Dialog */}
       <Dialog open={noteDialogOpen} onOpenChange={setNoteDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Add Note — {lead.student_name}</DialogTitle>
+            <DialogTitle>Add Note</DialogTitle>
           </DialogHeader>
           <Textarea
             placeholder='Write a note...'
@@ -877,6 +1535,66 @@ export default function LeadDetailPage() {
               disabled={!noteText.trim() || updateNotes.isPending}
             >
               {updateNotes.isPending ? 'Saving...' : 'Save Note'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Link Student Dialog */}
+      <Dialog
+        open={linkDialogOpen}
+        onOpenChange={(open) => {
+          setLinkDialogOpen(open);
+          if (!open) setLinkStudent(null);
+        }}
+      >
+        <DialogContent className='max-w-md'>
+          <DialogHeader>
+            <DialogTitle>Link to Student Account</DialogTitle>
+          </DialogHeader>
+          <div className='space-y-4 py-2'>
+            <div className='space-y-1.5'>
+              <Label>Search Student</Label>
+              <StudentPicker
+                value={linkStudent}
+                onSelect={setLinkStudent}
+                placeholder='Search by name, email, or phone...'
+              />
+            </div>
+            {linkStudent && (
+              <div className='rounded-lg border bg-green-50/50 p-3 dark:bg-green-950/20'>
+                <p className='text-sm font-medium'>{linkStudent.user_name}</p>
+                <p className='text-muted-foreground text-xs'>
+                  {linkStudent.user_email}
+                  {linkStudent.education_level &&
+                    ` · ${linkStudent.education_level}`}
+                </p>
+                <p className='text-muted-foreground mt-2 text-xs'>
+                  Lead contact info will be updated to match this student&apos;s
+                  profile.
+                </p>
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button
+              variant='outline'
+              onClick={() => {
+                setLinkDialogOpen(false);
+                setLinkStudent(null);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                if (linkStudent) {
+                  linkStudentMutation.mutate(linkStudent.id);
+                }
+              }}
+              disabled={!linkStudent || linkStudentMutation.isPending}
+            >
+              {linkStudentMutation.isPending ? 'Linking...' : 'Link Student'}
             </Button>
           </DialogFooter>
         </DialogContent>

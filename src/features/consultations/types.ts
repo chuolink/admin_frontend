@@ -11,14 +11,17 @@ export type ConsultationOutcome =
   | 'INTERESTED'
   | 'NEEDS_TIME'
   | 'NOT_INTERESTED'
-  | 'CONVERTED';
+  | 'READY_TO_APPLY'
+  | 'FOLLOW_UP_NEEDED';
 
 export interface Consultation {
   id: string;
   lead: string | null;
   student: string | null;
-  staff_member: string;
-  staff_member_name?: string;
+  consultant: string;
+  consultant_name?: string;
+  lead_name?: string;
+  student_name?: string;
   consultation_type: ConsultationType;
   status: ConsultationStatus;
   scheduled_at: string;
@@ -57,4 +60,15 @@ export const CONSULTATION_STATUS_OPTIONS: {
   { label: 'Completed', value: 'COMPLETED' },
   { label: 'Cancelled', value: 'CANCELLED' },
   { label: 'No Show', value: 'NO_SHOW' }
+];
+
+export const CONSULTATION_OUTCOME_OPTIONS: {
+  label: string;
+  value: ConsultationOutcome;
+}[] = [
+  { label: 'Interested', value: 'INTERESTED' },
+  { label: 'Needs More Time', value: 'NEEDS_TIME' },
+  { label: 'Follow-up Needed', value: 'FOLLOW_UP_NEEDED' },
+  { label: 'Ready to Apply', value: 'READY_TO_APPLY' },
+  { label: 'Not Interested', value: 'NOT_INTERESTED' }
 ];

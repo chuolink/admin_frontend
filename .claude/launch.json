@@ -1,0 +1,19 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "dev",
+      "runtimeExecutable": "/Users/mac/.bun/bin/bun",
+      "runtimeArgs": ["run", "dev"],
+      "port": 3000,
+      "autoPort": false
+    },
+    {
+      "name": "frontend_main",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": ["-c", "cd /Users/mac/Projects/collab/chuolink/frontend_main && npx next dev --turbopack --port 3001"],
+      "port": 3001,
+      "autoPort": true
+    }
+  ]
+}

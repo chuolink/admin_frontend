@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__filesystem__directory_tree",
+      "Bash(ls -la /Users/mac/Projects/collab/chuolink/frontend_main/app/\\\\\\(frontend\\\\\\)/\\\\\\(main\\\\\\)/application/)",
+      "Bash(ls -la /Users/mac/Projects/collab/chuolink/shadcn-admin/*.ts /Users/mac/Projects/collab/chuolink/shadcn-admin/*.js)",
+      "Bash(ls -la /Users/mac/Projects/collab/chuolink/frontend_main/app/\\\\\\(frontend\\\\\\)/\\\\\\(main\\\\\\)/application/abroad/guidance/)",
+      "Bash(ls -la /Users/mac/Projects/collab/chuolink/frontend_main/app/\\\\\\(frontend\\\\\\)/\\\\\\(main\\\\\\)/profile/abroad/)",
+      "Bash(ls -la \"/Users/mac/Projects/collab/chuolink/frontend_main/app/\\(frontend\\)/\\(main\\)/profile/abroad/[app_id]/\")",
+      "Bash(ls -la /Users/mac/Projects/collab/chuolink/frontend_main/app/\\\\\\(frontend\\\\\\)/\\\\\\(main\\\\\\)/application/rita/)",
+      "Bash(ls -la /Users/mac/Projects/collab/chuolink/frontend_main/app/\\\\\\(frontend\\\\\\)/\\\\\\(main\\\\\\)/university/*apply*/)",
+      "Bash(ls -la \"/Users/mac/Projects/collab/chuolink/frontend_main/app/\\(frontend\\)/\\(main\\)/university/[university_id]/apply/\")",
+      "Bash(ls -la \"/Users/mac/Projects/collab/chuolink/frontend_main/app/\\(frontend\\)/\\(main\\)/university/[university_id]/apply/internal/\")",
+      "Bash(ls -la /Users/mac/Projects/collab/chuolink/frontend_main/app/\\\\\\(frontend\\\\\\)/\\\\\\(main\\\\\\)/profile/payments/)",
+      "Bash(ls -la /Users/mac/Projects/collab/chuolink/frontend_main/app/\\\\\\(frontend\\\\\\)/\\\\\\(main\\\\\\)/profile/edit/)",
+      "Bash(python3 -c \":*)"
+    ]
+  }
+}

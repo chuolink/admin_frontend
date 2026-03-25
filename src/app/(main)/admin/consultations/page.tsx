@@ -60,28 +60,30 @@ import {
 } from '@/features/consultations/types';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
+import {
+  UniversityPicker,
+  CoursePicker,
+  type PickerItem
+} from '@/components/entity-multi-picker';
 
 const OUTCOME_OPTIONS: { label: string; value: ConsultationOutcome }[] = [
   { label: 'Interested', value: 'INTERESTED' },
-  { label: 'Needs Time', value: 'NEEDS_TIME' },
-  { label: 'Not Interested', value: 'NOT_INTERESTED' },
-  { label: 'Converted', value: 'CONVERTED' }
+  { label: 'Needs More Time', value: 'NEEDS_TIME' },
+  { label: 'Follow-up Needed', value: 'FOLLOW_UP_NEEDED' },
+  { label: 'Ready to Apply', value: 'READY_TO_APPLY' },
+  { label: 'Not Interested', value: 'NOT_INTERESTED' }
 ];
 
 interface ConsultationFormData {
   consultation_type: ConsultationType;
   scheduled_at: string;
   summary: string;
-  recommended_courses: string;
-  recommended_universities: string;
 }
 
 const emptyForm: ConsultationFormData = {
   consultation_type: 'IN_PERSON',
   scheduled_at: '',
-  summary: '',
-  recommended_courses: '',
-  recommended_universities: ''
+  summary: ''
 };
 
 export default function ConsultationsPage() {
@@ -89,6 +91,10 @@ export default function ConsultationsPage() {
   const queryClient = useQueryClient();
   const [createOpen, setCreateOpen] = useState(false);
   const [form, setForm] = useState<ConsultationFormData>(emptyForm);
+  const [selectedCourses, setSelectedCourses] = useState<PickerItem[]>([]);
+  const [selectedUniversities, setSelectedUniversities] = useState<
+    PickerItem[]
+  >([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
 
@@ -105,13 +111,21 @@ export default function ConsultationsPage() {
   const createConsultation = useMutation({
     mutationFn: async (data: ConsultationFormData) => {
       if (!api) throw new Error('API not initialized');
-      const response = await api.post('/admin/consultations/', data);
+      const response = await api.post('/admin/consultations/', {
+        ...data,
+        recommended_courses: selectedCourses.map((c) => c.name).join(', '),
+        recommended_universities: selectedUniversities
+          .map((u) => u.name)
+          .join(', ')
+      });
       return response.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['consultations'] });
       setCreateOpen(false);
       setForm(emptyForm);
+      setSelectedCourses([]);
+      setSelectedUniversities([]);
       toast.success('Consultation scheduled');
     },
     onError: () => toast.error('Failed to schedule consultation')
@@ -414,7 +428,7 @@ export default function ConsultationsPage() {
           <div className='space-y-4'>
             <div className='grid grid-cols-2 gap-3'>
               <div>
-                <Label>Type</Label>
+                <Label required>Type</Label>
                 <Select
                   value={form.consultation_type}
                   onValueChange={(val) =>
@@ -437,7 +451,7 @@ export default function ConsultationsPage() {
                 </Select>
               </div>
               <div>
-                <Label>Scheduled Date & Time</Label>
+                <Label required>Scheduled Date & Time</Label>
                 <Input
                   type='datetime-local'
                   value={form.scheduled_at}
@@ -449,28 +463,16 @@ export default function ConsultationsPage() {
             </div>
             <div>
               <Label>Recommended Courses</Label>
-              <Input
-                placeholder='e.g. Computer Science, Medicine...'
-                value={form.recommended_courses}
-                onChange={(e) =>
-                  setForm((f) => ({
-                    ...f,
-                    recommended_courses: e.target.value
-                  }))
-                }
+              <CoursePicker
+                value={selectedCourses}
+                onChange={setSelectedCourses}
               />
             </div>
             <div>
               <Label>Recommended Universities</Label>
-              <Input
-                placeholder='e.g. Altai State University...'
-                value={form.recommended_universities}
-                onChange={(e) =>
-                  setForm((f) => ({
-                    ...f,
-                    recommended_universities: e.target.value
-                  }))
-                }
+              <UniversityPicker
+                value={selectedUniversities}
+                onChange={setSelectedUniversities}
               />
             </div>
             <div>

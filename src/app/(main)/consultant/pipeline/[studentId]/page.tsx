@@ -13,14 +13,13 @@ import {
   AlertTriangle,
   Clock,
   SkipForward,
-  FileText,
   User
 } from 'lucide-react';
 import {
   type StudentPipeline,
-  type DocumentRequirement,
-  PIPELINE_STAGES,
-  STAGE_STATUS_COLOR
+  type StageInstanceStatus,
+  STAGE_INSTANCE_STATUS_COLOR,
+  FLOW_TYPE_COLOR
 } from '@/features/pipeline/types';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
@@ -28,8 +27,8 @@ import { useParams } from 'next/navigation';
 import { format } from 'date-fns';
 
 const statusIcon: Record<string, React.ReactNode> = {
-  NOT_STARTED: <Circle className='text-muted-foreground h-4 w-4' />,
-  IN_PROGRESS: <Clock className='h-4 w-4 text-blue-500' />,
+  PENDING: <Circle className='text-muted-foreground h-4 w-4' />,
+  ACTIVE: <Clock className='h-4 w-4 text-blue-500' />,
   COMPLETED: <CheckCircle className='h-4 w-4 text-green-500' />,
   BLOCKED: <AlertTriangle className='h-4 w-4 text-red-500' />,
   SKIPPED: <SkipForward className='h-4 w-4 text-yellow-500' />
@@ -74,10 +73,14 @@ export default function ConsultantPipelineDetailPage() {
     );
   }
 
-  const completedCount =
-    pipeline.stages?.filter((s) => s.status === 'COMPLETED').length ?? 0;
-  const activeStage = pipeline.stages?.find((s) => s.status === 'IN_PROGRESS');
-  const progress = Math.round((completedCount / 16) * 100);
+  const stageInstances = pipeline.stage_instances ?? [];
+  const totalStages = stageInstances.length;
+  const completedCount = stageInstances.filter(
+    (s) => s.status === 'COMPLETED'
+  ).length;
+  const activeStage = stageInstances.find((s) => s.status === 'ACTIVE');
+  const progress =
+    totalStages > 0 ? Math.round((completedCount / totalStages) * 100) : 0;
 
   const phaseLabel: Record<string, string> = {
     CONSULTATION: 'Consultation',
@@ -105,6 +108,14 @@ export default function ConsultantPipelineDetailPage() {
               <Badge variant='outline'>
                 {phaseLabel[pipeline.current_phase] ?? pipeline.current_phase}
               </Badge>
+              {pipeline.flow_type && (
+                <Badge
+                  variant='outline'
+                  className={cn('text-xs', FLOW_TYPE_COLOR[pipeline.flow_type])}
+                >
+                  {pipeline.flow_type === 'LOCAL' ? 'Local' : 'Abroad'}
+                </Badge>
+              )}
               {pipeline.university_name && (
                 <span className='text-muted-foreground text-sm'>
                   {pipeline.university_name}
@@ -148,7 +159,7 @@ export default function ConsultantPipelineDetailPage() {
             </CardHeader>
             <CardContent>
               <p className='font-medium'>
-                {completedCount} of 16 stages complete
+                {completedCount} of {totalStages} stages complete
               </p>
             </CardContent>
           </Card>
@@ -156,111 +167,70 @@ export default function ConsultantPipelineDetailPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Pipeline Progress</CardTitle>
+            <CardTitle>Pipeline Stages</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className='space-y-6'>
-              <div>
-                <h3 className='text-muted-foreground mb-3 text-sm font-semibold'>
-                  Pre-Application (Stages 1-7)
-                </h3>
-                <div className='space-y-2'>
-                  {PIPELINE_STAGES.filter((s) => s.phase === 'pre').map(
-                    (stage) => {
-                      const pipelineStage = pipeline.stages?.find(
-                        (ps) => ps.stage_type === stage.key
-                      );
-                      const status = pipelineStage?.status ?? 'NOT_STARTED';
-                      return (
-                        <div
-                          key={stage.key}
-                          className={cn(
-                            'flex items-center gap-3 rounded-lg border p-3',
-                            activeStage?.stage_type === stage.key &&
-                              'border-blue-500 bg-blue-50/50 dark:bg-blue-950/20'
-                          )}
-                        >
-                          {statusIcon[status]}
-                          <span className='text-muted-foreground w-5 font-mono text-xs'>
-                            {stage.number}.
-                          </span>
+            {stageInstances.length === 0 ? (
+              <p className='text-muted-foreground py-6 text-center text-sm'>
+                No stages configured for this pipeline yet.
+              </p>
+            ) : (
+              <div className='space-y-2'>
+                {stageInstances
+                  .sort((a, b) => a.stage_order - b.stage_order)
+                  .map((stage) => {
+                    const status = stage.status ?? 'PENDING';
+                    return (
+                      <div
+                        key={stage.id}
+                        className={cn(
+                          'flex items-center gap-3 rounded-lg border p-3',
+                          status === 'ACTIVE' &&
+                            'border-blue-500 bg-blue-50/50 dark:bg-blue-950/20'
+                        )}
+                      >
+                        {statusIcon[status]}
+                        <span className='text-muted-foreground w-5 font-mono text-xs'>
+                          {stage.stage_order}.
+                        </span>
+                        <div className='flex-1'>
                           <span
                             className={cn(
-                              'flex-1 text-sm font-medium',
-                              status === 'NOT_STARTED' &&
-                                'text-muted-foreground'
+                              'text-sm font-medium',
+                              status === 'PENDING' && 'text-muted-foreground'
                             )}
                           >
-                            {stage.label}
+                            {stage.stage_name}
                           </span>
-                          <Badge
-                            variant='outline'
-                            className={cn(
-                              'text-xs',
-                              STAGE_STATUS_COLOR[
-                                status as keyof typeof STAGE_STATUS_COLOR
-                              ]
-                            )}
-                          >
-                            {status.replace('_', ' ')}
-                          </Badge>
+                          {stage.description && (
+                            <p className='text-muted-foreground text-xs'>
+                              {stage.description}
+                            </p>
+                          )}
                         </div>
-                      );
-                    }
-                  )}
-                </div>
-              </div>
-              <div>
-                <h3 className='text-muted-foreground mb-3 text-sm font-semibold'>
-                  Post-Application (Stages 8-16)
-                </h3>
-                <div className='space-y-2'>
-                  {PIPELINE_STAGES.filter((s) => s.phase === 'post').map(
-                    (stage) => {
-                      const pipelineStage = pipeline.stages?.find(
-                        (ps) => ps.stage_type === stage.key
-                      );
-                      const status = pipelineStage?.status ?? 'NOT_STARTED';
-                      return (
-                        <div
-                          key={stage.key}
+                        {stage.requirements_summary &&
+                          stage.requirements_summary.total > 0 && (
+                            <span className='text-muted-foreground text-xs'>
+                              {stage.requirements_summary.approved}/
+                              {stage.requirements_summary.total} done
+                            </span>
+                          )}
+                        <Badge
+                          variant='outline'
                           className={cn(
-                            'flex items-center gap-3 rounded-lg border p-3',
-                            activeStage?.stage_type === stage.key &&
-                              'border-blue-500 bg-blue-50/50 dark:bg-blue-950/20'
+                            'text-xs',
+                            STAGE_INSTANCE_STATUS_COLOR[
+                              status as StageInstanceStatus
+                            ]
                           )}
                         >
-                          {statusIcon[status]}
-                          <span className='text-muted-foreground w-5 font-mono text-xs'>
-                            {stage.number}.
-                          </span>
-                          <span
-                            className={cn(
-                              'flex-1 text-sm font-medium',
-                              status === 'NOT_STARTED' &&
-                                'text-muted-foreground'
-                            )}
-                          >
-                            {stage.label}
-                          </span>
-                          <Badge
-                            variant='outline'
-                            className={cn(
-                              'text-xs',
-                              STAGE_STATUS_COLOR[
-                                status as keyof typeof STAGE_STATUS_COLOR
-                              ]
-                            )}
-                          >
-                            {status.replace('_', ' ')}
-                          </Badge>
-                        </div>
-                      );
-                    }
-                  )}
-                </div>
+                          {status.replace('_', ' ')}
+                        </Badge>
+                      </div>
+                    );
+                  })}
               </div>
-            </div>
+            )}
           </CardContent>
         </Card>
       </div>

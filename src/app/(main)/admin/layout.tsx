@@ -8,119 +8,11 @@ import { ReactNode } from 'react';
 import KBar from '@/components/kbar';
 import Header from '@/components/layout/header';
 import AppSidebar from '@/components/layout/app-sidebar';
-import type { NavGroup } from '@/components/layout/types';
-import {
-  LayoutDashboard,
-  Kanban,
-  UserSearch,
-  Users,
-  FileText,
-  FolderCheck,
-  CreditCard,
-  Wallet,
-  UserCog,
-  Globe,
-  Settings,
-  ClipboardList
-} from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'Chuolink Portal',
   description: 'Search, Discover, Apply'
 };
-
-const navGroups: NavGroup[] = [
-  {
-    title: 'General',
-    items: [
-      {
-        title: 'Dashboard',
-        url: '/admin/overview',
-        icon: LayoutDashboard
-      },
-      {
-        title: 'Pipeline',
-        url: '/admin/pipeline',
-        icon: Kanban
-      },
-      {
-        title: 'Tasks',
-        url: '/admin/tasks',
-        icon: ClipboardList
-      }
-    ]
-  },
-  {
-    title: 'CRM',
-    items: [
-      {
-        title: 'Leads',
-        url: '/admin/leads',
-        icon: UserSearch
-      }
-    ]
-  },
-  {
-    title: 'Students',
-    items: [
-      {
-        title: 'All Students',
-        url: '/admin/students',
-        icon: Users
-      },
-      {
-        title: 'Applications',
-        url: '/admin/applications',
-        icon: FileText
-      },
-      {
-        title: 'Documents',
-        url: '/admin/documents',
-        icon: FolderCheck
-      }
-    ]
-  },
-  {
-    title: 'Finance',
-    items: [
-      {
-        title: 'Payments',
-        url: '/admin/payments',
-        icon: CreditCard
-      },
-      {
-        title: 'Withdrawals',
-        url: '/admin/withdrawals',
-        icon: Wallet
-      }
-    ]
-  },
-  {
-    title: 'Configuration',
-    items: [
-      {
-        title: 'Consultants',
-        url: '/admin/consultants',
-        icon: UserCog
-      },
-      {
-        title: 'Countries',
-        url: '/admin/countries',
-        icon: Globe
-      }
-    ]
-  },
-  {
-    title: 'Settings',
-    items: [
-      {
-        title: 'Profile',
-        url: '/admin/settings',
-        icon: Settings
-      }
-    ]
-  }
-];
 
 export default async function AdminLayout({
   children
@@ -138,7 +30,7 @@ export default async function AdminLayout({
   return (
     <KBar>
       <SidebarProvider defaultOpen={defaultOpen}>
-        <AppSidebar navGroups={navGroups} />
+        <AppSidebar variant='admin' />
         <SidebarInset>
           <Header fixed />
           {children}

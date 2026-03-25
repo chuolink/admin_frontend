@@ -2,454 +2,473 @@
 
 import { useMemo, useState } from 'react';
 import {
-  MaterialReactTable,
-  type MRT_ColumnDef,
-  MRT_ToggleFiltersButton
-} from 'material-react-table';
-import {
-  Box,
-  Button,
-  MenuItem,
-  ListItemIcon,
-  Chip,
-  Stack,
-  Typography,
-  useMediaQuery,
-  useTheme as useMuiTheme
-} from '@mui/material';
-import { Edit, Delete, Visibility, Download, Add } from '@mui/icons-material';
+  useReactTable,
+  getCoreRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  getFilteredRowModel,
+  getFacetedRowModel,
+  getFacetedUniqueValues,
+  flexRender,
+  type ColumnDef,
+  type SortingState,
+  type ColumnFiltersState,
+  type VisibilityState
+} from '@tanstack/react-table';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import useClientApi from '@/lib/axios/clientSide';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
-import { ColumnFiltersState, SortingState } from '@tanstack/react-table';
-import { LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { useTheme } from 'next-themes';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { Application, ApplicationResponse } from '@/types/application';
+import {
+  Eye,
+  MoreHorizontal,
+  Trash2,
+  Pencil,
+  Clock,
+  CheckCircle,
+  XCircle,
+  Send,
+  Ban
+} from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table';
+import { DataTableToolbar } from '@/components/data-table/data-table-toolbar';
+import { DataTablePagination } from '@/components/data-table/data-table-pagination';
+import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header';
+import { Skeleton } from '@/components/ui/skeleton';
+
+const statusOptions = [
+  { label: 'Pending', value: 'PENDING', icon: Clock },
+  { label: 'Approved', value: 'APPROVED', icon: CheckCircle },
+  { label: 'Admitted', value: 'ADMITTED', icon: CheckCircle },
+  { label: 'Submitted', value: 'SUBMITTED', icon: Send },
+  { label: 'Full Paid', value: 'FULL_PAID', icon: CheckCircle },
+  { label: 'Rejected', value: 'REJECTED', icon: XCircle },
+  { label: 'Expired', value: 'EXPIRED', icon: Clock },
+  { label: 'Cancelled', value: 'CANCELLED', icon: Ban },
+  { label: 'Revoked', value: 'REVOKED', icon: Ban }
+];
+
+const sentOptions = [
+  { label: 'Sent', value: 'true', icon: Send },
+  { label: 'Not Sent', value: 'false', icon: Clock }
+];
+
+const STATUS_BADGE: Record<
+  string,
+  'default' | 'secondary' | 'destructive' | 'outline'
+> = {
+  PENDING: 'outline',
+  APPROVED: 'default',
+  ADMITTED: 'default',
+  SUBMITTED: 'default',
+  FULL_PAID: 'default',
+  REJECTED: 'destructive',
+  EXPIRED: 'secondary',
+  CANCELLED: 'secondary',
+  REVOKED: 'secondary'
+};
 
 interface ApplicationTableProps {
   onExport?: () => void;
   onAddNew?: () => void;
 }
 
-export default function ApplicationTable({
-  onExport,
-  onAddNew
-}: ApplicationTableProps) {
-  const { resolvedTheme } = useTheme();
+export default function ApplicationTable({ onAddNew }: ApplicationTableProps) {
   const { api } = useClientApi();
   const router = useRouter();
   const queryClient = useQueryClient();
-  const muiTheme = useMuiTheme();
 
-  // Responsive check
-  const isMobile = useMediaQuery(muiTheme.breakpoints.down('sm'));
-
-  // State for server-side operations
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [globalFilter, setGlobalFilter] = useState('');
   const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
+    is_sent: false
+  });
+  const [rowSelection, setRowSelection] = useState({});
+  const [globalFilter, setGlobalFilter] = useState('');
   const [pagination, setPagination] = useState({
     pageIndex: 0,
-    pageSize: 25
+    pageSize: 20
   });
 
-  // Build query params from table state
   const queryParams = useMemo(() => {
-    const params: Record<string, string> = {};
-
-    if (globalFilter) {
-      params.search = globalFilter;
-    }
-
+    const params: Record<string, string | number> = {
+      page: pagination.pageIndex + 1,
+      page_size: pagination.pageSize
+    };
+    if (globalFilter) params.search = globalFilter;
     if (sorting.length > 0) {
       params.ordering = sorting
-        .map((sort) => (sort.desc ? `-${sort.id}` : sort.id))
+        .map((s) => (s.desc ? '-' : '') + s.id)
         .join(',');
     }
-
-    params.page = String(pagination.pageIndex + 1);
-    params.page_size = String(pagination.pageSize);
-
-    columnFilters.forEach((filter) => {
-      if (filter.id === 'is_sent') {
-        params[filter.id] = filter.value === 'true' ? 'true' : 'false';
-      } else if (filter.id === 'status') {
-        params[filter.id] = filter.value as string;
-      } else if (filter.id === 'university_name') {
-        params.university_name = filter.value as string;
-      } else if (filter.id === 'course_name') {
-        params.course_name = filter.value as string;
-      } else if (filter.id === 'created_at') {
-        const dateRange = filter.value as [string, string];
-        if (dateRange[0]) params.created_after = dateRange[0];
-        if (dateRange[1]) params.created_before = dateRange[1];
-      }
-    });
-
     return params;
-  }, [columnFilters, globalFilter, sorting, pagination]);
+  }, [globalFilter, sorting, pagination]);
 
-  // Fetch data with server-side filtering
-  const { data, isLoading, isFetching } = useQuery({
+  const { data, isLoading } = useQuery<ApplicationResponse>({
     queryKey: ['applications', queryParams],
     queryFn: async () => {
-      if (!api) throw new Error('API not initialized');
-      const response = await api.get('/admin/applications/', {
+      const response = await api!.get('/admin/applications/', {
         params: queryParams
       });
       return response.data;
-    }
+    },
+    enabled: !!api
   });
 
-  // Delete mutation
   const deleteMutation = useMutation({
-    mutationFn: async (applicationId: string) => {
+    mutationFn: async (id: string) => {
       if (!api) throw new Error('API not initialized');
-      await api.delete(`/admin/applications/${applicationId}/`);
+      await api.delete(`/admin/applications/${id}/`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['applications'] });
-      toast.success('Application deleted successfully');
+      toast.success('Application deleted');
     },
-    onError: () => {
-      toast.error('Failed to delete application');
-    }
+    onError: () => toast.error('Failed to delete application')
   });
 
-  // Define columns with consistent sizing
-  const columns = useMemo<MRT_ColumnDef<any>[]>(
+  const columns = useMemo<ColumnDef<Application>[]>(
     () => [
       {
+        id: 'select',
+        header: ({ table }) => (
+          <Checkbox
+            checked={
+              table.getIsAllPageRowsSelected() ||
+              (table.getIsSomePageRowsSelected() && 'indeterminate')
+            }
+            onCheckedChange={(v) => table.toggleAllPageRowsSelected(!!v)}
+            aria-label='Select all'
+          />
+        ),
+        cell: ({ row }) => (
+          <Checkbox
+            checked={row.getIsSelected()}
+            onCheckedChange={(v) => row.toggleSelected(!!v)}
+            aria-label='Select row'
+          />
+        ),
+        enableSorting: false,
+        enableHiding: false
+      },
+      {
         accessorKey: 'app_id',
-        header: 'ID',
-        size: 100,
-        enableColumnFilter: false
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title='ID' />
+        ),
+        cell: ({ row }) => (
+          <span className='text-muted-foreground font-mono text-xs'>
+            {row.getValue('app_id')}
+          </span>
+        ),
+        enableSorting: false
       },
       {
-        accessorKey: 'student_name',
-        header: 'Student',
-        size: 150,
-        enableColumnFilter: true,
-        filterFn: 'contains',
-        Cell: ({ row }) => (
-          <Box>
-            <Typography variant='body2' fontWeight='medium'>
-              {row.original.student.name}
-            </Typography>
-          </Box>
-        )
-      },
-      {
-        accessorKey: 'university.name',
-        header: 'University',
-        size: 150,
-        enableColumnFilter: true,
-        filterFn: 'contains',
-        Cell: ({ cell }) => {
-          const universityName = cell.getValue<string>();
-          return <Box title={universityName}>{universityName}</Box>;
+        id: 'student',
+        accessorFn: (row) => {
+          const s = row.student as any;
+          return s?.user
+            ? `${s.user.first_name || ''} ${s.user.last_name || ''}`.trim()
+            : s?.name || '';
+        },
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title='Student' />
+        ),
+        cell: ({ row }) => {
+          const student = row.original.student as any;
+          const name = student?.user
+            ? `${student.user.first_name || ''} ${student.user.last_name || ''}`.trim()
+            : student?.name || '';
+          const email = student?.user?.email || student?.email || '';
+          return (
+            <div className='min-w-0'>
+              <div className='truncate font-medium'>{name}</div>
+              <div className='text-muted-foreground truncate text-xs'>
+                {email}
+              </div>
+            </div>
+          );
         }
       },
       {
-        accessorKey: 'courses',
-        header: 'Course',
-        size: 150,
-        enableColumnFilter: true,
-        Cell: ({ row }) => {
+        id: 'university',
+        accessorFn: (row) => row.university?.name || '',
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title='University' />
+        ),
+        cell: ({ row }) => (
+          <span className='truncate text-sm'>
+            {row.original.university?.name || 'N/A'}
+          </span>
+        )
+      },
+      {
+        id: 'course',
+        accessorFn: (row) =>
+          row.courses && row.courses.length > 0 ? row.courses[0].name : '',
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title='Course' />
+        ),
+        cell: ({ row }) => {
           const courses = row.original.courses;
-          if (!courses || courses.length === 0) return 'No courses';
-          return courses[0].name;
+          if (!courses || courses.length === 0)
+            return (
+              <span className='text-muted-foreground text-sm'>No course</span>
+            );
+          return (
+            <div className='min-w-0'>
+              <div className='truncate text-sm'>{courses[0].name}</div>
+              {courses.length > 1 && (
+                <span className='text-muted-foreground text-[10px]'>
+                  +{courses.length - 1} more
+                </span>
+              )}
+            </div>
+          );
         }
       },
       {
         accessorKey: 'status',
-        header: 'Status',
-        size: 100,
-        filterVariant: 'select',
-        filterSelectOptions: [
-          'PENDING',
-          'APPROVED',
-          'REJECTED',
-          'CANCELLED',
-          'REVOKED'
-        ],
-        Cell: ({ cell }) => {
-          const status = cell.getValue<string>();
-          const color = {
-            PENDING: 'warning',
-            APPROVED: 'success',
-            REJECTED: 'error',
-            CANCELLED: 'default',
-            REVOKED: 'default'
-          }[status] as 'warning' | 'success' | 'error' | 'default';
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title='Status' />
+        ),
+        cell: ({ row }) => {
+          const status = row.getValue('status') as string;
           return (
-            <Chip
-              label={status}
-              color={color}
-              size='small'
+            <Badge
+              variant={STATUS_BADGE[status] || 'secondary'}
               className='capitalize'
-            />
+            >
+              {status.toLowerCase()}
+            </Badge>
           );
-        }
+        },
+        filterFn: (row, id, value) => value.includes(row.getValue(id))
       },
       {
-        accessorKey: 'is_sent',
-        header: 'Sent',
-        size: 80,
-        filterVariant: 'select',
-        filterSelectOptions: ['true', 'false'],
-        Cell: ({ cell }) => {
-          const isSent = cell.getValue<boolean>();
+        id: 'is_sent',
+        accessorFn: (row) => String(row.is_sent),
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title='Sent' />
+        ),
+        cell: ({ row }) => {
+          const sent = row.original.is_sent;
           return (
-            <Chip
-              label={isSent ? 'Yes' : 'No'}
-              color={isSent ? 'success' : 'default'}
-              size='small'
-            />
+            <Badge variant={sent ? 'default' : 'outline'}>
+              {sent ? 'Sent' : 'Draft'}
+            </Badge>
           );
-        }
+        },
+        filterFn: (row, id, value) => value.includes(row.getValue(id))
       },
       {
         accessorKey: 'created_at',
-        header: 'Date',
-        size: 120,
-        filterVariant: 'date-range',
-        Cell: ({ cell }) => {
-          const date = cell.getValue<string>();
-          return format(new Date(date), 'MMM d, yyyy');
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title='Created' />
+        ),
+        cell: ({ row }) => {
+          const date = row.getValue('created_at') as string;
+          return (
+            <span className='text-muted-foreground text-sm'>
+              {format(new Date(date), 'MMM d, yyyy')}
+            </span>
+          );
         }
+      },
+      {
+        id: 'actions',
+        cell: ({ row }) => {
+          const app = row.original;
+          return (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant='ghost'
+                  className='data-[state=open]:bg-muted flex h-8 w-8 p-0'
+                >
+                  <MoreHorizontal className='h-4 w-4' />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align='end' className='w-[160px]'>
+                <DropdownMenuItem
+                  onClick={() => router.push(`/admin/applications/${app.id}`)}
+                >
+                  <Eye className='mr-2 h-4 w-4' />
+                  View
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() =>
+                    router.push(`/admin/applications/${app.id}/edit`)
+                  }
+                >
+                  <Pencil className='mr-2 h-4 w-4' />
+                  Edit
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className='text-destructive focus:text-destructive'
+                  onClick={() => {
+                    if (confirm('Delete this application?')) {
+                      deleteMutation.mutate(app.id);
+                    }
+                  }}
+                >
+                  <Trash2 className='mr-2 h-4 w-4' />
+                  Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          );
+        },
+        enableSorting: false,
+        enableHiding: false
       }
     ],
-    [isMobile]
+    [router, deleteMutation]
   );
 
-  // Create MUI theme based on next-themes
-  const theme = useMemo(
-    () =>
-      createTheme({
-        palette: {
-          mode: resolvedTheme === 'dark' ? 'dark' : 'light'
-        },
-        components: {
-          MuiPaper: {
-            styleOverrides: {
-              root: {
-                backgroundImage: 'none'
-              }
-            }
-          },
-          MuiTableCell: {
-            styleOverrides: {
-              root: {
-                padding: '8px 16px'
-              }
-            }
-          }
-        }
-      }),
-    [resolvedTheme]
-  );
+  const table = useReactTable({
+    data: data?.results ?? [],
+    columns,
+    pageCount: data ? Math.ceil(data.count / pagination.pageSize) : -1,
+    state: {
+      sorting,
+      columnFilters,
+      columnVisibility,
+      rowSelection,
+      pagination
+    },
+    enableRowSelection: true,
+    manualPagination: true,
+    manualSorting: true,
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    onColumnVisibilityChange: setColumnVisibility,
+    onRowSelectionChange: setRowSelection,
+    onPaginationChange: setPagination,
+    getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFacetedRowModel: getFacetedRowModel(),
+    getFacetedUniqueValues: getFacetedUniqueValues()
+  });
+
+  if (isLoading) {
+    return (
+      <div className='space-y-4'>
+        <div className='flex items-center gap-2'>
+          <Skeleton className='h-8 w-[250px]' />
+          <Skeleton className='h-8 w-[100px]' />
+        </div>
+        {Array.from({ length: 6 }).map((_, i) => (
+          <Skeleton key={i} className='h-12 w-full' />
+        ))}
+      </div>
+    );
+  }
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDateFns}>
-      <ThemeProvider theme={theme}>
-        <Box sx={{ width: '100%', overflowX: 'auto' }}>
-          <MaterialReactTable
-            columns={columns}
-            data={data?.results ?? []}
-            rowCount={data?.count ?? 0}
-            // Server-side operations
-            manualFiltering
-            manualPagination
-            manualSorting
-            // State
-            state={{
-              columnFilters,
-              globalFilter,
-              isLoading,
-              pagination,
-              showAlertBanner: false,
-              showProgressBars: isFetching,
-              sorting
-            }}
-            // State setters
-            onColumnFiltersChange={setColumnFilters}
-            onGlobalFilterChange={setGlobalFilter}
-            onPaginationChange={setPagination}
-            onSortingChange={setSorting}
-            // Features
-            enableColumnFilters
-            enableGlobalFilter
-            enablePagination
-            enableSorting
-            enableRowActions
-            enableRowSelection
-            positionActionsColumn='last'
-            enableDensityToggle={false}
-            enableFullScreenToggle
-            enableColumnResizing
-            enableStickyHeader
-            enableColumnPinning
-            // Layout
-            layoutMode='grid'
-            // Custom toolbar
-            renderTopToolbar={({ table }) => (
-              <Box
-                sx={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  p: 2,
-                  flexWrap: 'wrap',
-                  gap: 2
-                }}
-              >
-                <Stack direction='row' spacing={1} flexWrap='wrap' useFlexGap>
-                  <MRT_ToggleFiltersButton table={table} />
-                  {onExport && (
-                    <Button
-                      variant='outlined'
-                      onClick={onExport}
-                      startIcon={<Download />}
-                      size='small'
-                    >
-                      Export
-                    </Button>
-                  )}
-                  {onAddNew && (
-                    <Button
-                      variant='contained'
-                      onClick={onAddNew}
-                      startIcon={<Add />}
-                      size='small'
-                    >
-                      Add Application
-                    </Button>
-                  )}
-                </Stack>
-              </Box>
-            )}
-            // Row actions
-            renderRowActionMenuItems={({ row, closeMenu }) => [
-              <MenuItem
-                key='view'
-                onClick={() => {
-                  router.push(`/admin/applications/${row.original.id}`);
-                  closeMenu();
-                }}
-              >
-                <ListItemIcon>
-                  <Visibility />
-                </ListItemIcon>
-                View Details
-              </MenuItem>,
-              <MenuItem
-                key='edit'
-                onClick={() => {
-                  router.push(`/admin/applications/${row.original.id}/edit`);
-                  closeMenu();
-                }}
-              >
-                <ListItemIcon>
-                  <Edit />
-                </ListItemIcon>
-                Edit
-              </MenuItem>,
-              <MenuItem
-                key='delete'
-                onClick={() => {
-                  if (confirm(`Delete this application?`)) {
-                    deleteMutation.mutate(row.original.id.toString());
+    <div className='flex flex-col gap-4'>
+      <DataTableToolbar
+        table={table}
+        globalFilter={globalFilter}
+        onGlobalFilterChange={setGlobalFilter}
+        searchPlaceholder='Search applications...'
+        filters={[
+          { columnId: 'status', title: 'Status', options: statusOptions },
+          { columnId: 'is_sent', title: 'Sent', options: sentOptions }
+        ]}
+      >
+        {onAddNew && (
+          <Button size='sm' className='h-8' onClick={onAddNew}>
+            New Application
+          </Button>
+        )}
+      </DataTableToolbar>
+
+      <div className='rounded-md border'>
+        <Table>
+          <TableHeader>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <TableHead key={header.id} colSpan={header.colSpan}>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                  </TableHead>
+                ))}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {table.getRowModel().rows?.length ? (
+              table.getRowModel().rows.map((row) => (
+                <TableRow
+                  key={row.id}
+                  data-state={row.getIsSelected() && 'selected'}
+                  className='cursor-pointer'
+                  onClick={() =>
+                    router.push(`/admin/applications/${row.original.id}`)
                   }
-                  closeMenu();
-                }}
-                sx={{ color: 'error.main' }}
-              >
-                <ListItemIcon>
-                  <Delete color='error' />
-                </ListItemIcon>
-                Delete
-              </MenuItem>
-            ]}
-            // Pagination options
-            muiPaginationProps={{
-              rowsPerPageOptions: [10, 25, 50, 100],
-              showFirstButton: true,
-              showLastButton: true
-            }}
-            // Initial state
-            initialState={{
-              density: 'compact',
-              columnVisibility: {
-                is_sent: false
-              },
-              columnPinning: {
-                left: ['mrt-row-select', 'student_name'],
-                right: ['mrt-row-actions']
-              }
-            }}
-            // Display column options
-            displayColumnDefOptions={{
-              'mrt-row-select': {
-                size: 50,
-                muiTableHeadCellProps: {
-                  align: 'center'
-                },
-                muiTableBodyCellProps: {
-                  align: 'center'
-                }
-              },
-              'mrt-row-actions': {
-                header: 'Actions',
-                size: 100,
-                muiTableHeadCellProps: {
-                  align: 'center'
-                },
-                muiTableBodyCellProps: {
-                  align: 'center'
-                }
-              }
-            }}
-            // Container styling
-            muiTableContainerProps={{
-              sx: {
-                maxHeight: 'calc(100vh - 400px)',
-                minHeight: '400px',
-                width: '100%',
-                '&::-webkit-scrollbar': {
-                  height: '10px',
-                  width: '10px'
-                },
-                '&::-webkit-scrollbar-track': {
-                  background: 'rgba(0,0,0,0.1)'
-                },
-                '&::-webkit-scrollbar-thumb': {
-                  background: 'rgba(0,0,0,0.5)',
-                  borderRadius: '5px'
-                }
-              }
-            }}
-            // Table styling
-            muiTableProps={{
-              sx: {
-                tableLayout: 'fixed',
-                width: '100%'
-              }
-            }}
-            // Paper styling
-            muiTablePaperProps={{
-              sx: {
-                boxShadow: 'none',
-                border: '1px solid rgba(0,0,0,0.1)',
-                width: '100%'
-              }
-            }}
-          />
-        </Box>
-      </ThemeProvider>
-    </LocalizationProvider>
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell
+                      key={cell.id}
+                      onClick={(e) => {
+                        if (
+                          cell.column.id === 'select' ||
+                          cell.column.id === 'actions'
+                        )
+                          e.stopPropagation();
+                      }}
+                    >
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className='h-24 text-center'
+                >
+                  No applications found.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+
+      <DataTablePagination table={table} />
+    </div>
   );
 }

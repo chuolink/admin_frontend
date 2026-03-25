@@ -2,364 +2,425 @@
 
 import { useMemo, useState } from 'react';
 import {
-  MaterialReactTable,
-  type MRT_ColumnDef,
-  MRT_ToggleFiltersButton
-} from 'material-react-table';
-import {
-  Box,
-  Button,
-  MenuItem,
-  ListItemIcon,
-  Chip,
-  Stack,
-  Typography,
-  useMediaQuery,
-  useTheme as useMuiTheme
-} from '@mui/material';
-import { Edit, Delete, Visibility, Download, Add } from '@mui/icons-material';
+  useReactTable,
+  getCoreRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  getFilteredRowModel,
+  getFacetedRowModel,
+  getFacetedUniqueValues,
+  flexRender,
+  type ColumnDef,
+  type SortingState,
+  type ColumnFiltersState,
+  type VisibilityState
+} from '@tanstack/react-table';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import useClientApi from '@/lib/axios/clientSide';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
-import { ColumnFiltersState, SortingState } from '@tanstack/react-table';
-import { LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { useTheme } from 'next-themes';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { Payment } from '@/types/payment';
+import {
+  Eye,
+  MoreHorizontal,
+  Pencil,
+  Trash2,
+  Clock,
+  CheckCircle,
+  XCircle,
+  Ban,
+  RotateCcw,
+  Loader2,
+  Building2,
+  Smartphone,
+  Wallet,
+  Plus
+} from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table';
+import { DataTableToolbar } from '@/components/data-table/data-table-toolbar';
+import { DataTablePagination } from '@/components/data-table/data-table-pagination';
+import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header';
+import { Skeleton } from '@/components/ui/skeleton';
+import { type Payment, type PaymentResponse } from '@/types/payment';
 
 interface PaymentTableProps {
-  onExport?: () => void;
   onAddNew?: () => void;
 }
 
-export default function PaymentTable({
-  onExport,
-  onAddNew
-}: PaymentTableProps) {
-  const { resolvedTheme } = useTheme();
+const statusOptions = [
+  { label: 'Pending', value: 'pending', icon: Clock },
+  { label: 'Processing', value: 'processing', icon: Loader2 },
+  { label: 'Success', value: 'success', icon: CheckCircle },
+  { label: 'Failed', value: 'failed', icon: XCircle },
+  { label: 'Cancelled', value: 'cancelled', icon: Ban },
+  { label: 'Refunded', value: 'refunded', icon: RotateCcw }
+];
+
+const modeOptions = [
+  { label: 'Bank', value: 'bank', icon: Building2 },
+  { label: 'Mobile', value: 'mobile', icon: Smartphone },
+  { label: 'Balance', value: 'balance', icon: Wallet }
+];
+
+const STATUS_BADGE: Record<
+  string,
+  'default' | 'secondary' | 'destructive' | 'outline'
+> = {
+  pending: 'outline',
+  processing: 'secondary',
+  success: 'default',
+  failed: 'destructive',
+  cancelled: 'secondary',
+  refunded: 'outline'
+};
+
+function formatCurrency(amount: number) {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'TZS',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0
+  }).format(amount);
+}
+
+export default function PaymentTable({ onAddNew }: PaymentTableProps) {
   const { api } = useClientApi();
   const router = useRouter();
   const queryClient = useQueryClient();
-  const muiTheme = useMuiTheme();
 
-  // Responsive check
-  const isMobile = useMediaQuery(muiTheme.breakpoints.down('sm'));
-
-  // State for server-side operations
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [globalFilter, setGlobalFilter] = useState('');
   const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [rowSelection, setRowSelection] = useState({});
+  const [globalFilter, setGlobalFilter] = useState('');
   const [pagination, setPagination] = useState({
     pageIndex: 0,
-    pageSize: 25
+    pageSize: 20
   });
 
-  // Build query params from table state
   const queryParams = useMemo(() => {
-    const params: Record<string, string> = {};
-
-    if (globalFilter) {
-      params.search = globalFilter;
-    }
-
+    const params: Record<string, string | number> = {
+      page: pagination.pageIndex + 1,
+      page_size: pagination.pageSize
+    };
+    if (globalFilter) params.search = globalFilter;
     if (sorting.length > 0) {
       params.ordering = sorting
-        .map((sort) => (sort.desc ? `-${sort.id}` : sort.id))
+        .map((s) => (s.desc ? '-' : '') + s.id)
         .join(',');
     }
-
-    params.page = String(pagination.pageIndex + 1);
-    params.limit = String(pagination.pageSize);
-
     columnFilters.forEach((filter) => {
-      if (filter.id === 'status') {
-        params[filter.id] = filter.value as string;
-      } else if (filter.id === 'mode') {
-        params[filter.id] = filter.value as string;
-      } else if (filter.id === 'created_at') {
-        const dateRange = filter.value as [string, string];
-        if (dateRange[0]) params.created_after = dateRange[0];
-        if (dateRange[1]) params.created_before = dateRange[1];
+      if (
+        (filter.id === 'status' || filter.id === 'mode') &&
+        Array.isArray(filter.value) &&
+        (filter.value as string[]).length > 0
+      ) {
+        params[filter.id] = (filter.value as string[]).join(',');
       }
     });
-
     return params;
-  }, [columnFilters, globalFilter, sorting, pagination]);
+  }, [globalFilter, sorting, pagination, columnFilters]);
 
-  // Fetch data with server-side filtering
-  const { data, isLoading, isFetching } = useQuery({
+  const { data, isLoading } = useQuery<PaymentResponse>({
     queryKey: ['payments', queryParams],
     queryFn: async () => {
-      if (!api) throw new Error('API not initialized');
-      const response = await api.get('/admin/payments/', {
+      const response = await api!.get('/admin/payments/', {
         params: queryParams
       });
       return response.data;
-    }
+    },
+    enabled: !!api
   });
 
-  // Delete mutation
   const deleteMutation = useMutation({
     mutationFn: async (paymentId: string) => {
-      if (!api) throw new Error('API not initialized');
-      await api.delete(`/admin/payments/${paymentId}/`);
+      await api!.delete(`/admin/payments/${paymentId}/`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['payments'] });
+      queryClient.invalidateQueries({ queryKey: ['payment-stats'] });
       toast.success('Payment deleted successfully');
     },
-    onError: () => {
-      toast.error('Failed to delete payment');
-    }
+    onError: () => toast.error('Failed to delete payment')
   });
 
-  // Define columns with consistent sizing
-  const columns = useMemo<MRT_ColumnDef<Payment>[]>(
+  const columns = useMemo<ColumnDef<Payment>[]>(
     () => [
       {
-        accessorKey: 'id',
-        header: 'ID',
-        size: 150,
-        enableColumnFilter: false
+        id: 'select',
+        header: ({ table }) => (
+          <Checkbox
+            checked={
+              table.getIsAllPageRowsSelected() ||
+              (table.getIsSomePageRowsSelected() && 'indeterminate')
+            }
+            onCheckedChange={(v) => table.toggleAllPageRowsSelected(!!v)}
+            aria-label='Select all'
+          />
+        ),
+        cell: ({ row }) => (
+          <Checkbox
+            checked={row.getIsSelected()}
+            onCheckedChange={(v) => row.toggleSelected(!!v)}
+            aria-label='Select row'
+          />
+        ),
+        enableSorting: false,
+        enableHiding: false
       },
       {
+        id: 'user',
         accessorKey: 'user',
-        header: 'User',
-        size: 250,
-        enableColumnFilter: true,
-        filterFn: 'contains',
-        Cell: ({ row }) => (
-          <Box>
-            <Typography variant='body2' fontWeight='medium'>
-              {row.original.student?.name ||
-                `${row.original.user.first_name} ${row.original.user.last_name}`}
-            </Typography>
-            <Typography variant='caption' color='text.secondary'>
-              {row.original.student?.email || row.original.user.email}
-            </Typography>
-          </Box>
-        )
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title='User' />
+        ),
+        cell: ({ row }) => {
+          const payment = row.original;
+          const name =
+            payment.student?.name ||
+            `${payment.user.first_name} ${payment.user.last_name}`;
+          const email = payment.student?.email || payment.user.email;
+          return (
+            <div className='flex flex-col'>
+              <span className='font-medium'>{name}</span>
+              <span className='text-muted-foreground text-xs'>{email}</span>
+            </div>
+          );
+        },
+        enableSorting: false
       },
       {
         accessorKey: 'amount',
-        header: 'Amount',
-        size: 150,
-        enableColumnFilter: false,
-        Cell: ({ cell }) => {
-          const amount = cell.getValue<number>();
-          return new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency: 'TZS'
-          }).format(amount);
-        }
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title='Amount' />
+        ),
+        cell: ({ row }) => (
+          <span className='font-medium tabular-nums'>
+            {formatCurrency(row.original.amount)}
+          </span>
+        )
       },
       {
         accessorKey: 'mode',
-        header: 'Mode',
-        size: 120,
-        filterVariant: 'select',
-        filterSelectOptions: ['bank', 'mobile', 'balance'],
-        Cell: ({ cell }) => {
-          const mode = cell.getValue<string>();
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title='Mode' />
+        ),
+        cell: ({ row }) => {
+          const mode = row.getValue('mode') as string;
           return (
-            <Chip
-              label={mode}
-              color='primary'
-              size='small'
-              className='capitalize'
-            />
+            <Badge variant='secondary' className='capitalize'>
+              {mode}
+            </Badge>
           );
-        }
+        },
+        filterFn: (row, id, value) => value.includes(row.getValue(id))
       },
       {
         accessorKey: 'status',
-        header: 'Status',
-        size: 120,
-        filterVariant: 'select',
-        filterSelectOptions: [
-          'pending',
-          'processing',
-          'success',
-          'failed',
-          'cancelled',
-          'refunded'
-        ],
-        Cell: ({ cell }) => {
-          const status = cell.getValue<string>();
-          const color = {
-            pending: 'warning',
-            processing: 'info',
-            success: 'success',
-            failed: 'error',
-            cancelled: 'default',
-            refunded: 'default'
-          }[status] as 'warning' | 'info' | 'success' | 'error' | 'default';
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title='Status' />
+        ),
+        cell: ({ row }) => {
+          const status = row.getValue('status') as string;
           return (
-            <Chip
-              label={status}
-              color={color}
-              size='small'
+            <Badge
+              variant={STATUS_BADGE[status] || 'secondary'}
               className='capitalize'
-            />
+            >
+              {status}
+            </Badge>
           );
-        }
+        },
+        filterFn: (row, id, value) => value.includes(row.getValue(id))
       },
       {
         accessorKey: 'created_at',
-        header: 'Date',
-        size: 150,
-        filterVariant: 'date-range',
-        Cell: ({ cell }) => {
-          const date = cell.getValue<string>();
-          return format(new Date(date), 'MMM d, yyyy');
-        }
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title='Date' />
+        ),
+        cell: ({ row }) => (
+          <span className='text-muted-foreground text-sm'>
+            {format(new Date(row.getValue('created_at')), 'MMM d, yyyy')}
+          </span>
+        )
+      },
+      {
+        id: 'actions',
+        cell: ({ row }) => {
+          const payment = row.original;
+          return (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant='ghost'
+                  className='data-[state=open]:bg-muted flex h-8 w-8 p-0'
+                >
+                  <MoreHorizontal className='h-4 w-4' />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align='end' className='w-[160px]'>
+                <DropdownMenuItem
+                  onClick={() => router.push(`/admin/payments/${payment.id}`)}
+                >
+                  <Eye className='mr-2 h-4 w-4' />
+                  View
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() =>
+                    router.push(`/admin/payments/${payment.id}/edit`)
+                  }
+                >
+                  <Pencil className='mr-2 h-4 w-4' />
+                  Edit
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className='text-destructive focus:text-destructive'
+                  onClick={() => deleteMutation.mutate(payment.id)}
+                  disabled={deleteMutation.isPending}
+                >
+                  <Trash2 className='mr-2 h-4 w-4' />
+                  Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          );
+        },
+        enableSorting: false,
+        enableHiding: false
       }
     ],
-    [isMobile]
+    [router, deleteMutation]
   );
 
-  // Create MUI theme based on next-themes
-  const theme = useMemo(
-    () =>
-      createTheme({
-        palette: {
-          mode: resolvedTheme === 'dark' ? 'dark' : 'light'
-        },
-        components: {
-          MuiPaper: {
-            styleOverrides: {
-              root: {
-                backgroundImage: 'none'
-              }
-            }
-          },
-          MuiTableCell: {
-            styleOverrides: {
-              root: {
-                borderColor:
-                  resolvedTheme === 'dark'
-                    ? 'rgba(255, 255, 255, 0.1)'
-                    : 'rgba(0, 0, 0, 0.1)'
-              }
-            }
-          }
-        }
-      }),
-    [resolvedTheme]
-  );
+  const table = useReactTable({
+    data: data?.results ?? [],
+    columns,
+    pageCount: data ? Math.ceil(data.count / pagination.pageSize) : -1,
+    state: {
+      sorting,
+      columnFilters,
+      columnVisibility,
+      rowSelection,
+      pagination
+    },
+    enableRowSelection: true,
+    manualPagination: true,
+    manualSorting: true,
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    onColumnVisibilityChange: setColumnVisibility,
+    onRowSelectionChange: setRowSelection,
+    onPaginationChange: setPagination,
+    getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFacetedRowModel: getFacetedRowModel(),
+    getFacetedUniqueValues: getFacetedUniqueValues()
+  });
+
+  if (isLoading) {
+    return (
+      <div className='space-y-4'>
+        <div className='flex items-center gap-2'>
+          <Skeleton className='h-8 w-[250px]' />
+          <Skeleton className='h-8 w-[100px]' />
+        </div>
+        {Array.from({ length: 6 }).map((_, i) => (
+          <Skeleton key={i} className='h-12 w-full' />
+        ))}
+      </div>
+    );
+  }
 
   return (
-    <ThemeProvider theme={theme}>
-      <LocalizationProvider dateAdapter={AdapterDateFns}>
-        <MaterialReactTable
-          columns={columns}
-          data={data?.results ?? []}
-          enableColumnFilters
-          enableGlobalFilter
-          enableRowActions
-          enableRowSelection
-          enableMultiRowSelection
-          enableColumnResizing
-          enableColumnDragging
-          enableColumnOrdering
-          enablePagination
-          enableSorting
-          manualFiltering
-          manualPagination
-          manualSorting
-          rowCount={data?.count ?? 0}
-          onColumnFiltersChange={setColumnFilters}
-          onGlobalFilterChange={setGlobalFilter}
-          onPaginationChange={setPagination}
-          onSortingChange={setSorting}
-          state={{
-            columnFilters,
-            globalFilter,
-            pagination,
-            sorting,
-            isLoading,
-            showProgressBars: isFetching
-          }}
-          layoutMode='grid'
-          muiTablePaperProps={{
-            elevation: 0,
-            sx: {
-              borderRadius: '0.5rem',
-              border: '1px solid',
-              borderColor:
-                resolvedTheme === 'dark'
-                  ? 'rgba(255, 255, 255, 0.1)'
-                  : 'rgba(0, 0, 0, 0.1)',
-              width: '100%'
-            }
-          }}
-          muiTableContainerProps={{
-            sx: {
-              width: '100%'
-            }
-          }}
-          muiTableHeadCellProps={{
-            sx: {
-              fontWeight: 'bold',
-              fontSize: '0.875rem'
-            }
-          }}
-          muiTableBodyCellProps={{
-            sx: {
-              fontSize: '0.875rem'
-            }
-          }}
-          renderRowActions={({ row }) => (
-            <Stack direction='row' spacing={1}>
-              <Button
-                size='small'
-                onClick={() =>
-                  router.push(`/admin/payments/${row.original.id}`)
-                }
-              >
-                <Visibility fontSize='small' />
-              </Button>
-              <Button
-                size='small'
-                onClick={() =>
-                  router.push(`/admin/payments/${row.original.id}/edit`)
-                }
-              >
-                <Edit fontSize='small' />
-              </Button>
-              <Button
-                size='small'
-                color='error'
-                onClick={() => deleteMutation.mutate(row.original.id)}
-              >
-                <Delete fontSize='small' />
-              </Button>
-            </Stack>
-          )}
-          renderTopToolbar={({ table }) => (
-            <Box sx={{ p: 2, display: 'flex', gap: 2, alignItems: 'center' }}>
-              <Button
-                variant='contained'
-                startIcon={<Add />}
-                onClick={onAddNew}
-              >
-                Add New
-              </Button>
-              <Button
-                variant='outlined'
-                startIcon={<Download />}
-                onClick={onExport}
-              >
-                Export
-              </Button>
-              <MRT_ToggleFiltersButton table={table} />
-            </Box>
-          )}
-        />
-      </LocalizationProvider>
-    </ThemeProvider>
+    <div className='flex flex-col gap-4'>
+      <DataTableToolbar
+        table={table}
+        globalFilter={globalFilter}
+        onGlobalFilterChange={setGlobalFilter}
+        searchPlaceholder='Search payments...'
+        filters={[
+          { columnId: 'status', title: 'Status', options: statusOptions },
+          { columnId: 'mode', title: 'Mode', options: modeOptions }
+        ]}
+      >
+        {onAddNew && (
+          <Button size='sm' onClick={onAddNew}>
+            <Plus className='mr-2 h-4 w-4' />
+            Add New
+          </Button>
+        )}
+      </DataTableToolbar>
+
+      <div className='rounded-md border'>
+        <Table>
+          <TableHeader>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <TableHead key={header.id} colSpan={header.colSpan}>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                  </TableHead>
+                ))}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {table.getRowModel().rows?.length ? (
+              table.getRowModel().rows.map((row) => (
+                <TableRow
+                  key={row.id}
+                  data-state={row.getIsSelected() && 'selected'}
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id}>
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className='h-24 text-center'
+                >
+                  No payments found.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+
+      <DataTablePagination table={table} />
+    </div>
   );
 }
