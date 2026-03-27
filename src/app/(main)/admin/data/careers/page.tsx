@@ -1,6 +1,8 @@
 // @ts-nocheck
 'use client';
 
+import { useQueryState } from 'nuqs';
+
 import { useState, useMemo, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import useClientApi from '@/lib/axios/clientSide';
@@ -1969,7 +1971,9 @@ function SalariesTab() {
 
 export default function CareersDataPage() {
   const { data: stats, isLoading: statsLoading } = useDataStats();
-  const [activeTab, setActiveTab] = useState('careers');
+  const [activeTab, setActiveTab] = useQueryState('tab', {
+    defaultValue: 'careers'
+  });
 
   const careerStats = stats?.careers;
 
@@ -2040,7 +2044,7 @@ export default function CareersDataPage() {
         )}
 
         {/* Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <Tabs value={activeTab ?? ''} onValueChange={setActiveTab}>
           <TabsList>
             <TabsTrigger value='careers'>Careers</TabsTrigger>
             <TabsTrigger value='scholarships'>Scholarships</TabsTrigger>

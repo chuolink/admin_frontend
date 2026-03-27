@@ -183,7 +183,7 @@ const EVENT_ICONS: Record<string, React.ElementType> = {
   DOCUMENT_REJECTED: AlertTriangle,
   APPLICATION_CREATED: Briefcase,
   APPLICATION_SUBMITTED: Briefcase,
-  APPLICATION_APPROVED: CheckCircle,
+  APPLICATION_ACCEPTED: CheckCircle,
   APPLICATION_REJECTED: AlertTriangle,
   PAYMENT_CREATED: CreditCard,
   PAYMENT_COMPLETED: CreditCard,
@@ -193,7 +193,7 @@ const EVENT_ICONS: Record<string, React.ElementType> = {
 const APP_STATUSES = [
   { value: 'ALL', label: 'All Statuses' },
   { value: 'PENDING', label: 'Pending' },
-  { value: 'APPROVED', label: 'Approved' },
+  { value: 'ACCEPTED', label: 'Accepted' },
   { value: 'ADMITTED', label: 'Admitted' },
   { value: 'SUBMITTED', label: 'Submitted' },
   { value: 'REJECTED', label: 'Rejected' },
@@ -384,7 +384,7 @@ export default function StudentDetailsPage() {
             <Button
               variant='ghost'
               size='icon'
-              onClick={() => router.push('/admin/students')}
+              onClick={() => router.back()}
               className='shrink-0'
             >
               <ArrowLeft className='h-4 w-4' />
@@ -1020,7 +1020,7 @@ export default function StudentDetailsPage() {
                           <div className='flex shrink-0 items-center gap-2'>
                             <Badge
                               variant={
-                                app.status === 'APPROVED' ||
+                                app.status === 'ACCEPTED' ||
                                 app.status === 'ADMITTED'
                                   ? 'default'
                                   : app.status === 'REJECTED' ||

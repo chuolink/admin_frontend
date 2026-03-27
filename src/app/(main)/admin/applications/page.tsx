@@ -39,7 +39,7 @@ export default function ApplicationsPage() {
     queryKey: ['applications-stats-approved'],
     queryFn: async () => {
       const response = await api!.get('/admin/applications/', {
-        params: { page_size: 1, status: 'APPROVED' }
+        params: { page_size: 1, status: 'ACCEPTED' }
       });
       return response.data;
     },

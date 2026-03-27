@@ -1,6 +1,8 @@
 // @ts-nocheck
 'use client';
 
+import { useQueryState } from 'nuqs';
+
 import { useEffect, useMemo, useState } from 'react';
 import {
   useReactTable,
@@ -1553,7 +1555,9 @@ function ModulesTab({
 // ─── Main Syllabus Page ──────────────────────────────────────────────────────
 
 export default function SyllabusPage() {
-  const [activeTab, setActiveTab] = useState('course-years');
+  const [activeTab, setActiveTab] = useQueryState('tab', {
+    defaultValue: 'course-years'
+  });
   const [courseYearDialogOpen, setCourseYearDialogOpen] = useState(false);
   const [semesterDialogOpen, setSemesterDialogOpen] = useState(false);
   const [courseSemesterDialogOpen, setCourseSemesterDialogOpen] =
@@ -1615,7 +1619,7 @@ export default function SyllabusPage() {
         <SectionAnalytics stats={analyticsStats} />
 
         {/* Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <Tabs value={activeTab ?? ''} onValueChange={setActiveTab}>
           <div className='flex items-center justify-between'>
             <TabsList>
               <TabsTrigger value='course-years'>Course Years</TabsTrigger>

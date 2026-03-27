@@ -72,6 +72,7 @@ export default function PipelinePage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [flowFilter, setFlowFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [groupFilter, setGroupFilter] = useState<string>('all');
   const [viewMode, setViewMode] = useState<'list' | 'board'>('list');
 
   const { data, isLoading } = useQuery<PipelinesResponse>({
@@ -88,6 +89,8 @@ export default function PipelinePage() {
 
   const pipelines = allPipelines.filter((p) => {
     if (flowFilter !== 'all' && p.flow_type !== flowFilter) return false;
+    if (groupFilter !== 'all' && (p.departure_group || '') !== groupFilter)
+      return false;
     if (statusFilter === 'active') {
       if (p.has_blocked) return false;
       const total = p.total_stages ?? 0;
@@ -193,6 +196,23 @@ export default function PipelinePage() {
               <SelectItem value='completed'>Completed</SelectItem>
             </SelectContent>
           </Select>
+          <Select value={groupFilter} onValueChange={setGroupFilter}>
+            <SelectTrigger className='h-9 w-[140px] text-xs'>
+              <SelectValue placeholder='Group' />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value='all'>All groups</SelectItem>
+              {[
+                ...new Set(
+                  allPipelines.map((p) => p.departure_group).filter(Boolean)
+                )
+              ].map((g) => (
+                <SelectItem key={g} value={g}>
+                  {g}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           <div className='hidden items-center rounded-md border md:flex'>
             <Button
               variant={viewMode === 'list' ? 'secondary' : 'ghost'}
@@ -227,7 +247,10 @@ export default function PipelinePage() {
               <Kanban className='text-muted-foreground h-6 w-6' />
             </div>
             <p className='text-muted-foreground text-sm'>
-              {searchQuery || flowFilter !== 'all' || statusFilter !== 'all'
+              {searchQuery ||
+              flowFilter !== 'all' ||
+              statusFilter !== 'all' ||
+              groupFilter !== 'all'
                 ? 'No students match your filters.'
                 : 'No students in pipeline yet.'}
             </p>

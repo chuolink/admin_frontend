@@ -120,6 +120,10 @@ export default function RemindersPage() {
 
   const reminders: Reminder[] = data?.results || [];
   const sentCount = reminders.filter((r) => r.sent_at).length;
+  const today = new Date().toISOString().split('T')[0];
+  const sentTodayCount = reminders.filter(
+    (r) => r.sent_at && r.sent_at.startsWith(today)
+  ).length;
   const urgentCount = reminders.filter(
     (r) => (r.priority === 'URGENT' || r.priority === 'HIGH') && !r.sent_at
   ).length;
@@ -141,10 +145,10 @@ export default function RemindersPage() {
         </div>
 
         {/* Stats */}
-        <div className='grid grid-cols-2 gap-4 lg:grid-cols-4'>
+        <div className='grid grid-cols-2 gap-4 lg:grid-cols-5'>
           <Card>
             <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-              <CardTitle className='text-sm font-medium'>Total</CardTitle>
+              <CardTitle className='text-sm font-medium'>Total Sent</CardTitle>
               <Bell className='text-muted-foreground h-4 w-4' />
             </CardHeader>
             <CardContent>
@@ -170,6 +174,17 @@ export default function RemindersPage() {
             <CardContent>
               <div className='text-2xl font-bold text-amber-600'>
                 {reminders.length - sentCount}
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+              <CardTitle className='text-sm font-medium'>Sent Today</CardTitle>
+              <Send className='h-4 w-4 text-blue-500' />
+            </CardHeader>
+            <CardContent>
+              <div className='text-2xl font-bold text-blue-600'>
+                {sentTodayCount}
               </div>
             </CardContent>
           </Card>

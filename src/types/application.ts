@@ -22,7 +22,7 @@ export interface Application {
     url: string;
     created_at: string;
   } | null;
-  status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED' | 'REVOKED';
+  status: 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'CANCELLED' | 'REVOKED';
   budget: number | null;
   info: string | null;
   is_sent: boolean;

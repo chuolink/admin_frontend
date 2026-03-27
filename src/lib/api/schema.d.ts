@@ -4,6 +4,38 @@
  */
 
 export interface paths {
+  '/api/v1/admin/accreditations/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['admin_accreditations_list'];
+    put?: never;
+    post: operations['admin_accreditations_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/accreditations/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['admin_accreditations_retrieve'];
+    put: operations['admin_accreditations_update'];
+    post?: never;
+    delete: operations['admin_accreditations_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['admin_accreditations_partial_update'];
+    trace?: never;
+  };
   '/api/v1/admin/applications/': {
     parameters: {
       query?: never;
@@ -493,6 +525,119 @@ export interface paths {
     patch: operations['admin_expenses_university_partial_update'];
     trace?: never;
   };
+  '/api/v1/admin/finance/reviews/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * @description Finance team reviews payments that have been declared (admin uploaded receipt).
+     *     Approve → marks as SUCCESS (triggers pipeline creation for admission fees).
+     *     Reject → marks as FAILED with reason.
+     */
+    get: operations['admin_finance_reviews_list'];
+    put?: never;
+    /**
+     * @description Finance team reviews payments that have been declared (admin uploaded receipt).
+     *     Approve → marks as SUCCESS (triggers pipeline creation for admission fees).
+     *     Reject → marks as FAILED with reason.
+     */
+    post: operations['admin_finance_reviews_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/finance/reviews/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * @description Finance team reviews payments that have been declared (admin uploaded receipt).
+     *     Approve → marks as SUCCESS (triggers pipeline creation for admission fees).
+     *     Reject → marks as FAILED with reason.
+     */
+    get: operations['admin_finance_reviews_retrieve'];
+    /**
+     * @description Finance team reviews payments that have been declared (admin uploaded receipt).
+     *     Approve → marks as SUCCESS (triggers pipeline creation for admission fees).
+     *     Reject → marks as FAILED with reason.
+     */
+    put: operations['admin_finance_reviews_update'];
+    post?: never;
+    /**
+     * @description Finance team reviews payments that have been declared (admin uploaded receipt).
+     *     Approve → marks as SUCCESS (triggers pipeline creation for admission fees).
+     *     Reject → marks as FAILED with reason.
+     */
+    delete: operations['admin_finance_reviews_destroy'];
+    options?: never;
+    head?: never;
+    /**
+     * @description Finance team reviews payments that have been declared (admin uploaded receipt).
+     *     Approve → marks as SUCCESS (triggers pipeline creation for admission fees).
+     *     Reject → marks as FAILED with reason.
+     */
+    patch: operations['admin_finance_reviews_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/admin/finance/reviews/{id}/approve/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** @description Finance approves a declared payment. */
+    post: operations['admin_finance_reviews_approve_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/finance/reviews/{id}/reject/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** @description Finance rejects a declared payment. */
+    post: operations['admin_finance_reviews_reject_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/finance/reviews/stats/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Quick counts for the finance dashboard. */
+    get: operations['admin_finance_reviews_stats_retrieve'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/v1/admin/journey-events/': {
     parameters: {
       query?: never;
@@ -567,10 +712,43 @@ export interface paths {
     get?: never;
     put?: never;
     /**
-     * @description Admin creates an application on behalf of the student (for students
-     *     who can't use the app). Creates application + pipeline in one step.
+     * @description Admin creates an application on behalf of a lead.
+     *
+     *     If the lead has a linked student account → creates a real UniversityApplicationModel.
+     *     If the lead has NO student account → creates a LeadApplicationModel (draft).
+     *     When the student is later linked, drafts are auto-converted to real applications.
      */
     post: operations['admin_leads_create_application_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/leads/{id}/declare-payment/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * @description Admin declares that a payment was made offline (cash/bank deposit).
+     *     Creates PaymentModel with status=DECLARED + PaymentProofModel for uploaded files.
+     *     Finance team must approve before it's considered paid.
+     *
+     *     Accepts multipart/form-data with:
+     *     - application_id (required)
+     *     - payment_name (default: "Admission Fee")
+     *     - notes (optional)
+     *     - mode (cash/bank/mobile)
+     *     - proofs (multiple files — receipts, screenshots, deposit slips)
+     *
+     *     Amount is auto-calculated from the university's admission fee expense.
+     */
+    post: operations['admin_leads_declare_payment_create'];
     delete?: never;
     options?: never;
     head?: never;
@@ -695,6 +873,38 @@ export interface paths {
     patch: operations['admin_notifications_partial_update'];
     trace?: never;
   };
+  '/api/v1/admin/office-locations/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['admin_office_locations_list'];
+    put?: never;
+    post: operations['admin_office_locations_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/office-locations/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['admin_office_locations_retrieve'];
+    put: operations['admin_office_locations_update'];
+    post?: never;
+    delete: operations['admin_office_locations_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['admin_office_locations_partial_update'];
+    trace?: never;
+  };
   '/api/v1/admin/overview/': {
     parameters: {
       query?: never;
@@ -773,6 +983,44 @@ export interface paths {
     options?: never;
     head?: never;
     patch: operations['admin_payments_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/admin/payments/{id}/declare/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * @description Admin declares a payment was made offline. Sets status to DECLARED,
+     *     records who declared it, and uploads proof files.
+     *     Accepts multipart/form-data with optional 'proofs' files.
+     */
+    post: operations['admin_payments_declare_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/payments/{id}/proofs/{proof_id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /** @description Delete a specific proof file from a payment. */
+    delete: operations['admin_payments_proofs_destroy'];
+    options?: never;
+    head?: never;
+    patch?: never;
     trace?: never;
   };
   '/api/v1/admin/payments/stats/': {
@@ -898,6 +1146,23 @@ export interface paths {
     put?: never;
     /** @description Commit to this application — marks it as the student's final choice. */
     post: operations['admin_pipelines_commit_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/pipelines/{id}/create-fee/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** @description Create a custom fee/payment for this pipeline's application. */
+    post: operations['admin_pipelines_create_fee_create'];
     delete?: never;
     options?: never;
     head?: never;
@@ -1390,6 +1655,38 @@ export interface paths {
     options?: never;
     head?: never;
     patch: operations['admin_students_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/admin/testimonial-media/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['admin_testimonial_media_list'];
+    put?: never;
+    post: operations['admin_testimonial_media_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/admin/testimonial-media/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['admin_testimonial_media_retrieve'];
+    put: operations['admin_testimonial_media_update'];
+    post?: never;
+    delete: operations['admin_testimonial_media_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['admin_testimonial_media_partial_update'];
     trace?: never;
   };
   '/api/v1/admin/testimonials/': {
@@ -5496,6 +5793,38 @@ export interface paths {
     patch: operations['expert_earnings_transactions_partial_update'];
     trace?: never;
   };
+  '/api/v1/expert/education/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['expert_education_list'];
+    put?: never;
+    post: operations['expert_education_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/expert/education/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['expert_education_retrieve'];
+    put: operations['expert_education_update'];
+    post?: never;
+    delete: operations['expert_education_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['expert_education_partial_update'];
+    trace?: never;
+  };
   '/api/v1/expert/expertise/': {
     parameters: {
       query?: never;
@@ -5726,6 +6055,45 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/v1/expert/payment/{id}/status/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description GET /api/v1/expert/payment/{id}/status/ — Poll payment status for an expert service payment. */
+    get: operations['expert_payment_status_retrieve'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/expert/payment/initiate/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * @description POST /api/v1/expert/payment/initiate/ — Initiate an M-Pesa payment for expert services.
+     *
+     *     Wraps the generic PaymentModel + MakePayment flow for expert-specific use cases
+     *     (call bookings, message threads, group subscriptions).
+     */
+    post: operations['expert_payment_initiate_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/v1/expert/profile/': {
     parameters: {
       query?: never;
@@ -5801,7 +6169,7 @@ export interface paths {
       cookie?: never;
     };
     /** @description Public list of verified experts for students. */
-    get: operations['expert_profile_public_list_retrieve'];
+    get: operations['expert_profile_public_list_list'];
     put?: never;
     post?: never;
     delete?: never;
@@ -5840,6 +6208,38 @@ export interface paths {
     options?: never;
     head?: never;
     patch: operations['expert_review_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/expert/social-links/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['expert_social_links_list'];
+    put?: never;
+    post: operations['expert_social_links_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/expert/social-links/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['expert_social_links_retrieve'];
+    put: operations['expert_social_links_update'];
+    post?: never;
+    delete: operations['expert_social_links_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['expert_social_links_partial_update'];
     trace?: never;
   };
   '/api/v1/expert/verification/{id}/': {
@@ -5893,6 +6293,58 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/v1/expert/verification/thread/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Expert: get their verification thread with messages. */
+    get: operations['expert_verification_thread_retrieve'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/expert/verification/thread/{id}/message/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** @description Admin: send a message in any expert's verification thread. */
+    post: operations['expert_verification_thread_message_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/expert/verification/thread/messages/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Expert: list messages in their verification thread. */
+    get: operations['expert_verification_thread_messages_retrieve'];
+    put?: never;
+    /** @description Expert sends a message in their verification thread. */
+    post: operations['expert_verification_thread_messages_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/v1/expert/withdrawal/': {
     parameters: {
       query?: never;
@@ -5923,6 +6375,38 @@ export interface paths {
     options?: never;
     head?: never;
     patch: operations['expert_withdrawal_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/expert/work-history/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['expert_work_history_list'];
+    put?: never;
+    post: operations['expert_work_history_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/expert/work-history/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['expert_work_history_retrieve'];
+    put: operations['expert_work_history_update'];
+    post?: never;
+    delete: operations['expert_work_history_destroy'];
+    options?: never;
+    head?: never;
+    patch: operations['expert_work_history_partial_update'];
     trace?: never;
   };
   '/api/v1/expert/ws/subscribe/': {
@@ -6111,6 +6595,40 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/v1/shared/accreditations/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Public endpoint for accreditations (no auth required). */
+    get: operations['shared_accreditations_list'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/shared/accreditations/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Public endpoint for accreditations (no auth required). */
+    get: operations['shared_accreditations_retrieve'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/v1/shared/chat/': {
     parameters: {
       query?: never;
@@ -6270,6 +6788,40 @@ export interface paths {
     options?: never;
     head?: never;
     patch: operations['shared_notification_partial_update'];
+    trace?: never;
+  };
+  '/api/v1/shared/office-locations/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Public endpoint for office locations (no auth required). */
+    get: operations['shared_office_locations_list'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/shared/office-locations/{id}/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Public endpoint for office locations (no auth required). */
+    get: operations['shared_office_locations_retrieve'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
     trace?: never;
   };
   '/api/v1/shared/payment/': {
@@ -6848,7 +7400,7 @@ export interface paths {
       cookie?: never;
     };
     /** @description Get stages for a specific application — with nested requirements. */
-    get: operations['student_journey_by_application_retrieve'];
+    get: operations['student_journey_by_application_list'];
     put?: never;
     post?: never;
     delete?: never;
@@ -7794,6 +8346,35 @@ export interface components {
       category: components['schemas']['CategoryF26Enum'];
       code: string;
     };
+    Accreditation: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      readonly logo_url: string;
+      /** @description E.g. "TCU Registered Agency" */
+      name: string;
+      /** Format: uri */
+      link?: string;
+      /** Format: uri */
+      logo?: string | null;
+      description?: string;
+      is_active?: boolean;
+      display_order?: number;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    AccreditationRequest: {
+      /** @description E.g. "TCU Registered Agency" */
+      name: string;
+      /** Format: uri */
+      link?: string;
+      /** Format: binary */
+      logo?: string | null;
+      description?: string;
+      is_active?: boolean;
+      display_order?: number;
+    };
     AdminUser: {
       /** @description cuid-format identifier for this entity. */
       readonly id: string;
@@ -7855,12 +8436,15 @@ export interface components {
       readonly student: string;
       readonly university: components['schemas']['University'];
       readonly courses: string;
-      status?: components['schemas']['StatusC07Enum'];
+      status?: components['schemas']['Status384Enum'];
       budget?: number | null;
       info?: string | null;
       is_sent?: boolean;
       /** Format: date-time */
       when?: string | null;
+      admission_fee_paid?: boolean;
+      /** Format: date-time */
+      admission_deadline?: string | null;
       /** Format: date-time */
       readonly created_at: string;
       /** Format: date-time */
@@ -7943,12 +8527,15 @@ export interface components {
       readonly student: string;
       readonly university: string;
       readonly courses: string;
-      status?: components['schemas']['StatusC07Enum'];
+      status?: components['schemas']['Status384Enum'];
       budget?: number | null;
       info?: string | null;
       is_sent?: boolean;
       /** Format: date-time */
       when?: string | null;
+      admission_fee_paid?: boolean;
+      /** Format: date-time */
+      admission_deadline?: string | null;
       /** Format: date-time */
       readonly created_at: string;
       /** Format: date-time */
@@ -7990,12 +8577,15 @@ export interface components {
       | 'failed'
       | 'cancelled';
     ApplicationRequest: {
-      status?: components['schemas']['StatusC07Enum'];
+      status?: components['schemas']['Status384Enum'];
       budget?: number | null;
       info?: string | null;
       is_sent?: boolean;
       /** Format: date-time */
       when?: string | null;
+      admission_fee_paid?: boolean;
+      /** Format: date-time */
+      admission_deadline?: string | null;
     };
     ApplicationStageInstance: {
       /** @description cuid-format identifier for this entity. */
@@ -8131,7 +8721,7 @@ export interface components {
       readonly id: string;
       readonly country_name: string;
       readonly created_by_name: string;
-      flow_type: components['schemas']['FlowTypeEnum'];
+      flow_type: components['schemas']['FlowType54dEnum'];
       stage_order: number;
       stage_name: string;
       stage_type: components['schemas']['StageTypeC6fEnum'];
@@ -8167,7 +8757,7 @@ export interface components {
       created_by?: string | null;
     };
     ApplicationStageTemplateRequest: {
-      flow_type: components['schemas']['FlowTypeEnum'];
+      flow_type: components['schemas']['FlowType54dEnum'];
       stage_order: number;
       stage_name: string;
       stage_type: components['schemas']['StageTypeC6fEnum'];
@@ -8443,6 +9033,12 @@ export interface components {
       | 'cancelled'
       | 'no_show'
       | 'failed';
+    CallTokenResponse: {
+      token: string;
+      url: string;
+      room_name: string;
+      participant_identity: string;
+    };
     CareerCourseDetail: {
       /** @description cuid-format identifier for this entity. */
       readonly id: string;
@@ -9109,8 +9705,6 @@ export interface components {
       message_rate?: string;
       /** Format: decimal */
       call_rate_per_min?: string;
-      /** @description If False, expert only accepts audio calls */
-      video_calls_enabled?: boolean;
     };
     /** @description Lightweight expert info nested inside conversation responses. */
     ConversationExpertRequest: {
@@ -9126,8 +9720,6 @@ export interface components {
       message_rate?: string;
       /** Format: decimal */
       call_rate_per_min?: string;
-      /** @description If False, expert only accepts audio calls */
-      video_calls_enabled?: boolean;
     };
     ConversationRequest: {
       /** @description cuid-format identifier for this entity. */
@@ -10325,6 +10917,49 @@ export interface components {
     CoursesLikedModelRequest: {
       is_like?: boolean;
     };
+    /** @description Writable serializer for creating applications with courses + pipeline. */
+    CreateApplication: {
+      /** @description cuid-format identifier for this entity. */
+      student: string;
+      /** @description cuid-format identifier for this entity. */
+      university: string;
+      budget?: number | null;
+      info?: string | null;
+      /** Format: date-time */
+      when?: string | null;
+      status?: components['schemas']['Status384Enum'];
+    };
+    /**
+     * @description * `LOCAL` - LOCAL
+     *     * `ABROAD` - ABROAD
+     * @enum {string}
+     */
+    CreateApplicationFlowTypeEnum: 'LOCAL' | 'ABROAD';
+    /** @description Writable serializer for creating applications with courses + pipeline. */
+    CreateApplicationRequest: {
+      /** @description cuid-format identifier for this entity. */
+      student: string;
+      /** @description cuid-format identifier for this entity. */
+      university: string;
+      /**
+       * @description List of CourseUniversity IDs to add as application courses
+       * @default []
+       */
+      course_ids: string[];
+      /**
+       * @description Pipeline flow type — determines which stage templates to use
+       *
+       *     * `LOCAL` - LOCAL
+       *     * `ABROAD` - ABROAD
+       * @default LOCAL
+       */
+      flow_type: components['schemas']['CreateApplicationFlowTypeEnum'];
+      budget?: number | null;
+      info?: string | null;
+      /** Format: date-time */
+      when?: string | null;
+      status?: components['schemas']['Status384Enum'];
+    };
     /**
      * @description * `degree` - Degree
      *     * `certification` - Certification
@@ -10649,7 +11284,7 @@ export interface components {
      *     * `DOCUMENT_REJECTED` - Document Rejected
      *     * `APPLICATION_CREATED` - Application Created
      *     * `APPLICATION_SUBMITTED` - Application Submitted
-     *     * `APPLICATION_APPROVED` - Application Approved
+     *     * `APPLICATION_ACCEPTED` - Application Accepted
      *     * `APPLICATION_REJECTED` - Application Rejected
      *     * `OFFER_RECEIVED` - Offer Letter Received
      *     * `ADMISSION_CONFIRMED` - Admission Confirmed
@@ -10682,7 +11317,7 @@ export interface components {
       | 'DOCUMENT_REJECTED'
       | 'APPLICATION_CREATED'
       | 'APPLICATION_SUBMITTED'
-      | 'APPLICATION_APPROVED'
+      | 'APPLICATION_ACCEPTED'
       | 'APPLICATION_REJECTED'
       | 'OFFER_RECEIVED'
       | 'ADMISSION_CONFIRMED'
@@ -10829,6 +11464,24 @@ export interface components {
       file?: string | null;
       year?: number | null;
     };
+    ExpertEducation: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      degree: string;
+      institution: string;
+      is_primary?: boolean;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+      /** @description cuid-format identifier for this entity. */
+      readonly expert: string;
+    };
+    ExpertEducationRequest: {
+      degree: string;
+      institution: string;
+      is_primary?: boolean;
+    };
     ExpertExpertise: {
       /** @description cuid-format identifier for this entity. */
       readonly id: string;
@@ -10879,6 +11532,26 @@ export interface components {
       discipline: string;
       is_primary?: boolean;
       target_level?: components['schemas']['TargetLevelEnum'];
+    };
+    ExpertPaymentInitiateRequestRequest: {
+      /** @description ID of the PaymentModel record to pay */
+      payment_id: string;
+      /** @description M-Pesa phone number (e.g. 255712345678) */
+      phone_number?: string;
+    };
+    ExpertPaymentInitiateResponse: {
+      message: string;
+      payment_id: string;
+      status: string;
+    };
+    ExpertPaymentStatusResponse: {
+      payment_id: string;
+      status: string;
+      /** Format: decimal */
+      amount: string;
+      name: string;
+      /** Format: date-time */
+      created_at: string;
     };
     ExpertProfile: {
       /** @description cuid-format identifier for this entity. */
@@ -10936,7 +11609,7 @@ export interface components {
       call_rate_per_min?: string;
       /** Format: decimal */
       group_subscription_price?: string;
-      /** @description If False, expert only accepts audio calls */
+      /** @description Deprecated in v1 — video is mandatory for all calls. Always True. */
       video_calls_enabled?: boolean;
       /** @description Minimum call duration in minutes that students can book */
       minimum_call_duration?: number;
@@ -11018,7 +11691,7 @@ export interface components {
       call_rate_per_min?: string;
       /** Format: decimal */
       group_subscription_price?: string;
-      /** @description If False, expert only accepts audio calls */
+      /** @description Deprecated in v1 — video is mandatory for all calls. Always True. */
       video_calls_enabled?: boolean;
       /** @description Minimum call duration in minutes that students can book */
       minimum_call_duration?: number;
@@ -11097,7 +11770,7 @@ export interface components {
       call_rate_per_min?: string;
       /** Format: decimal */
       group_subscription_price?: string;
-      /** @description If False, expert only accepts audio calls */
+      /** @description Deprecated in v1 — video is mandatory for all calls. Always True. */
       video_calls_enabled?: boolean;
       /** @description Minimum call duration in minutes that students can book */
       minimum_call_duration?: number;
@@ -11178,8 +11851,6 @@ export interface components {
       github_url?: string;
       /** Format: uri */
       website_url?: string;
-      /** @description If False, expert only accepts audio calls */
-      video_calls_enabled?: boolean;
       /** @description Minimum call duration in minutes that students can book */
       minimum_call_duration?: number;
     };
@@ -11234,7 +11905,7 @@ export interface components {
       call_rate_per_min?: string;
       /** Format: decimal */
       group_subscription_price?: string;
-      /** @description If False, expert only accepts audio calls */
+      /** @description Deprecated in v1 — video is mandatory for all calls. Always True. */
       video_calls_enabled?: boolean;
       /** @description Minimum call duration in minutes that students can book */
       minimum_call_duration?: number;
@@ -11242,6 +11913,44 @@ export interface components {
       is_onboarding_complete?: boolean;
       is_active?: boolean;
       is_online?: boolean;
+    };
+    ExpertSocialLink: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      type: string;
+      /** Format: uri */
+      url: string;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+      /** @description cuid-format identifier for this entity. */
+      readonly expert: string;
+    };
+    ExpertSocialLinkRequest: {
+      type: string;
+      /** Format: uri */
+      url: string;
+    };
+    ExpertWorkHistory: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      title: string;
+      organization: string;
+      years?: string;
+      is_current?: boolean;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+      /** @description cuid-format identifier for this entity. */
+      readonly expert: string;
+    };
+    ExpertWorkHistoryRequest: {
+      title: string;
+      organization: string;
+      years?: string;
+      is_current?: boolean;
     };
     /**
      * @description * `formal_education` - Formal Education
@@ -11271,12 +11980,64 @@ export interface components {
       /** Format: binary */
       file: string;
     };
+    /** @description Serializer for finance review of declared payments. */
+    FinanceReview: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      readonly name: string;
+      /** Format: double */
+      readonly amount: number;
+      /** @default  */
+      university_name: string;
+      readonly status: components['schemas']['Status4bdEnum'];
+      readonly mode:
+        | (
+            | components['schemas']['ModeEnum']
+            | components['schemas']['NullEnum']
+          )
+        | null;
+      /**
+       * Format: uri
+       * @description Receipt image/PDF URL uploaded when declaring payment.
+       */
+      readonly receipt_url: string;
+      readonly description: string | null;
+      /** @description Higher priority shows first. Admission=100, Processing=50, others=0. */
+      readonly priority: number;
+      /** @description Pipeline stage name this payment is linked to (e.g. 'Police Clearance'). Shown inline in that stage. */
+      readonly linked_stage: string | null;
+      readonly student_name: string;
+      /** @description Admin who declared this payment was made. */
+      readonly declared_by: string | null;
+      readonly declared_by_name: string;
+      /** Format: date-time */
+      readonly declared_at: string | null;
+      /** @description Finance staff who reviewed the receipt. */
+      readonly reviewed_by: string | null;
+      readonly reviewed_by_name: string;
+      /** Format: date-time */
+      readonly reviewed_at: string | null;
+      /** @description Notes from finance review (reason for rejection, etc.) */
+      readonly review_notes: string;
+      application_id?: string;
+      readonly proofs: components['schemas']['PaymentProof'][];
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    /** @description Serializer for finance review of declared payments. */
+    FinanceReviewRequest: {
+      /** @default  */
+      university_name: string;
+      application_id?: string;
+    };
     /**
      * @description * `LOCAL` - Local (Tanzania)
      *     * `ABROAD` - Abroad (International)
      * @enum {string}
      */
-    FlowTypeEnum: 'LOCAL' | 'ABROAD';
+    FlowType54dEnum: 'LOCAL' | 'ABROAD';
     /**
      * @description * `MALE` - MALE
      *     * `FEMALE` - FEMALE
@@ -11555,6 +12316,11 @@ export interface components {
       readonly converted_student_name: string;
       readonly converted_student_email: string;
       readonly converted_student_phone: string;
+      /** @default 0 */
+      readonly applications_count: number;
+      readonly applications: string;
+      readonly has_paid_application: string;
+      readonly draft_applications: string;
       source: components['schemas']['SourceEnum'];
       status?: components['schemas']['LeadStatusEnum'];
       student_name: string;
@@ -11642,6 +12408,13 @@ export interface components {
       readonly subject: string | null;
       /** Format: date-time */
       readonly created_at: string;
+    };
+    MakePaymentStatusResponse: {
+      message: string;
+      status: string;
+      items: string;
+      snippe_status?: string;
+      payment_url?: string;
     };
     ManualEmail: {
       readonly id: number;
@@ -11737,6 +12510,12 @@ export interface components {
       /** @description cuid-format identifier for this entity. */
       student?: string | null;
     };
+    /**
+     * @description * `VIDEO` - Video
+     *     * `IMAGE` - Image
+     * @enum {string}
+     */
+    MediaTypeEnum: 'VIDEO' | 'IMAGE';
     Message: {
       /** @description cuid-format identifier for this entity. */
       readonly id: string;
@@ -11875,9 +12654,10 @@ export interface components {
      * @description * `bank` - Bank
      *     * `mobile` - Mobile
      *     * `balance` - Balance
+     *     * `cash` - Cash
      * @enum {string}
      */
-    ModeEnum: 'bank' | 'mobile' | 'balance';
+    ModeEnum: 'bank' | 'mobile' | 'balance' | 'cash';
     /**
      * @description * `labs` - labs
      *     * `libraries` - libraries
@@ -12085,6 +12865,40 @@ export interface components {
       /** Format: date-time */
       readonly created_at: string;
     };
+    OfficeLocation: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** @description E.g. "Dar es Salaam Head Office" */
+      name: string;
+      address: string;
+      /** Format: decimal */
+      latitude?: string | null;
+      /** Format: decimal */
+      longitude?: string | null;
+      /** @description List of phone numbers, e.g. ["+255 737 449 937", "+255 123 456 789"] */
+      phones?: unknown;
+      /** @description List of email addresses, e.g. ["info@chuolink.com", "support@chuolink.com"] */
+      emails?: unknown;
+      is_active?: boolean;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+    };
+    OfficeLocationRequest: {
+      /** @description E.g. "Dar es Salaam Head Office" */
+      name: string;
+      address: string;
+      /** Format: decimal */
+      latitude?: string | null;
+      /** Format: decimal */
+      longitude?: string | null;
+      /** @description List of phone numbers, e.g. ["+255 737 449 937", "+255 123 456 789"] */
+      phones?: unknown;
+      /** @description List of email addresses, e.g. ["info@chuolink.com", "support@chuolink.com"] */
+      emails?: unknown;
+      is_active?: boolean;
+    };
     /**
      * @description * `student` - Student
      *     * `staff` - Staff
@@ -12210,6 +13024,21 @@ export interface components {
        */
       previous?: string | null;
       results?: components['schemas']['ALevelSubjectList'][];
+    };
+    PaginatedAccreditationList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['Accreditation'][];
     };
     PaginatedAdmissionLetterModelList: {
       /** @example 123 */
@@ -13186,6 +14015,21 @@ export interface components {
       previous?: string | null;
       results?: components['schemas']['ExpertCredentialList'][];
     };
+    PaginatedExpertEducationList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['ExpertEducation'][];
+    };
     PaginatedExpertExpertiseList: {
       /** @example 123 */
       count?: number;
@@ -13246,6 +14090,51 @@ export interface components {
       previous?: string | null;
       results?: components['schemas']['ExpertProfileList'][];
     };
+    PaginatedExpertProfilePublicList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['ExpertProfilePublic'][];
+    };
+    PaginatedExpertSocialLinkList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['ExpertSocialLink'][];
+    };
+    PaginatedExpertWorkHistoryList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['ExpertWorkHistory'][];
+    };
     PaginatedFileUploadList: {
       /** @example 123 */
       count?: number;
@@ -13260,6 +14149,21 @@ export interface components {
        */
       previous?: string | null;
       results?: components['schemas']['FileUpload'][];
+    };
+    PaginatedFinanceReviewList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['FinanceReview'][];
     };
     PaginatedGeneralExpenseList: {
       /** @example 123 */
@@ -13500,6 +14404,21 @@ export interface components {
        */
       previous?: string | null;
       results?: components['schemas']['OLevelSubjectList'][];
+    };
+    PaginatedOfficeLocationList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['OfficeLocation'][];
     };
     PaginatedParentListList: {
       /** @example 123 */
@@ -13936,7 +14855,7 @@ export interface components {
       previous?: string | null;
       results?: components['schemas']['SubscriptionModel'][];
     };
-    PaginatedTestimonialList: {
+    PaginatedTestimonialDetailList: {
       /** @example 123 */
       count?: number;
       /**
@@ -13949,7 +14868,7 @@ export interface components {
        * @example http://api.example.org/accounts/?page=2
        */
       previous?: string | null;
-      results?: components['schemas']['Testimonial'][];
+      results?: components['schemas']['TestimonialDetail'][];
     };
     PaginatedTestimonialListList: {
       /** @example 123 */
@@ -13965,6 +14884,21 @@ export interface components {
        */
       previous?: string | null;
       results?: components['schemas']['TestimonialList'][];
+    };
+    PaginatedTestimonialMediaList: {
+      /** @example 123 */
+      count?: number;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=4
+       */
+      next?: string | null;
+      /**
+       * Format: uri
+       * @example http://api.example.org/accounts/?page=2
+       */
+      previous?: string | null;
+      results?: components['schemas']['TestimonialMedia'][];
     };
     PaginatedTransactionModelList: {
       /** @example 123 */
@@ -14376,6 +15310,17 @@ export interface components {
       type?: components['schemas']['Type84fEnum'];
       category?: components['schemas']['CategoryF26Enum'];
     };
+    PatchedAccreditationRequest: {
+      /** @description E.g. "TCU Registered Agency" */
+      name?: string;
+      /** Format: uri */
+      link?: string;
+      /** Format: binary */
+      logo?: string | null;
+      description?: string;
+      is_active?: boolean;
+      display_order?: number;
+    };
     PatchedAdminUserRequest: {
       /** Format: email */
       email?: string;
@@ -14418,12 +15363,15 @@ export interface components {
       application?: string;
     };
     PatchedApplicationRequest: {
-      status?: components['schemas']['StatusC07Enum'];
+      status?: components['schemas']['Status384Enum'];
       budget?: number | null;
       info?: string | null;
       is_sent?: boolean;
       /** Format: date-time */
       when?: string | null;
+      admission_fee_paid?: boolean;
+      /** Format: date-time */
+      admission_deadline?: string | null;
     };
     PatchedApplicationStageInstanceRequest: {
       stage_order?: number;
@@ -14463,7 +15411,7 @@ export interface components {
       completed_by?: string | null;
     };
     PatchedApplicationStageTemplateRequest: {
-      flow_type?: components['schemas']['FlowTypeEnum'];
+      flow_type?: components['schemas']['FlowType54dEnum'];
       stage_order?: number;
       stage_name?: string;
       stage_type?: components['schemas']['StageTypeC6fEnum'];
@@ -15078,6 +16026,11 @@ export interface components {
       file?: string | null;
       year?: number | null;
     };
+    PatchedExpertEducationRequest: {
+      degree?: string;
+      institution?: string;
+      is_primary?: boolean;
+    };
     PatchedExpertExpertiseDetailRequest: {
       /** @description cuid-format identifier for this entity. */
       expert?: string;
@@ -15143,7 +16096,7 @@ export interface components {
       call_rate_per_min?: string;
       /** Format: decimal */
       group_subscription_price?: string;
-      /** @description If False, expert only accepts audio calls */
+      /** @description Deprecated in v1 — video is mandatory for all calls. Always True. */
       video_calls_enabled?: boolean;
       /** @description Minimum call duration in minutes that students can book */
       minimum_call_duration?: number;
@@ -15216,7 +16169,7 @@ export interface components {
       call_rate_per_min?: string;
       /** Format: decimal */
       group_subscription_price?: string;
-      /** @description If False, expert only accepts audio calls */
+      /** @description Deprecated in v1 — video is mandatory for all calls. Always True. */
       video_calls_enabled?: boolean;
       /** @description Minimum call duration in minutes that students can book */
       minimum_call_duration?: number;
@@ -15225,10 +16178,27 @@ export interface components {
       is_active?: boolean;
       is_online?: boolean;
     };
+    PatchedExpertSocialLinkRequest: {
+      type?: string;
+      /** Format: uri */
+      url?: string;
+    };
+    PatchedExpertWorkHistoryRequest: {
+      title?: string;
+      organization?: string;
+      years?: string;
+      is_current?: boolean;
+    };
     PatchedFileUploadRequest: {
       name?: string;
       /** Format: binary */
       file?: string;
+    };
+    /** @description Serializer for finance review of declared payments. */
+    PatchedFinanceReviewRequest: {
+      /** @default  */
+      university_name: string;
+      application_id?: string;
     };
     PatchedGeneralExpenseDetailRequest: {
       name?: string;
@@ -15466,6 +16436,20 @@ export interface components {
       type?: components['schemas']['Type84fEnum'];
       category?: components['schemas']['CategoryF26Enum'];
     };
+    PatchedOfficeLocationRequest: {
+      /** @description E.g. "Dar es Salaam Head Office" */
+      name?: string;
+      address?: string;
+      /** Format: decimal */
+      latitude?: string | null;
+      /** Format: decimal */
+      longitude?: string | null;
+      /** @description List of phone numbers, e.g. ["+255 737 449 937", "+255 123 456 789"] */
+      phones?: unknown;
+      /** @description List of email addresses, e.g. ["info@chuolink.com", "support@chuolink.com"] */
+      emails?: unknown;
+      is_active?: boolean;
+    };
     PatchedParentDetailRequest: {
       /** @description cuid-format identifier for this entity. */
       student?: string;
@@ -15505,7 +16489,7 @@ export interface components {
             | components['schemas']['NullEnum']
           )
         | null;
-      status?: components['schemas']['Status692Enum'];
+      status?: components['schemas']['Status4bdEnum'];
       /**
        * Format: date-time
        * @description Payment deadline. If set and passed, payment may expire.
@@ -15534,7 +16518,7 @@ export interface components {
             | components['schemas']['NullEnum']
           )
         | null;
-      status?: components['schemas']['Status692Enum'];
+      status?: components['schemas']['Status4bdEnum'];
       bulk_id?: string | null;
       /**
        * Format: date-time
@@ -15545,10 +16529,25 @@ export interface components {
       priority?: number;
       /** @description Pipeline stage name this payment is linked to (e.g. 'Police Clearance'). Shown inline in that stage. */
       linked_stage?: string | null;
+      /**
+       * Format: uri
+       * @description Receipt image/PDF URL uploaded when declaring payment.
+       */
+      receipt_url?: string;
+      /** Format: date-time */
+      declared_at?: string | null;
+      /** Format: date-time */
+      reviewed_at?: string | null;
+      /** @description Notes from finance review (reason for rejection, etc.) */
+      review_notes?: string;
       /** @description cuid-format identifier for this entity. */
       user?: string;
       /** @description cuid-format identifier for this entity. */
       app_id?: string | null;
+      /** @description Admin who declared this payment was made. */
+      declared_by?: string | null;
+      /** @description Finance staff who reviewed the receipt. */
+      reviewed_by?: string | null;
     };
     PatchedPipelinePaymentRequest: {
       payment_type?: components['schemas']['PipelinePaymentPaymentTypeEnum'];
@@ -15871,7 +16870,7 @@ export interface components {
        *     * `LOCAL` - Local (Tanzania)
        *     * `ABROAD` - Abroad (International)
        */
-      flow_type?: components['schemas']['FlowTypeEnum'];
+      flow_type?: components['schemas']['FlowType54dEnum'];
       current_phase?: components['schemas']['CurrentPhaseEnum'];
       /** @description True if the student has committed to this university as their final choice. */
       is_committed?: boolean;
@@ -15896,6 +16895,7 @@ export interface components {
     PatchedSubscriptionModelRequest: {
       duration_period?: number;
     };
+    /** @description Enhanced serializer that includes nested media (videos + images). */
     PatchedTestimonialDetailRequest: {
       testimonial_type?: components['schemas']['TestimonialTypeEnum'];
       person_name?: string;
@@ -15910,35 +16910,20 @@ export interface components {
       thumbnail?: string | null;
       /** @description Short text excerpt for display in cards. */
       quote?: string;
+      is_featured?: boolean;
+      is_active?: boolean;
+      display_order?: number;
       /** @description cuid-format identifier for this entity. */
       university?: string | null;
       /** @description cuid-format identifier for this entity. */
       country?: string | null;
-      is_featured?: boolean;
-      is_active?: boolean;
-      display_order?: number;
     };
-    PatchedTestimonialRequest: {
-      testimonial_type?: components['schemas']['TestimonialTypeEnum'];
-      person_name?: string;
-      /** @description E.g. "Parent of Amina, studying in India" */
-      relationship?: string;
-      /**
-       * Format: uri
-       * @description YouTube or Vimeo embed URL.
-       */
-      video_url?: string;
+    PatchedTestimonialMediaRequest: {
       /** Format: binary */
-      thumbnail?: string | null;
-      /** @description Short text excerpt for display in cards. */
-      quote?: string;
-      is_featured?: boolean;
-      is_active?: boolean;
+      file?: string;
       display_order?: number;
       /** @description cuid-format identifier for this entity. */
-      university?: string | null;
-      /** @description cuid-format identifier for this entity. */
-      country?: string | null;
+      testimonial?: string;
     };
     PatchedTransactionModelRequest: {
       code?: string;
@@ -15959,7 +16944,7 @@ export interface components {
       /** Format: email */
       email?: string;
       budget?: number | null;
-      status?: components['schemas']['StatusC07Enum'];
+      status?: components['schemas']['Status384Enum'];
       info?: string | null;
     };
     PatchedUniversityDetailRequest: {
@@ -16154,7 +17139,7 @@ export interface components {
             | components['schemas']['NullEnum']
           )
         | null;
-      status?: components['schemas']['Status692Enum'];
+      status?: components['schemas']['Status4bdEnum'];
       bulk_id?: string | null;
       /**
        * Format: date-time
@@ -16165,6 +17150,17 @@ export interface components {
       priority?: number;
       /** @description Pipeline stage name this payment is linked to (e.g. 'Police Clearance'). Shown inline in that stage. */
       linked_stage?: string | null;
+      /**
+       * Format: uri
+       * @description Receipt image/PDF URL uploaded when declaring payment.
+       */
+      receipt_url?: string;
+      /** Format: date-time */
+      declared_at?: string | null;
+      /** Format: date-time */
+      reviewed_at?: string | null;
+      /** @description Notes from finance review (reason for rejection, etc.) */
+      review_notes?: string;
       /** Format: date-time */
       readonly created_at: string;
       /** Format: date-time */
@@ -16173,6 +17169,10 @@ export interface components {
       user: string;
       /** @description cuid-format identifier for this entity. */
       app_id?: string | null;
+      /** @description Admin who declared this payment was made. */
+      declared_by?: string | null;
+      /** @description Finance staff who reviewed the receipt. */
+      reviewed_by?: string | null;
     };
     PaymentModel: {
       /** @description cuid-format identifier for this entity. */
@@ -16194,7 +17194,7 @@ export interface components {
             | components['schemas']['NullEnum']
           )
         | null;
-      status?: components['schemas']['Status692Enum'];
+      status?: components['schemas']['Status4bdEnum'];
       readonly bulk_id: string | null;
       /**
        * Format: date-time
@@ -16229,7 +17229,7 @@ export interface components {
             | components['schemas']['NullEnum']
           )
         | null;
-      status?: components['schemas']['Status692Enum'];
+      status?: components['schemas']['Status4bdEnum'];
       /**
        * Format: date-time
        * @description Payment deadline. If set and passed, payment may expire.
@@ -16239,6 +17239,19 @@ export interface components {
       priority?: number;
       /** @description Pipeline stage name this payment is linked to (e.g. 'Police Clearance'). Shown inline in that stage. */
       linked_stage?: string | null;
+    };
+    /** @description Proof of payment files attached to a declared payment. */
+    PaymentProof: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      /** Format: uri */
+      readonly file: string;
+      readonly file_url: string;
+      readonly file_name: string;
+      /** @description cuid-format identifier for this entity. */
+      readonly uploaded_by: string | null;
+      /** Format: date-time */
+      readonly created_at: string;
     };
     PaymentRequest: {
       /** @description cuid-format identifier for this entity. */
@@ -16258,7 +17271,7 @@ export interface components {
             | components['schemas']['NullEnum']
           )
         | null;
-      status?: components['schemas']['Status692Enum'];
+      status?: components['schemas']['Status4bdEnum'];
       bulk_id?: string | null;
       /**
        * Format: date-time
@@ -16269,10 +17282,25 @@ export interface components {
       priority?: number;
       /** @description Pipeline stage name this payment is linked to (e.g. 'Police Clearance'). Shown inline in that stage. */
       linked_stage?: string | null;
+      /**
+       * Format: uri
+       * @description Receipt image/PDF URL uploaded when declaring payment.
+       */
+      receipt_url?: string;
+      /** Format: date-time */
+      declared_at?: string | null;
+      /** Format: date-time */
+      reviewed_at?: string | null;
+      /** @description Notes from finance review (reason for rejection, etc.) */
+      review_notes?: string;
       /** @description cuid-format identifier for this entity. */
       user: string;
       /** @description cuid-format identifier for this entity. */
       app_id?: string | null;
+      /** @description Admin who declared this payment was made. */
+      declared_by?: string | null;
+      /** @description Finance staff who reviewed the receipt. */
+      reviewed_by?: string | null;
     };
     /**
      * @description * `BANK` - Bank
@@ -16646,6 +17674,7 @@ export interface components {
      *     * `DATE` - Date
      *     * `SELECT` - Selection
      *     * `SCHEDULE` - Schedule
+     *     * `INFO` - Highlight / Info
      * @enum {string}
      */
     ResponseTypeEnum:
@@ -16658,7 +17687,8 @@ export interface components {
       | 'NUMBER'
       | 'DATE'
       | 'SELECT'
-      | 'SCHEDULE';
+      | 'SCHEDULE'
+      | 'INFO';
     Review: {
       /** @description cuid-format identifier for this entity. */
       readonly id: string;
@@ -17210,17 +18240,39 @@ export interface components {
       | 'WAITING'
       | 'COMPLETED';
     /**
+     * @description * `PENDING` - Pending
+     *     * `ACCEPTED` - Accepted
+     *     * `ADMITTED` - Admitted
+     *     * `REJECTED` - Rejected
+     *     * `SUBMITTED` - Submitted
+     *     * `CANCELLED` - Cancelled
+     *     * `REVOKED` - Revoked
+     *     * `EXPIRED` - Expired
+     * @enum {string}
+     */
+    Status384Enum:
+      | 'PENDING'
+      | 'ACCEPTED'
+      | 'ADMITTED'
+      | 'REJECTED'
+      | 'SUBMITTED'
+      | 'CANCELLED'
+      | 'REVOKED'
+      | 'EXPIRED';
+    /**
      * @description * `pending` - Pending
      *     * `processing` - Processing
+     *     * `declared` - Declared (awaiting finance review)
      *     * `success` - Success
      *     * `failed` - Failed
      *     * `cancelled` - Cancelled
      *     * `refunded` - Refunded
      * @enum {string}
      */
-    Status692Enum:
+    Status4bdEnum:
       | 'pending'
       | 'processing'
+      | 'declared'
       | 'success'
       | 'failed'
       | 'cancelled'
@@ -17232,26 +18284,6 @@ export interface components {
      * @enum {string}
      */
     StatusBa6Enum: 'processing' | 'success' | 'failed';
-    /**
-     * @description * `PENDING` - Pending
-     *     * `APPROVED` - Approved
-     *     * `ADMITTED` - Admitted
-     *     * `REJECTED` - Rejected
-     *     * `SUBMITTED` - Submitted
-     *     * `CANCELLED` - Cancelled
-     *     * `REVOKED` - Revoked
-     *     * `EXPIRED` - Expired
-     * @enum {string}
-     */
-    StatusC07Enum:
-      | 'PENDING'
-      | 'APPROVED'
-      | 'ADMITTED'
-      | 'REJECTED'
-      | 'SUBMITTED'
-      | 'CANCELLED'
-      | 'REVOKED'
-      | 'EXPIRED';
     /**
      * @description * `PENDING` - Pending
      *     * `ACTIVE` - Active
@@ -17579,13 +18611,15 @@ export interface components {
       readonly payments: components['schemas']['PipelinePayment'][];
       readonly related_pipelines: string;
       readonly app_id: string;
+      readonly application_id: string;
+      readonly courses: string;
       /**
        * @description Determines which stage templates are used (local=fewer stages, abroad=full 16).
        *
        *     * `LOCAL` - Local (Tanzania)
        *     * `ABROAD` - Abroad (International)
        */
-      flow_type?: components['schemas']['FlowTypeEnum'];
+      flow_type?: components['schemas']['FlowType54dEnum'];
       /** @description True if the student has committed to this university as their final choice. */
       is_committed?: boolean;
       current_phase?: components['schemas']['CurrentPhaseEnum'];
@@ -17594,6 +18628,24 @@ export interface components {
       /** Format: date-time */
       completed_at?: string | null;
       notes?: string;
+      /** @description Departure batch group (e.g., 'Group 1', 'Jan 2026') */
+      departure_group?: string;
+      /**
+       * Format: date
+       * @description Planned departure date
+       */
+      departure_date?: string | null;
+      /**
+       * @description Flight ticket status
+       *
+       *     * `` - —
+       *     * `NOT_BOOKED` - Not Booked
+       *     * `BOOKED` - Booked
+       *     * `ISSUED` - Issued
+       */
+      ticket_status?:
+        | components['schemas']['TicketStatusEnum']
+        | components['schemas']['BlankEnum'];
       /** Format: date-time */
       readonly created_at: string;
       /** Format: date-time */
@@ -17621,7 +18673,7 @@ export interface components {
        *     * `LOCAL` - Local (Tanzania)
        *     * `ABROAD` - Abroad (International)
        */
-      flow_type?: components['schemas']['FlowTypeEnum'];
+      flow_type?: components['schemas']['FlowType54dEnum'];
       current_phase?: components['schemas']['CurrentPhaseEnum'];
       /** @description True if the student has committed to this university as their final choice. */
       is_committed?: boolean;
@@ -17639,6 +18691,8 @@ export interface components {
       readonly university_name: string;
       readonly country_name: string;
       readonly app_id: string;
+      readonly application_id: string;
+      readonly courses: string;
       readonly completed_stages: string;
       readonly total_stages: string;
       readonly active_stage: string;
@@ -17662,7 +18716,7 @@ export interface components {
        *     * `LOCAL` - Local (Tanzania)
        *     * `ABROAD` - Abroad (International)
        */
-      flow_type?: components['schemas']['FlowTypeEnum'];
+      flow_type?: components['schemas']['FlowType54dEnum'];
       current_phase?: components['schemas']['CurrentPhaseEnum'];
       /** @description True if the student has committed to this university as their final choice. */
       is_committed?: boolean;
@@ -17941,39 +18995,13 @@ export interface components {
       | 'CONSULTATION'
       | 'ESCORT'
       | 'GENERAL';
-    Testimonial: {
-      /** @description cuid-format identifier for this entity. */
-      readonly id: string;
-      readonly university_name: string;
-      readonly country_name: string;
-      testimonial_type: components['schemas']['TestimonialTypeEnum'];
-      person_name: string;
-      /** @description E.g. "Parent of Amina, studying in India" */
-      relationship?: string;
-      /**
-       * Format: uri
-       * @description YouTube or Vimeo embed URL.
-       */
-      video_url?: string;
-      /** Format: uri */
-      thumbnail?: string | null;
-      /** @description Short text excerpt for display in cards. */
-      quote: string;
-      is_featured?: boolean;
-      is_active?: boolean;
-      display_order?: number;
-      /** Format: date-time */
-      readonly created_at: string;
-      /** Format: date-time */
-      readonly updated_at: string;
-      /** @description cuid-format identifier for this entity. */
-      university?: string | null;
-      /** @description cuid-format identifier for this entity. */
-      country?: string | null;
-    };
+    /** @description Enhanced serializer that includes nested media (videos + images). */
     TestimonialDetail: {
       /** @description cuid-format identifier for this entity. */
       readonly id: string;
+      readonly university_name: string;
+      readonly country_name: string;
+      readonly media: components['schemas']['TestimonialMedia'][];
       testimonial_type: components['schemas']['TestimonialTypeEnum'];
       person_name: string;
       /** @description E.g. "Parent of Amina, studying in India" */
@@ -17987,12 +19015,6 @@ export interface components {
       thumbnail?: string | null;
       /** @description Short text excerpt for display in cards. */
       quote: string;
-      /** @description cuid-format identifier for this entity. */
-      university?: string | null;
-      readonly university_name: string;
-      /** @description cuid-format identifier for this entity. */
-      country?: string | null;
-      readonly country_name: string;
       is_featured?: boolean;
       is_active?: boolean;
       display_order?: number;
@@ -18000,7 +19022,12 @@ export interface components {
       readonly created_at: string;
       /** Format: date-time */
       readonly updated_at: string;
+      /** @description cuid-format identifier for this entity. */
+      university?: string | null;
+      /** @description cuid-format identifier for this entity. */
+      country?: string | null;
     };
+    /** @description Enhanced serializer that includes nested media (videos + images). */
     TestimonialDetailRequest: {
       testimonial_type: components['schemas']['TestimonialTypeEnum'];
       person_name: string;
@@ -18015,13 +19042,13 @@ export interface components {
       thumbnail?: string | null;
       /** @description Short text excerpt for display in cards. */
       quote: string;
+      is_featured?: boolean;
+      is_active?: boolean;
+      display_order?: number;
       /** @description cuid-format identifier for this entity. */
       university?: string | null;
       /** @description cuid-format identifier for this entity. */
       country?: string | null;
-      is_featured?: boolean;
-      is_active?: boolean;
-      display_order?: number;
     };
     TestimonialList: {
       /** @description cuid-format identifier for this entity. */
@@ -18042,27 +19069,33 @@ export interface components {
       /** Format: date-time */
       readonly created_at: string;
     };
-    TestimonialRequest: {
-      testimonial_type: components['schemas']['TestimonialTypeEnum'];
-      person_name: string;
-      /** @description E.g. "Parent of Amina, studying in India" */
-      relationship?: string;
+    TestimonialMedia: {
+      /** @description cuid-format identifier for this entity. */
+      readonly id: string;
+      readonly file_url: string;
+      /** Format: uri */
+      file: string;
       /**
-       * Format: uri
-       * @description YouTube or Vimeo embed URL.
+       * @description Automatically detected from file extension on upload.
+       *
+       *     * `VIDEO` - Video
+       *     * `IMAGE` - Image
        */
-      video_url?: string;
+      readonly media_type: components['schemas']['MediaTypeEnum'];
+      display_order?: number;
+      /** Format: date-time */
+      readonly created_at: string;
+      /** Format: date-time */
+      readonly updated_at: string;
+      /** @description cuid-format identifier for this entity. */
+      testimonial: string;
+    };
+    TestimonialMediaRequest: {
       /** Format: binary */
-      thumbnail?: string | null;
-      /** @description Short text excerpt for display in cards. */
-      quote: string;
-      is_featured?: boolean;
-      is_active?: boolean;
+      file: string;
       display_order?: number;
       /** @description cuid-format identifier for this entity. */
-      university?: string | null;
-      /** @description cuid-format identifier for this entity. */
-      country?: string | null;
+      testimonial: string;
     };
     /**
      * @description * `PARENT` - Parent Testimonial
@@ -18079,6 +19112,14 @@ export interface components {
      * @enum {string}
      */
     ThreadStatusEnum: 'open' | 'awaiting_expert' | 'answering' | 'completed';
+    /**
+     * @description * `` - —
+     *     * `NOT_BOOKED` - Not Booked
+     *     * `BOOKED` - Booked
+     *     * `ISSUED` - Issued
+     * @enum {string}
+     */
+    TicketStatusEnum: 'NOT_BOOKED' | 'BOOKED' | 'ISSUED';
     /**
      * @description * `all` - All
      *     * `single` - Single
@@ -18210,7 +19251,7 @@ export interface components {
       /** Format: email */
       email?: string;
       budget?: number | null;
-      status?: components['schemas']['StatusC07Enum'];
+      status?: components['schemas']['Status384Enum'];
       info?: string | null;
       /** @description cuid-format identifier for this entity. */
       readonly app_id: string;
@@ -18233,7 +19274,7 @@ export interface components {
       /** Format: email */
       email?: string;
       budget?: number | null;
-      status?: components['schemas']['StatusC07Enum'];
+      status?: components['schemas']['Status384Enum'];
       info?: string | null;
     };
     UniversityDetail: {
@@ -18614,6 +19655,9 @@ export interface components {
       /** Format: date-time */
       readonly created_at: string;
     };
+    UnreadCountResponse: {
+      count: number;
+    };
     User: {
       /** @description cuid-format identifier for this entity. */
       readonly id: string;
@@ -18823,6 +19867,155 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+  admin_accreditations_list: {
+    parameters: {
+      query?: {
+        is_active?: boolean;
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedAccreditationList'];
+        };
+      };
+    };
+  };
+  admin_accreditations_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'multipart/form-data': components['schemas']['AccreditationRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['AccreditationRequest'];
+        'application/json': components['schemas']['AccreditationRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Accreditation'];
+        };
+      };
+    };
+  };
+  admin_accreditations_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Accreditation'];
+        };
+      };
+    };
+  };
+  admin_accreditations_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'multipart/form-data': components['schemas']['AccreditationRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['AccreditationRequest'];
+        'application/json': components['schemas']['AccreditationRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Accreditation'];
+        };
+      };
+    };
+  };
+  admin_accreditations_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  admin_accreditations_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'multipart/form-data': components['schemas']['PatchedAccreditationRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedAccreditationRequest'];
+        'application/json': components['schemas']['PatchedAccreditationRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Accreditation'];
+        };
+      };
+    };
+  };
   admin_applications_list: {
     parameters: {
       query?: {
@@ -18854,11 +20047,11 @@ export interface operations {
       path?: never;
       cookie?: never;
     };
-    requestBody?: {
+    requestBody: {
       content: {
-        'application/json': components['schemas']['ApplicationRequest'];
-        'application/x-www-form-urlencoded': components['schemas']['ApplicationRequest'];
-        'multipart/form-data': components['schemas']['ApplicationRequest'];
+        'application/json': components['schemas']['CreateApplicationRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['CreateApplicationRequest'];
+        'multipart/form-data': components['schemas']['CreateApplicationRequest'];
       };
     };
     responses: {
@@ -18867,7 +20060,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['Application'];
+          'application/json': components['schemas']['CreateApplication'];
         };
       };
     };
@@ -20662,6 +21855,227 @@ export interface operations {
       };
     };
   };
+  admin_finance_reviews_list: {
+    parameters: {
+      query?: {
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedFinanceReviewList'];
+        };
+      };
+    };
+  };
+  admin_finance_reviews_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['FinanceReviewRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['FinanceReviewRequest'];
+        'multipart/form-data': components['schemas']['FinanceReviewRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['FinanceReview'];
+        };
+      };
+    };
+  };
+  admin_finance_reviews_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['FinanceReview'];
+        };
+      };
+    };
+  };
+  admin_finance_reviews_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['FinanceReviewRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['FinanceReviewRequest'];
+        'multipart/form-data': components['schemas']['FinanceReviewRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['FinanceReview'];
+        };
+      };
+    };
+  };
+  admin_finance_reviews_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  admin_finance_reviews_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedFinanceReviewRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedFinanceReviewRequest'];
+        'multipart/form-data': components['schemas']['PatchedFinanceReviewRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['FinanceReview'];
+        };
+      };
+    };
+  };
+  admin_finance_reviews_approve_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['FinanceReviewRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['FinanceReviewRequest'];
+        'multipart/form-data': components['schemas']['FinanceReviewRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['FinanceReview'];
+        };
+      };
+    };
+  };
+  admin_finance_reviews_reject_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['FinanceReviewRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['FinanceReviewRequest'];
+        'multipart/form-data': components['schemas']['FinanceReviewRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['FinanceReview'];
+        };
+      };
+    };
+  };
+  admin_finance_reviews_stats_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['FinanceReview'];
+        };
+      };
+    };
+  };
   admin_journey_events_list: {
     parameters: {
       query?: {
@@ -20679,7 +22093,7 @@ export interface operations {
          *     * `DOCUMENT_REJECTED` - Document Rejected
          *     * `APPLICATION_CREATED` - Application Created
          *     * `APPLICATION_SUBMITTED` - Application Submitted
-         *     * `APPLICATION_APPROVED` - Application Approved
+         *     * `APPLICATION_ACCEPTED` - Application Accepted
          *     * `APPLICATION_REJECTED` - Application Rejected
          *     * `OFFER_RECEIVED` - Offer Letter Received
          *     * `ADMISSION_CONFIRMED` - Admission Confirmed
@@ -20699,7 +22113,7 @@ export interface operations {
          */
         event_type?:
           | 'ADMISSION_CONFIRMED'
-          | 'APPLICATION_APPROVED'
+          | 'APPLICATION_ACCEPTED'
           | 'APPLICATION_CREATED'
           | 'APPLICATION_REJECTED'
           | 'APPLICATION_SUBMITTED'
@@ -21078,6 +22492,27 @@ export interface operations {
         'multipart/form-data': components['schemas']['LeadRequest'];
       };
     };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Lead'];
+        };
+      };
+    };
+  };
+  admin_leads_declare_payment_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
     responses: {
       200: {
         headers: {
@@ -21482,6 +22917,155 @@ export interface operations {
       };
     };
   };
+  admin_office_locations_list: {
+    parameters: {
+      query?: {
+        is_active?: boolean;
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedOfficeLocationList'];
+        };
+      };
+    };
+  };
+  admin_office_locations_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'multipart/form-data': components['schemas']['OfficeLocationRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['OfficeLocationRequest'];
+        'application/json': components['schemas']['OfficeLocationRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['OfficeLocation'];
+        };
+      };
+    };
+  };
+  admin_office_locations_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['OfficeLocation'];
+        };
+      };
+    };
+  };
+  admin_office_locations_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'multipart/form-data': components['schemas']['OfficeLocationRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['OfficeLocationRequest'];
+        'application/json': components['schemas']['OfficeLocationRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['OfficeLocation'];
+        };
+      };
+    };
+  };
+  admin_office_locations_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  admin_office_locations_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'multipart/form-data': components['schemas']['PatchedOfficeLocationRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedOfficeLocationRequest'];
+        'application/json': components['schemas']['PatchedOfficeLocationRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['OfficeLocation'];
+        };
+      };
+    };
+  };
   admin_overview_retrieve: {
     parameters: {
       query?: never;
@@ -21663,6 +23247,8 @@ export interface operations {
   admin_payments_list: {
     parameters: {
       query?: {
+        /** @description cuid-format identifier for this entity. */
+        app_id?: string;
         created_at?: string;
         /** @description Number of results to return per page. */
         limit?: number;
@@ -21675,6 +23261,7 @@ export interface operations {
         /**
          * @description * `pending` - Pending
          *     * `processing` - Processing
+         *     * `declared` - Declared (awaiting finance review)
          *     * `success` - Success
          *     * `failed` - Failed
          *     * `cancelled` - Cancelled
@@ -21682,6 +23269,7 @@ export interface operations {
          */
         status?:
           | 'cancelled'
+          | 'declared'
           | 'failed'
           | 'pending'
           | 'processing'
@@ -21824,6 +23412,54 @@ export interface operations {
         content: {
           'application/json': components['schemas']['Payment'];
         };
+      };
+    };
+  };
+  admin_payments_declare_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['PaymentRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PaymentRequest'];
+        'multipart/form-data': components['schemas']['PaymentRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Payment'];
+        };
+      };
+    };
+  };
+  admin_payments_proofs_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+        proof_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
       };
     };
   };
@@ -22250,6 +23886,14 @@ export interface operations {
           | 'ORIENTATION'
           | 'POST_APPLICATION'
           | 'PRE_APPLICATION';
+        departure_group?: string;
+        /**
+         * @description Determines which stage templates are used (local=fewer stages, abroad=full 16).
+         *
+         *     * `LOCAL` - Local (Tanzania)
+         *     * `ABROAD` - Abroad (International)
+         */
+        flow_type?: 'ABROAD' | 'LOCAL';
         is_committed?: boolean;
         /** @description Number of results to return per page. */
         limit?: number;
@@ -22261,6 +23905,15 @@ export interface operations {
         search?: string;
         /** @description cuid-format identifier for this entity. */
         student?: string;
+        /**
+         * @description Flight ticket status
+         *
+         *     * `` - —
+         *     * `NOT_BOOKED` - Not Booked
+         *     * `BOOKED` - Booked
+         *     * `ISSUED` - Issued
+         */
+        ticket_status?: '' | 'BOOKED' | 'ISSUED' | 'NOT_BOOKED';
       };
       header?: never;
       path?: never;
@@ -22399,6 +24052,33 @@ export interface operations {
     };
   };
   admin_pipelines_commit_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['StudentPipelineListRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['StudentPipelineListRequest'];
+        'multipart/form-data': components['schemas']['StudentPipelineListRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['StudentPipelineList'];
+        };
+      };
+    };
+  };
+  admin_pipelines_create_fee_create: {
     parameters: {
       query?: never;
       header?: never;
@@ -23024,11 +24704,13 @@ export interface operations {
          *     * `DATE` - Date
          *     * `SELECT` - Selection
          *     * `SCHEDULE` - Schedule
+         *     * `INFO` - Highlight / Info
          */
         response_type?:
           | 'DATE'
           | 'DOCUMENT'
           | 'IMAGE'
+          | 'INFO'
           | 'MULTI_FILE'
           | 'MULTI_IMAGE'
           | 'NUMBER'
@@ -24210,6 +25892,163 @@ export interface operations {
       };
     };
   };
+  admin_testimonial_media_list: {
+    parameters: {
+      query?: {
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /**
+         * @description Automatically detected from file extension on upload.
+         *
+         *     * `VIDEO` - Video
+         *     * `IMAGE` - Image
+         */
+        media_type?: 'IMAGE' | 'VIDEO';
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+        /** @description cuid-format identifier for this entity. */
+        testimonial?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedTestimonialMediaList'];
+        };
+      };
+    };
+  };
+  admin_testimonial_media_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'multipart/form-data': components['schemas']['TestimonialMediaRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['TestimonialMediaRequest'];
+        'application/json': components['schemas']['TestimonialMediaRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['TestimonialMedia'];
+        };
+      };
+    };
+  };
+  admin_testimonial_media_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['TestimonialMedia'];
+        };
+      };
+    };
+  };
+  admin_testimonial_media_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'multipart/form-data': components['schemas']['TestimonialMediaRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['TestimonialMediaRequest'];
+        'application/json': components['schemas']['TestimonialMediaRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['TestimonialMedia'];
+        };
+      };
+    };
+  };
+  admin_testimonial_media_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  admin_testimonial_media_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'multipart/form-data': components['schemas']['PatchedTestimonialMediaRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedTestimonialMediaRequest'];
+        'application/json': components['schemas']['PatchedTestimonialMediaRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['TestimonialMedia'];
+        };
+      };
+    };
+  };
   admin_testimonials_list: {
     parameters: {
       query?: {
@@ -24245,7 +26084,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['PaginatedTestimonialList'];
+          'application/json': components['schemas']['PaginatedTestimonialDetailList'];
         };
       };
     };
@@ -24259,9 +26098,9 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['TestimonialRequest'];
-        'application/x-www-form-urlencoded': components['schemas']['TestimonialRequest'];
-        'multipart/form-data': components['schemas']['TestimonialRequest'];
+        'multipart/form-data': components['schemas']['TestimonialDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['TestimonialDetailRequest'];
+        'application/json': components['schemas']['TestimonialDetailRequest'];
       };
     };
     responses: {
@@ -24270,7 +26109,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['Testimonial'];
+          'application/json': components['schemas']['TestimonialDetail'];
         };
       };
     };
@@ -24291,7 +26130,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['Testimonial'];
+          'application/json': components['schemas']['TestimonialDetail'];
         };
       };
     };
@@ -24307,9 +26146,9 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['TestimonialRequest'];
-        'application/x-www-form-urlencoded': components['schemas']['TestimonialRequest'];
-        'multipart/form-data': components['schemas']['TestimonialRequest'];
+        'multipart/form-data': components['schemas']['TestimonialDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['TestimonialDetailRequest'];
+        'application/json': components['schemas']['TestimonialDetailRequest'];
       };
     };
     responses: {
@@ -24318,7 +26157,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['Testimonial'];
+          'application/json': components['schemas']['TestimonialDetail'];
         };
       };
     };
@@ -24354,9 +26193,9 @@ export interface operations {
     };
     requestBody?: {
       content: {
-        'application/json': components['schemas']['PatchedTestimonialRequest'];
-        'application/x-www-form-urlencoded': components['schemas']['PatchedTestimonialRequest'];
-        'multipart/form-data': components['schemas']['PatchedTestimonialRequest'];
+        'multipart/form-data': components['schemas']['PatchedTestimonialDetailRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedTestimonialDetailRequest'];
+        'application/json': components['schemas']['PatchedTestimonialDetailRequest'];
       };
     };
     responses: {
@@ -24365,7 +26204,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['Testimonial'];
+          'application/json': components['schemas']['TestimonialDetail'];
         };
       };
     };
@@ -27915,7 +29754,7 @@ export interface operations {
         search?: string;
         /**
          * @description * `PENDING` - Pending
-         *     * `APPROVED` - Approved
+         *     * `ACCEPTED` - Accepted
          *     * `ADMITTED` - Admitted
          *     * `REJECTED` - Rejected
          *     * `SUBMITTED` - Submitted
@@ -27924,8 +29763,8 @@ export interface operations {
          *     * `EXPIRED` - Expired
          */
         status?:
+          | 'ACCEPTED'
           | 'ADMITTED'
-          | 'APPROVED'
           | 'CANCELLED'
           | 'EXPIRED'
           | 'PENDING'
@@ -38850,6 +40689,8 @@ export interface operations {
           | 'confirmed'
           | 'no_show'
           | 'pending';
+        /** @description If true, only return upcoming bookings (scheduled_date >= today with pending/confirmed status) */
+        upcoming?: boolean;
       };
       header?: never;
       path?: never;
@@ -39438,20 +41279,14 @@ export interface operations {
       };
       cookie?: never;
     };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['CallRequest'];
-        'application/x-www-form-urlencoded': components['schemas']['CallRequest'];
-        'multipart/form-data': components['schemas']['CallRequest'];
-      };
-    };
+    requestBody?: never;
     responses: {
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['Call'];
+          'application/json': components['schemas']['CallTokenResponse'];
         };
       };
     };
@@ -39854,7 +41689,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['Conversation'];
+          'application/json': components['schemas']['UnreadCountResponse'];
         };
       };
     };
@@ -40251,6 +42086,155 @@ export interface operations {
         };
         content: {
           'application/json': components['schemas']['EarningTransaction'];
+        };
+      };
+    };
+  };
+  expert_education_list: {
+    parameters: {
+      query?: {
+        is_primary?: boolean;
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedExpertEducationList'];
+        };
+      };
+    };
+  };
+  expert_education_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ExpertEducationRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ExpertEducationRequest'];
+        'multipart/form-data': components['schemas']['ExpertEducationRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ExpertEducation'];
+        };
+      };
+    };
+  };
+  expert_education_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ExpertEducation'];
+        };
+      };
+    };
+  };
+  expert_education_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ExpertEducationRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ExpertEducationRequest'];
+        'multipart/form-data': components['schemas']['ExpertEducationRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ExpertEducation'];
+        };
+      };
+    };
+  };
+  expert_education_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  expert_education_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedExpertEducationRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedExpertEducationRequest'];
+        'multipart/form-data': components['schemas']['PatchedExpertEducationRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ExpertEducation'];
         };
       };
     };
@@ -41024,6 +43008,52 @@ export interface operations {
       };
     };
   };
+  expert_payment_status_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ExpertPaymentStatusResponse'];
+        };
+      };
+    };
+  };
+  expert_payment_initiate_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ExpertPaymentInitiateRequestRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ExpertPaymentInitiateRequestRequest'];
+        'multipart/form-data': components['schemas']['ExpertPaymentInitiateRequestRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ExpertPaymentInitiateResponse'];
+        };
+      };
+    };
+  };
   expert_profile_list: {
     parameters: {
       query?: {
@@ -41252,9 +43282,37 @@ export interface operations {
       };
     };
   };
-  expert_profile_public_list_retrieve: {
+  expert_profile_public_list_list: {
     parameters: {
-      query?: never;
+      query?: {
+        /** @description Filter by discipline keyword */
+        discipline?: string;
+        is_active?: boolean;
+        is_online?: boolean;
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description Page number */
+        page?: number;
+        /** @description Search by name, job title, or institution */
+        search?: string;
+        /** @description Sort order: -rating, message_rate, -years_experience */
+        sort_by?: '-rating' | '-years_experience' | 'message_rate';
+        /**
+         * @description * `none` - None
+         *     * `pending` - Pending
+         *     * `under_review` - Under Review
+         *     * `verified` - Verified
+         *     * `rejected` - Rejected
+         */
+        verification_status?:
+          | 'none'
+          | 'pending'
+          | 'rejected'
+          | 'under_review'
+          | 'verified';
+      };
       header?: never;
       path?: never;
       cookie?: never;
@@ -41266,7 +43324,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['ExpertProfilePublic'];
+          'application/json': components['schemas']['PaginatedExpertProfilePublicList'];
         };
       };
     };
@@ -41422,6 +43480,155 @@ export interface operations {
       };
     };
   };
+  expert_social_links_list: {
+    parameters: {
+      query?: {
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+        type?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedExpertSocialLinkList'];
+        };
+      };
+    };
+  };
+  expert_social_links_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ExpertSocialLinkRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ExpertSocialLinkRequest'];
+        'multipart/form-data': components['schemas']['ExpertSocialLinkRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ExpertSocialLink'];
+        };
+      };
+    };
+  };
+  expert_social_links_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ExpertSocialLink'];
+        };
+      };
+    };
+  };
+  expert_social_links_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ExpertSocialLinkRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ExpertSocialLinkRequest'];
+        'multipart/form-data': components['schemas']['ExpertSocialLinkRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ExpertSocialLink'];
+        };
+      };
+    };
+  };
+  expert_social_links_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  expert_social_links_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedExpertSocialLinkRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedExpertSocialLinkRequest'];
+        'multipart/form-data': components['schemas']['PatchedExpertSocialLinkRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ExpertSocialLink'];
+        };
+      };
+    };
+  };
   expert_verification_partial_update: {
     parameters: {
       query?: never;
@@ -41461,6 +43668,80 @@ export interface operations {
     };
   };
   expert_verification_submit_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  expert_verification_thread_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  expert_verification_thread_message_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  expert_verification_thread_messages_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  expert_verification_thread_messages_create: {
     parameters: {
       query?: never;
       header?: never;
@@ -41638,6 +43919,155 @@ export interface operations {
       };
     };
   };
+  expert_work_history_list: {
+    parameters: {
+      query?: {
+        is_current?: boolean;
+        /** @description Number of results to return per page. */
+        limit?: number;
+        /** @description Which field to use when ordering the results. */
+        ordering?: string;
+        /** @description A page number within the paginated result set. */
+        page?: number;
+        /** @description A search term. */
+        search?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedExpertWorkHistoryList'];
+        };
+      };
+    };
+  };
+  expert_work_history_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ExpertWorkHistoryRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ExpertWorkHistoryRequest'];
+        'multipart/form-data': components['schemas']['ExpertWorkHistoryRequest'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ExpertWorkHistory'];
+        };
+      };
+    };
+  };
+  expert_work_history_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ExpertWorkHistory'];
+        };
+      };
+    };
+  };
+  expert_work_history_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ExpertWorkHistoryRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['ExpertWorkHistoryRequest'];
+        'multipart/form-data': components['schemas']['ExpertWorkHistoryRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ExpertWorkHistory'];
+        };
+      };
+    };
+  };
+  expert_work_history_destroy: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description No response body */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  expert_work_history_partial_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['PatchedExpertWorkHistoryRequest'];
+        'application/x-www-form-urlencoded': components['schemas']['PatchedExpertWorkHistoryRequest'];
+        'multipart/form-data': components['schemas']['PatchedExpertWorkHistoryRequest'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ExpertWorkHistory'];
+        };
+      };
+    };
+  };
   expert_ws_subscribe_create: {
     parameters: {
       query?: never;
@@ -41730,19 +44160,23 @@ export interface operations {
   };
   make_payment_retrieve: {
     parameters: {
-      query?: never;
+      query: {
+        /** @description Payment transaction code to check status for */
+        payment_id: string;
+      };
       header?: never;
       path?: never;
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      /** @description No response body */
       200: {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          'application/json': components['schemas']['MakePaymentStatusResponse'];
+        };
       };
     };
   };
@@ -41896,6 +44330,46 @@ export interface operations {
           [name: string]: unknown;
         };
         content?: never;
+      };
+    };
+  };
+  shared_accreditations_list: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Accreditation'][];
+        };
+      };
+    };
+  };
+  shared_accreditations_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['Accreditation'];
+        };
       };
     };
   };
@@ -42634,6 +45108,46 @@ export interface operations {
       };
     };
   };
+  shared_office_locations_list: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['OfficeLocation'][];
+        };
+      };
+    };
+  };
+  shared_office_locations_retrieve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['OfficeLocation'];
+        };
+      };
+    };
+  };
   shared_payment_list: {
     parameters: {
       query?: {
@@ -42645,8 +45159,12 @@ export interface operations {
         ordering?: string;
         /** @description A page number within the paginated result set. */
         page?: number;
+        /** @description Number of results per page (alias for limit) */
+        page_size?: number;
         /** @description A search term. */
         search?: string;
+        /** @description Filter by payment status. 'pending' includes both PENDING and PROCESSING. */
+        status?: 'failed' | 'pending' | 'processing' | 'success';
         /** @description cuid-format identifier for this entity. */
         user?: string;
       };
@@ -43606,7 +46124,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['PaginatedTestimonialList'];
+          'application/json': components['schemas']['PaginatedTestimonialDetailList'];
         };
       };
     };
@@ -43627,7 +46145,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['Testimonial'];
+          'application/json': components['schemas']['TestimonialDetail'];
         };
       };
     };
@@ -44656,9 +47174,14 @@ export interface operations {
       };
     };
   };
-  student_journey_by_application_retrieve: {
+  student_journey_by_application_list: {
     parameters: {
-      query?: never;
+      query?: {
+        /** @description Application UUID to filter stages by */
+        application?: string;
+        /** @description Alias for 'application' parameter */
+        application_id?: string;
+      };
       header?: never;
       path?: never;
       cookie?: never;
@@ -44670,7 +47193,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['StudentStageInstanceDetail'];
+          'application/json': components['schemas']['StudentStageInstanceDetail'][];
         };
       };
     };
@@ -45949,7 +48472,7 @@ export interface operations {
         search?: string;
         /**
          * @description * `PENDING` - Pending
-         *     * `APPROVED` - Approved
+         *     * `ACCEPTED` - Accepted
          *     * `ADMITTED` - Admitted
          *     * `REJECTED` - Rejected
          *     * `SUBMITTED` - Submitted
@@ -45958,8 +48481,8 @@ export interface operations {
          *     * `EXPIRED` - Expired
          */
         status?:
+          | 'ACCEPTED'
           | 'ADMITTED'
-          | 'APPROVED'
           | 'CANCELLED'
           | 'EXPIRED'
           | 'PENDING'

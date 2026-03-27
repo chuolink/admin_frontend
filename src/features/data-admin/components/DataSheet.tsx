@@ -71,9 +71,9 @@ export function DataSheet({
           </div>
 
           {/* Scrollable content */}
-          <ScrollArea className='flex-1'>
+          <div className='flex-1 overflow-y-auto'>
             <div className='px-6 py-4'>{children}</div>
-          </ScrollArea>
+          </div>
 
           {/* Footer */}
           {footer && <div className='border-t px-6 py-4'>{footer}</div>}

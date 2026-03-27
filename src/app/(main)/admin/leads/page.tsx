@@ -126,6 +126,32 @@ export default function LeadsPage() {
     enabled: !!api
   });
 
+  const { data: withAppsData } = useQuery<LeadsResponse>({
+    queryKey: ['leads-stats-with-apps'],
+    queryFn: async () => {
+      const response = await api!.get('/admin/leads/', {
+        params: { page_size: 1, has_applications: 'true' }
+      });
+      return response.data;
+    },
+    enabled: !!api
+  });
+
+  const { data: unpaidData } = useQuery<LeadsResponse>({
+    queryKey: ['leads-stats-unpaid'],
+    queryFn: async () => {
+      const response = await api!.get('/admin/leads/', {
+        params: {
+          page_size: 1,
+          has_applications: 'true',
+          admission_paid: 'false'
+        }
+      });
+      return response.data;
+    },
+    enabled: !!api
+  });
+
   const createLead = useMutation({
     mutationFn: async (data: LeadFormData) => {
       const payload = {
@@ -224,7 +250,7 @@ export default function LeadsPage() {
           </p>
         </div>
 
-        <div className='grid grid-cols-2 gap-4 lg:grid-cols-4'>
+        <div className='grid grid-cols-2 gap-4 lg:grid-cols-6'>
           <Card>
             <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
               <CardTitle className='text-sm font-medium'>Total Leads</CardTitle>
@@ -238,12 +264,34 @@ export default function LeadsPage() {
           </Card>
           <Card>
             <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-              <CardTitle className='text-sm font-medium'>New Leads</CardTitle>
+              <CardTitle className='text-sm font-medium'>New</CardTitle>
               <UserPlus className='h-4 w-4 text-amber-500' />
             </CardHeader>
             <CardContent>
               <div className='text-2xl font-bold text-amber-600'>
                 {newData?.count ?? '--'}
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+              <CardTitle className='text-sm font-medium'>With Apps</CardTitle>
+              <GraduationCap className='h-4 w-4 text-blue-500' />
+            </CardHeader>
+            <CardContent>
+              <div className='text-2xl font-bold text-blue-600'>
+                {withAppsData?.count ?? '--'}
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+              <CardTitle className='text-sm font-medium'>Unpaid</CardTitle>
+              <Clock className='h-4 w-4 text-orange-500' />
+            </CardHeader>
+            <CardContent>
+              <div className='text-2xl font-bold text-orange-600'>
+                {unpaidData?.count ?? '--'}
               </div>
             </CardContent>
           </Card>

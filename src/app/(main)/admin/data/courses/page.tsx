@@ -1,5 +1,7 @@
 'use client';
 
+import { useQueryState } from 'nuqs';
+
 import { useState } from 'react';
 import {
   BookOpen,
@@ -30,7 +32,9 @@ export default function CoursesPage() {
   const [trendDialogOpen, setTrendDialogOpen] = useState(false);
   const [pictureDialogOpen, setPictureDialogOpen] = useState(false);
   const [videoDialogOpen, setVideoDialogOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState('courses');
+  const [activeTab, setActiveTab] = useQueryState('tab', {
+    defaultValue: 'courses'
+  });
 
   const courseStats = stats?.courses;
 
@@ -96,7 +100,7 @@ export default function CoursesPage() {
         )}
 
         {/* Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <Tabs value={activeTab ?? ''} onValueChange={setActiveTab}>
           <div className='flex items-center justify-between'>
             <TabsList>
               <TabsTrigger value='courses'>Courses</TabsTrigger>

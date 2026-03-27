@@ -1,6 +1,8 @@
 // @ts-nocheck
 'use client';
 
+import { useQueryState } from 'nuqs';
+
 import { useState, useMemo, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import useClientApi from '@/lib/axios/clientSide';
@@ -1624,7 +1626,9 @@ function OfferingExpensesTab() {
 
 export default function ExpensesDataPage() {
   const { data: stats, isLoading: statsLoading } = useDataStats();
-  const [activeTab, setActiveTab] = useState('general');
+  const [activeTab, setActiveTab] = useQueryState('tab', {
+    defaultValue: 'general'
+  });
 
   const analyticsItems = [
     {
@@ -1690,7 +1694,7 @@ export default function ExpensesDataPage() {
         )}
 
         {/* Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <Tabs value={activeTab ?? ''} onValueChange={setActiveTab}>
           <TabsList>
             <TabsTrigger value='general'>General Expenses</TabsTrigger>
             <TabsTrigger value='country'>Country Expenses</TabsTrigger>

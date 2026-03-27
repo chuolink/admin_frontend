@@ -13,7 +13,29 @@
       "Bash(ls -la \"/Users/mac/Projects/collab/chuolink/frontend_main/app/\\(frontend\\)/\\(main\\)/university/[university_id]/apply/internal/\")",
       "Bash(ls -la /Users/mac/Projects/collab/chuolink/frontend_main/app/\\\\\\(frontend\\\\\\)/\\\\\\(main\\\\\\)/profile/payments/)",
       "Bash(ls -la /Users/mac/Projects/collab/chuolink/frontend_main/app/\\\\\\(frontend\\\\\\)/\\\\\\(main\\\\\\)/profile/edit/)",
-      "Bash(python3 -c \":*)"
+      "Bash(python3 -c \":*)",
+      "Bash(bun run:*)",
+      "Bash(ls src/app/\\\\\\(main\\\\\\)/admin/leads/[id]/)",
+      "Bash(wc -l src/app/\\\\\\(main\\\\\\)/admin/leads/[leadId]/page.tsx)",
+      "Bash(bunx tsc:*)",
+      "Read(//Users/mac/Projects/collab/chuolink/backend_new/**)",
+      "Bash(source .venv/bin/activate)",
+      "Bash(python manage.py shell -c \":*)",
+      "Bash(python manage.py makemigrations operations)",
+      "Bash(python manage.py migrate)",
+      "Bash(python manage.py makemigrations app)",
+      "Bash(python -c \":*)",
+      "Bash(grep -n \"''APPROVED''\" app/views/university_views.py)",
+      "Bash(python manage.py makemigrations app operations)",
+      "Bash(bun add:*)",
+      "Bash(ls src/app/\\\\\\(main\\\\\\)/admin/applications/[id]/)",
+      "Bash(wc -l src/app/\\\\\\(main\\\\\\)/admin/applications/[id]/page.tsx)",
+      "Bash(grep -rn \"router\\\\.push.*Back\\\\|Back.*router\\\\.push\\\\|onClick.*router\\\\.\\\\\\(push\\\\|replace\\\\\\).*admin\" src/app/\\\\\\(main\\\\\\)/admin/pipeline/[studentId]/page.tsx src/app/\\\\\\(main\\\\\\)/admin/leads/[leadId]/page.tsx src/app/\\\\\\(main\\\\\\)/admin/students/[id]/page.tsx src/app/\\\\\\(main\\\\\\)/admin/payments/[id]/PaymentViewClient.tsx)",
+      "Bash(wc -l src/app/\\\\\\(main\\\\\\)/admin/pipeline/[studentId]/page.tsx)",
+      "Bash(wc -l src/app/\\\\\\(main\\\\\\)/admin/pipeline/page.tsx)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(ls src/app/\\\\\\(main\\\\\\)/admin/application-flows/)",
+      "Bash(wc -l src/app/\\\\\\(main\\\\\\)/admin/application-flows/page.tsx)"
     ]
   }
 }

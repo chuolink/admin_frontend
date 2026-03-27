@@ -1,6 +1,8 @@
 // @ts-nocheck
 'use client';
 
+import { useQueryState } from 'nuqs';
+
 import { useState, useMemo, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import useClientApi from '@/lib/axios/clientSide';
@@ -2000,7 +2002,9 @@ function OLevelGradesTab() {
 
 export default function AcademicsDataPage() {
   const { data: stats, isLoading: statsLoading } = useDataStats();
-  const [activeTab, setActiveTab] = useState('alevel-combinations');
+  const [activeTab, setActiveTab] = useQueryState('tab', {
+    defaultValue: 'alevel-combinations'
+  });
 
   const academicStats = stats?.academics;
 
@@ -2071,7 +2075,7 @@ export default function AcademicsDataPage() {
         )}
 
         {/* Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <Tabs value={activeTab ?? ''} onValueChange={setActiveTab}>
           <TabsList>
             <TabsTrigger value='alevel-combinations'>
               A-Level Combinations
