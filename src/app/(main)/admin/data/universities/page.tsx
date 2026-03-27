@@ -1,5 +1,7 @@
 'use client';
 
+import { useQueryState } from 'nuqs';
+
 import { useState } from 'react';
 import PageContainer from '@/components/layout/page-container';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -26,7 +28,9 @@ import {
 
 export default function UniversitiesDataPage() {
   const { data: stats, isLoading: statsLoading } = useDataStats();
-  const [activeTab, setActiveTab] = useState('universities');
+  const [activeTab, setActiveTab] = useQueryState('tab', {
+    defaultValue: 'universities'
+  });
 
   // University form dialog state
   const [universityDialogOpen, setUniversityDialogOpen] = useState(false);
@@ -128,7 +132,11 @@ export default function UniversitiesDataPage() {
         )}
 
         {/* Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className='w-full'>
+        <Tabs
+          value={activeTab ?? ''}
+          onValueChange={setActiveTab}
+          className='w-full'
+        >
           <div className='flex items-center justify-between'>
             <TabsList>
               <TabsTrigger value='universities'>Universities</TabsTrigger>

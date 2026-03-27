@@ -516,7 +516,7 @@ export default function EditApplicationPage() {
                               </FormControl>
                               <SelectContent>
                                 <SelectItem value='PENDING'>Pending</SelectItem>
-                                <SelectItem value='APPROVED'>
+                                <SelectItem value='ACCEPTED'>
                                   Approved
                                 </SelectItem>
                                 <SelectItem value='REJECTED'>

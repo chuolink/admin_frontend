@@ -273,6 +273,34 @@ export default function LeadTable({ onAddNew, onEdit }: LeadTableProps) {
         filterFn: (row, id, value) => value.includes(row.getValue(id))
       },
       {
+        accessorKey: 'applications_count',
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title='Applications' />
+        ),
+        cell: ({ row }) => {
+          const count = (row.original as any).applications_count ?? 0;
+          const hasPaid = (row.original as any).has_paid_application;
+          if (count === 0)
+            return <span className='text-muted-foreground text-sm'>—</span>;
+          return (
+            <div className='flex items-center gap-1.5'>
+              <Badge variant='outline' className='text-xs'>
+                {count} app{count !== 1 ? 's' : ''}
+              </Badge>
+              {hasPaid && (
+                <Badge
+                  variant='default'
+                  className='bg-green-600 px-1 py-0 text-[9px]'
+                >
+                  Paid
+                </Badge>
+              )}
+            </div>
+          );
+        },
+        enableSorting: true
+      },
+      {
         accessorKey: 'follow_up_date',
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title='Follow-up' />

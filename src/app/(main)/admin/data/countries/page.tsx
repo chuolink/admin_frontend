@@ -1,5 +1,7 @@
 'use client';
 
+import { useQueryState } from 'nuqs';
+
 import { useState } from 'react';
 import PageContainer from '@/components/layout/page-container';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -25,7 +27,9 @@ import {
 
 export default function CountriesDataPage() {
   const { data: stats, isLoading: statsLoading } = useDataStats();
-  const [activeTab, setActiveTab] = useState('countries');
+  const [activeTab, setActiveTab] = useQueryState('tab', {
+    defaultValue: 'countries'
+  });
 
   // Country form dialog state
   const [countryDialogOpen, setCountryDialogOpen] = useState(false);
@@ -121,7 +125,11 @@ export default function CountriesDataPage() {
         )}
 
         {/* Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className='w-full'>
+        <Tabs
+          value={activeTab ?? ''}
+          onValueChange={setActiveTab}
+          className='w-full'
+        >
           <div className='flex items-center justify-between'>
             <TabsList className='flex-wrap'>
               <TabsTrigger value='countries'>Countries</TabsTrigger>

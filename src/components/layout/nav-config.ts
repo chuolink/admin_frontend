@@ -17,6 +17,7 @@ import {
   Star,
   UsersRound,
   Bell,
+  BellRing,
   Database,
   GraduationCap,
   BookOpen,
@@ -27,9 +28,12 @@ import {
   Settings2,
   FileStack,
   Sparkles,
+  Shield,
+  MapPin,
   MessageCircle,
   UserCheck,
-  Contact
+  Contact,
+  ClipboardCheck
 } from 'lucide-react';
 
 export const adminNavGroups: NavGroup[] = [
@@ -75,6 +79,11 @@ export const adminNavGroups: NavGroup[] = [
         title: 'Notifications',
         url: '/admin/notifications',
         icon: Bell
+      },
+      {
+        title: 'Reminders',
+        url: '/admin/reminders',
+        icon: BellRing
       }
     ]
   },
@@ -85,6 +94,11 @@ export const adminNavGroups: NavGroup[] = [
         title: 'Payments',
         url: '/admin/payments',
         icon: CreditCard
+      },
+      {
+        title: 'Reviews',
+        url: '/admin/finance/reviews',
+        icon: ClipboardCheck
       },
       {
         title: 'Withdrawals',
@@ -120,6 +134,16 @@ export const adminNavGroups: NavGroup[] = [
         title: 'Parent Links',
         url: '/admin/parent-links',
         icon: UsersRound
+      },
+      {
+        title: 'Accreditations',
+        url: '/admin/accreditations',
+        icon: Shield
+      },
+      {
+        title: 'Office Locations',
+        url: '/admin/office-locations',
+        icon: MapPin
       }
     ]
   },

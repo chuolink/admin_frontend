@@ -1,5 +1,7 @@
 'use client';
 
+import { useQueryState } from 'nuqs';
+
 import { useState } from 'react';
 import {
   Library,
@@ -25,7 +27,9 @@ import { OfferingFormDialog } from './components/OfferingFormDialog';
 export default function CourseOfferingsPage() {
   const { data: stats, isLoading: statsLoading } = useDataStats();
   const [offeringDialogOpen, setOfferingDialogOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState('offerings');
+  const [activeTab, setActiveTab] = useQueryState('tab', {
+    defaultValue: 'offerings'
+  });
 
   const offeringStats = stats?.course_offerings;
 
@@ -107,7 +111,7 @@ export default function CourseOfferingsPage() {
         )}
 
         {/* Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <Tabs value={activeTab ?? ''} onValueChange={setActiveTab}>
           <div className='flex items-center justify-between'>
             <TabsList>
               <TabsTrigger value='offerings'>Offerings</TabsTrigger>

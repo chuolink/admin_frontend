@@ -27,6 +27,7 @@ import {
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { EntityPicker } from '@/features/data-admin/components/EntityPicker';
 import {
   Plus,
   Globe,
@@ -73,7 +74,8 @@ type ResponseType =
   | 'NUMBER'
   | 'DATE'
   | 'SELECT'
-  | 'SCHEDULE';
+  | 'SCHEDULE'
+  | 'INFO';
 type QuestionScope = 'application' | 'student';
 type AnswerMode = 'list' | 'wizard';
 
@@ -99,10 +101,12 @@ interface SelectOption {
 }
 
 interface LinkedFee {
-  fee_type: string;
-  amount: string;
-  currency: string;
-  description?: string;
+  fee_type: string; // expense name or iname
+  amount: string; // auto-filled from expense
+  currency: string; // auto-filled from expense
+  description?: string; // auto-filled from expense
+  source?: string; // 'general' | 'country' | 'university' | 'custom'
+  expense_id?: string; // link to the actual expense record
 }
 
 interface RequirementConfig {
@@ -135,6 +139,7 @@ interface StageTemplate {
   requirements_config: RequirementConfig[];
   answer_mode?: AnswerMode;
   linked_fees?: LinkedFee[];
+  payment_required_to_progress?: boolean;
   created_by_name: string;
   created_at: string;
 }
@@ -167,7 +172,8 @@ const RESPONSE_TYPE_ICONS: Record<ResponseType, React.ReactNode> = {
   NUMBER: <Hash className='h-3 w-3' />,
   DATE: <Calendar className='h-3 w-3' />,
   SELECT: <ListOrdered className='h-3 w-3' />,
-  SCHEDULE: <Clock className='h-3 w-3' />
+  SCHEDULE: <Clock className='h-3 w-3' />,
+  INFO: <Info className='h-3 w-3' />
 };
 
 const RESPONSE_TYPE_LABELS: Record<ResponseType, string> = {
@@ -180,7 +186,8 @@ const RESPONSE_TYPE_LABELS: Record<ResponseType, string> = {
   NUMBER: 'Number input',
   DATE: 'Date picker',
   SELECT: 'Dropdown selection',
-  SCHEDULE: 'Appointment'
+  SCHEDULE: 'Appointment',
+  INFO: 'Highlight / Info (read-only)'
 };
 
 const DOCUMENT_TYPE_LABELS: Record<DocumentType, string> = {
@@ -214,6 +221,7 @@ function CreateStageDialog({ onSuccess }: { onSuccess: () => void }) {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({
     flow_type: 'ABROAD' as FlowType,
+    country: null as string | null,
     stage_name: '',
     stage_type: 'INFO' as StageType,
     stage_order: 1,
@@ -228,6 +236,7 @@ function CreateStageDialog({ onSuccess }: { onSuccess: () => void }) {
     mutationFn: async () => {
       const payload: Record<string, unknown> = { ...form };
       if (!payload.payment_amount) delete payload.payment_amount;
+      if (!payload.country) payload.country = null;
       return (await api!.post('/admin/stage-templates/', payload)).data;
     },
     onSuccess: () => {
@@ -235,6 +244,7 @@ function CreateStageDialog({ onSuccess }: { onSuccess: () => void }) {
       setOpen(false);
       setForm({
         flow_type: 'ABROAD',
+        country: null,
         stage_name: '',
         stage_type: 'INFO',
         stage_order: 1,
@@ -279,6 +289,26 @@ function CreateStageDialog({ onSuccess }: { onSuccess: () => void }) {
                 </SelectContent>
               </Select>
             </div>
+            <div>
+              <Label>Country (optional)</Label>
+              <EntityPicker
+                endpoint='/data-admin/countries/'
+                queryKey='data-admin-countries'
+                mapItem={(item) => ({
+                  id: item.id as string,
+                  name: item.name as string
+                })}
+                value={form.country}
+                onChange={(id) => setForm({ ...form, country: id ?? null })}
+                placeholder='Default (all countries)'
+              />
+              <p className='text-muted-foreground mt-1 text-[10px]'>
+                Leave empty for default flow, or pick a country for a custom
+                flow
+              </p>
+            </div>
+          </div>
+          <div className='grid grid-cols-2 gap-4'>
             <div>
               <Label required>Stage Type</Label>
               <Select
@@ -734,15 +764,147 @@ function AddQuestionDialog({
 
 function LinkedFeesEditor({
   fees,
-  onChange
+  onChange,
+  flowType,
+  countryId
 }: {
   fees: LinkedFee[];
   onChange: (fees: LinkedFee[]) => void;
+  flowType?: string;
+  countryId?: string | null;
 }) {
-  const addFee = () => {
+  const { api } = useClientApi();
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [search, setSearch] = useState('');
+
+  // Fetch available expenses from all sources
+  const { data: generalExpenses } = useQuery({
+    queryKey: ['expenses-general'],
+    queryFn: () =>
+      api!
+        .get('/data-admin/general-expenses/', { params: { page_size: 100 } })
+        .then((r) => r.data?.results || []),
+    enabled: !!api && pickerOpen
+  });
+
+  const { data: countryExpenses } = useQuery({
+    queryKey: ['expenses-country', countryId],
+    queryFn: () =>
+      api!
+        .get('/data-admin/country-expenses/', {
+          params: {
+            page_size: 100,
+            ...(countryId ? { country: countryId } : {})
+          }
+        })
+        .then((r) => r.data?.results || []),
+    enabled: !!api && pickerOpen
+  });
+
+  const { data: uniExpenses } = useQuery({
+    queryKey: ['expenses-university'],
+    queryFn: () =>
+      api!
+        .get('/data-admin/university-expenses/', { params: { page_size: 50 } })
+        .then((r) => r.data?.results || []),
+    enabled: !!api && pickerOpen
+  });
+
+  // Build grouped options
+  type ExpenseOption = {
+    id: string;
+    name: string;
+    amount: number;
+    currency: string;
+    source: string;
+    group: string;
+    iname?: string;
+    linked_stage?: string;
+  };
+  const allExpenses: ExpenseOption[] = [];
+
+  if (generalExpenses) {
+    for (const e of generalExpenses) {
+      allExpenses.push({
+        id: e.id,
+        name: e.name,
+        amount: e.start_amount || 0,
+        currency: e.currency || 'TZS',
+        source: 'general',
+        group: 'General Fees',
+        iname: e.iname,
+        linked_stage: e.linked_stage
+      });
+    }
+  }
+  if (countryExpenses) {
+    for (const e of countryExpenses) {
+      allExpenses.push({
+        id: e.id,
+        name: `${e.name}${e.country_name ? ` (${e.country_name})` : ''}`,
+        amount: e.start_amount || 0,
+        currency: e.currency || 'TZS',
+        source: 'country',
+        group: 'Country Fees',
+        iname: e.iname,
+        linked_stage: e.linked_stage
+      });
+    }
+  }
+  if (uniExpenses) {
+    for (const e of uniExpenses) {
+      allExpenses.push({
+        id: e.id,
+        name: `${e.name}${e.university_name ? ` (${e.university_name})` : ''}`,
+        amount: e.start_amount || 0,
+        currency: e.currency || 'TZS',
+        source: 'university',
+        group: 'University Fees',
+        iname: e.iname,
+        linked_stage: e.linked_stage
+      });
+    }
+  }
+
+  const filtered = search
+    ? allExpenses.filter((e) =>
+        e.name.toLowerCase().includes(search.toLowerCase())
+      )
+    : allExpenses;
+
+  const grouped = filtered.reduce<Record<string, ExpenseOption[]>>((acc, e) => {
+    (acc[e.group] ??= []).push(e);
+    return acc;
+  }, {});
+
+  const selectExpense = (expense: ExpenseOption) => {
+    // Don't add duplicate
+    if (fees.some((f) => f.expense_id === expense.id)) return;
     onChange([
       ...fees,
-      { fee_type: '', amount: '', currency: 'TZS', description: '' }
+      {
+        fee_type: expense.iname || expense.name,
+        amount: String(expense.amount),
+        currency: expense.currency,
+        description: expense.name,
+        source: expense.source,
+        expense_id: expense.id
+      }
+    ]);
+    setPickerOpen(false);
+    setSearch('');
+  };
+
+  const addCustomFee = () => {
+    onChange([
+      ...fees,
+      {
+        fee_type: '',
+        amount: '',
+        currency: 'TZS',
+        description: '',
+        source: 'custom'
+      }
     ]);
   };
 
@@ -757,66 +919,167 @@ function LinkedFeesEditor({
     onChange(fees.filter((_, i) => i !== idx));
   };
 
+  const SOURCE_COLORS: Record<string, string> = {
+    general: 'bg-blue-500/10 text-blue-500 border-blue-500/20',
+    country: 'bg-green-500/10 text-green-500 border-green-500/20',
+    university: 'bg-violet-500/10 text-violet-500 border-violet-500/20',
+    custom: 'bg-amber-500/10 text-amber-500 border-amber-500/20'
+  };
+
   return (
     <div className='space-y-2'>
       <div className='flex items-center justify-between'>
         <Label className='text-muted-foreground mb-0 text-xs font-medium'>
           Linked Fees
         </Label>
-        <Button
-          variant='outline'
-          size='sm'
-          className='h-7 text-xs'
-          onClick={addFee}
-        >
-          <Plus className='mr-1 h-3 w-3' /> Add Fee
-        </Button>
+        <div className='flex gap-1'>
+          <Button
+            variant='outline'
+            size='sm'
+            className='h-7 text-xs'
+            onClick={() => setPickerOpen(true)}
+          >
+            <CreditCard className='mr-1 h-3 w-3' /> Pick from Expenses
+          </Button>
+          <Button
+            variant='ghost'
+            size='sm'
+            className='h-7 text-xs'
+            onClick={addCustomFee}
+          >
+            <Plus className='mr-1 h-3 w-3' /> Custom
+          </Button>
+        </div>
       </div>
+
       {fees.length === 0 && (
         <p className='text-muted-foreground text-xs italic'>
-          No linked fees configured.
+          No linked fees. Pick from expense catalog or add custom fee.
         </p>
       )}
+
       {fees.map((fee, idx) => (
         <div
           key={idx}
-          className='bg-muted/30 flex items-center gap-2 rounded-md border p-2'
+          className='bg-muted/30 space-y-1.5 rounded-md border p-2'
         >
-          <Input
-            value={fee.fee_type}
-            onChange={(e) => updateFee(idx, 'fee_type', e.target.value)}
-            placeholder='Fee type'
-            className='h-7 flex-1 text-xs'
-          />
-          <Input
-            type='number'
-            value={fee.amount}
-            onChange={(e) => updateFee(idx, 'amount', e.target.value)}
-            placeholder='Amount'
-            className='h-7 w-24 text-xs'
-          />
-          <Input
-            value={fee.currency}
-            onChange={(e) => updateFee(idx, 'currency', e.target.value)}
-            placeholder='TZS'
-            className='h-7 w-16 text-xs'
-          />
-          <Input
-            value={fee.description || ''}
-            onChange={(e) => updateFee(idx, 'description', e.target.value)}
-            placeholder='Description'
-            className='h-7 flex-1 text-xs'
-          />
-          <Button
-            variant='ghost'
-            size='icon'
-            className='text-destructive hover:text-destructive h-7 w-7 shrink-0'
-            onClick={() => removeFee(idx)}
-          >
-            <X className='h-3 w-3' />
-          </Button>
+          <div className='flex items-center gap-2'>
+            {fee.source && fee.source !== 'custom' && (
+              <span
+                className={`rounded-full border px-1.5 py-0.5 text-[9px] ${SOURCE_COLORS[fee.source] || ''}`}
+              >
+                {fee.source}
+              </span>
+            )}
+            <span className='flex-1 truncate text-xs font-medium'>
+              {fee.description || fee.fee_type || 'Custom fee'}
+            </span>
+            <span className='text-muted-foreground text-xs'>
+              {fee.currency} {Number(fee.amount || 0).toLocaleString()}
+            </span>
+            <Button
+              variant='ghost'
+              size='icon'
+              className='text-destructive hover:text-destructive h-6 w-6 shrink-0'
+              onClick={() => removeFee(idx)}
+            >
+              <X className='h-3 w-3' />
+            </Button>
+          </div>
+          {/* Custom fee: show editable fields */}
+          {fee.source === 'custom' && (
+            <div className='flex items-center gap-1.5 pt-1'>
+              <Input
+                value={fee.fee_type}
+                onChange={(e) => updateFee(idx, 'fee_type', e.target.value)}
+                placeholder='Fee name'
+                className='h-6 flex-1 text-[11px]'
+              />
+              <Input
+                type='number'
+                value={fee.amount}
+                onChange={(e) => updateFee(idx, 'amount', e.target.value)}
+                placeholder='Amount'
+                className='h-6 w-20 text-[11px]'
+              />
+              <select
+                value={fee.currency}
+                onChange={(e) => updateFee(idx, 'currency', e.target.value)}
+                className='h-6 rounded border bg-transparent px-1 text-[11px]'
+              >
+                <option value='TZS'>TZS</option>
+                <option value='USD'>USD</option>
+              </select>
+            </div>
+          )}
         </div>
       ))}
+
+      {/* Expense Picker Dialog */}
+      <Dialog open={pickerOpen} onOpenChange={setPickerOpen}>
+        <DialogContent className='flex max-h-[70vh] max-w-lg flex-col overflow-hidden'>
+          <DialogHeader>
+            <DialogTitle>Pick Fee from Expense Catalog</DialogTitle>
+            <DialogDescription>
+              Select an expense to link to this stage. Amounts are auto-filled.
+            </DialogDescription>
+          </DialogHeader>
+          <Input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder='Search expenses...'
+            className='my-2'
+            autoFocus
+          />
+          <div className='max-h-[50vh] flex-1 space-y-3 overflow-y-auto'>
+            {Object.entries(grouped).map(([group, items]) => (
+              <div key={group}>
+                <p className='text-muted-foreground mb-1 text-xs font-semibold tracking-wider uppercase'>
+                  {group}
+                </p>
+                <div className='space-y-1'>
+                  {items.map((expense) => {
+                    const alreadyAdded = fees.some(
+                      (f) => f.expense_id === expense.id
+                    );
+                    return (
+                      <button
+                        key={expense.id}
+                        onClick={() => !alreadyAdded && selectExpense(expense)}
+                        disabled={alreadyAdded}
+                        className={`w-full rounded-md border px-3 py-2 text-left text-xs transition-colors ${
+                          alreadyAdded
+                            ? 'bg-muted/20 cursor-not-allowed opacity-40'
+                            : 'hover:border-primary/30 hover:bg-primary/5 cursor-pointer'
+                        }`}
+                      >
+                        <div className='flex items-center justify-between'>
+                          <span className='font-medium'>{expense.name}</span>
+                          <span className='text-muted-foreground'>
+                            {expense.currency} {expense.amount.toLocaleString()}
+                          </span>
+                        </div>
+                        {expense.linked_stage && (
+                          <p className='text-muted-foreground mt-0.5 text-[10px]'>
+                            Stage: {expense.linked_stage}
+                          </p>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+            {Object.keys(grouped).length === 0 && (
+              <p className='text-muted-foreground py-8 text-center text-sm'>
+                {search
+                  ? 'No expenses match your search.'
+                  : 'No expenses found in the catalog.'}
+              </p>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
@@ -958,7 +1221,29 @@ function StageRow({
           <LinkedFeesEditor
             fees={linkedFees}
             onChange={(fees) => onUpdateStage({ linked_fees: fees })}
+            flowType={stage.flow_type}
+            countryId={stage.country}
           />
+
+          {/* Payment Required to Progress */}
+          {linkedFees.length > 0 && (
+            <label className='flex items-center gap-2 text-xs'>
+              <input
+                type='checkbox'
+                checked={stage.payment_required_to_progress ?? false}
+                onChange={(e) =>
+                  onUpdateStage({
+                    payment_required_to_progress: e.target.checked
+                  })
+                }
+                className='border-muted-foreground/30 h-3.5 w-3.5 rounded'
+              />
+              <span className='text-muted-foreground'>
+                Require linked fees to be paid before student can progress past
+                this stage
+              </span>
+            </label>
+          )}
 
           {/* Questions */}
           <div>
@@ -1140,8 +1425,37 @@ export default function ApplicationFlowsPage() {
     filterFlow === 'ALL'
       ? templates
       : templates.filter((t) => t.flow_type === filterFlow);
-  const localTemplates = filtered.filter((t) => t.flow_type === 'LOCAL');
-  const abroadTemplates = filtered.filter((t) => t.flow_type === 'ABROAD');
+
+  // Group by flow_type + country
+  const defaultLocal = filtered.filter(
+    (t) => t.flow_type === 'LOCAL' && !t.country
+  );
+  const defaultAbroad = filtered.filter(
+    (t) => t.flow_type === 'ABROAD' && !t.country
+  );
+
+  // Country-specific flows
+  const countryFlows = new Map<
+    string,
+    { country_name: string; flow_type: string; stages: StageTemplate[] }
+  >();
+  filtered
+    .filter((t) => t.country)
+    .forEach((t) => {
+      const key = `${t.flow_type}-${t.country}`;
+      if (!countryFlows.has(key)) {
+        countryFlows.set(key, {
+          country_name: t.country_name || t.country || 'Unknown',
+          flow_type: t.flow_type,
+          stages: []
+        });
+      }
+      countryFlows.get(key)!.stages.push(t);
+    });
+
+  // Keep backward compat
+  const localTemplates = defaultLocal;
+  const abroadTemplates = defaultAbroad;
 
   const renderStageList = (
     stages: StageTemplate[],
@@ -1231,18 +1545,38 @@ export default function ApplicationFlowsPage() {
           </div>
         ) : (
           <div className='space-y-6'>
+            {/* Default flows (no country) */}
             {(filterFlow === 'ALL' || filterFlow === 'LOCAL') &&
               renderStageList(
                 localTemplates,
-                'Local Flow',
+                'Local Flow (Default)',
                 <MapPin className='h-5 w-5 text-blue-500' />
               )}
             {(filterFlow === 'ALL' || filterFlow === 'ABROAD') &&
               renderStageList(
                 abroadTemplates,
-                'Abroad Flow',
+                'Abroad Flow (Default)',
                 <Globe className='h-5 w-5 text-green-500' />
               )}
+
+            {/* Country-specific flows */}
+            {countryFlows.size > 0 && (
+              <>
+                <div className='border-t pt-4'>
+                  <h3 className='text-muted-foreground mb-4 text-xs font-semibold tracking-wider uppercase'>
+                    Country-Specific Flows
+                  </h3>
+                </div>
+                {Array.from(countryFlows.values()).map(
+                  ({ country_name, flow_type, stages }) =>
+                    renderStageList(
+                      stages,
+                      `${country_name} (${flow_type})`,
+                      <Globe className='h-5 w-5 text-purple-500' />
+                    )
+                )}
+              </>
+            )}
           </div>
         )}
       </div>

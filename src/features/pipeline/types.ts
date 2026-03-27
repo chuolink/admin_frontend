@@ -119,6 +119,8 @@ export interface StageInstance {
   assigned_to?: string | null;
   assigned_to_name?: string;
   notes?: string;
+  linked_fees?: Array<{ pattern: string; required: boolean; label: string }>;
+  payment_required_to_progress?: boolean;
   requirements: StageRequirement[];
   requirements_summary?: RequirementsSummary;
   created_at: string;
@@ -384,7 +386,7 @@ export type JourneyEventType =
   | 'DOCUMENT_REJECTED'
   | 'APPLICATION_CREATED'
   | 'APPLICATION_SUBMITTED'
-  | 'APPLICATION_APPROVED'
+  | 'APPLICATION_ACCEPTED'
   | 'APPLICATION_REJECTED'
   | 'OFFER_RECEIVED'
   | 'ADMISSION_CONFIRMED'

@@ -57,7 +57,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 const statusOptions = [
   { label: 'Pending', value: 'PENDING', icon: Clock },
-  { label: 'Approved', value: 'APPROVED', icon: CheckCircle },
+  { label: 'Accepted', value: 'ACCEPTED', icon: CheckCircle },
   { label: 'Admitted', value: 'ADMITTED', icon: CheckCircle },
   { label: 'Submitted', value: 'SUBMITTED', icon: Send },
   { label: 'Full Paid', value: 'FULL_PAID', icon: CheckCircle },
@@ -77,7 +77,7 @@ const STATUS_BADGE: Record<
   'default' | 'secondary' | 'destructive' | 'outline'
 > = {
   PENDING: 'outline',
-  APPROVED: 'default',
+  ACCEPTED: 'default',
   ADMITTED: 'default',
   SUBMITTED: 'default',
   FULL_PAID: 'default',

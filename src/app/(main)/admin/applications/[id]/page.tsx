@@ -1,6 +1,8 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryState } from 'nuqs';
 import { useRouter, useParams } from 'next/navigation';
 import useClientApi from '@/lib/axios/clientSide';
 import PageContainer from '@/components/layout/page-container';
@@ -16,9 +18,26 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { Application } from '@/types/application';
 import { Student as StudentDetailsBase } from '@/types/student-details';
 import { Progress } from '@/components/ui/progress';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter
+} from '@/components/ui/dialog';
 import {
   ArrowLeft,
   FileText,
@@ -45,12 +64,15 @@ import {
   MapPin,
   Circle,
   SkipForward,
-  AlertTriangle
+  AlertTriangle,
+  Upload,
+  Loader2
 } from 'lucide-react';
 import { formatDate, formatCurrency, cn } from '@/lib/utils';
 import { format, parseISO, formatDistanceToNow } from 'date-fns';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Link from 'next/link';
+import { toast } from 'sonner';
 import AdminJourneyTab from './AdminJourneyTab';
 import ParentInfoCard from '../../students/[id]/ParentInfoCard';
 import DocumentVaultChecklist from './DocumentVaultChecklist';
@@ -100,7 +122,7 @@ const STATUS_CONFIG: Record<
   }
 > = {
   PENDING: { variant: 'outline', icon: Clock },
-  APPROVED: { variant: 'default', icon: CheckCircle },
+  ACCEPTED: { variant: 'default', icon: CheckCircle },
   ADMITTED: { variant: 'default', icon: CheckCircle },
   SUBMITTED: { variant: 'default', icon: Send },
   FULL_PAID: { variant: 'default', icon: DollarSign },
@@ -114,7 +136,18 @@ export default function ApplicationDetailsPage() {
   const router = useRouter();
   const params = useParams();
   const { api } = useClientApi();
+  const queryClient = useQueryClient();
   const applicationId = params.id;
+  const [tab, setTab] = useQueryState('tab', { defaultValue: 'overview' });
+
+  // Declare fee paid state
+  const [declareFeeDialogOpen, setDeclareFeeDialogOpen] = useState(false);
+  const [declareFeeId, setDeclareFeeId] = useState('');
+  const [declareFeeFiles, setDeclareFeeFiles] = useState<File[]>([]);
+  const [declareFeeForm, setDeclareFeeForm] = useState({
+    mode: 'cash',
+    notes: ''
+  });
 
   const {
     data: application,
@@ -156,6 +189,57 @@ export default function ApplicationDetailsPage() {
     enabled: !!api && !!applicationId
   });
   const pipeline = pipelineData?.results?.[0];
+
+  // Mutation: update application status
+  const updateStatusMutation = useMutation({
+    mutationFn: async (newStatus: string) => {
+      if (!api) throw new Error('API not initialized');
+      return (
+        await api.patch(`/admin/applications/${applicationId}/`, {
+          status: newStatus
+        })
+      ).data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['application', applicationId]
+      });
+      toast.success('Status updated');
+    },
+    onError: () => toast.error('Failed to update status')
+  });
+
+  // Mutation: declare fee paid — uses dedicated /declare/ endpoint
+  const declareFeePaidMutation = useMutation({
+    mutationFn: async (data: {
+      paymentId: string;
+      files: File[];
+      mode: string;
+      notes: string;
+    }) => {
+      if (!api) throw new Error('API not initialized');
+      const formData = new FormData();
+      formData.append('mode', data.mode);
+      formData.append('notes', data.notes);
+      data.files.forEach((f) => formData.append('proofs', f));
+      return (
+        await api.post(`/admin/payments/${data.paymentId}/declare/`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        })
+      ).data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['application', applicationId]
+      });
+      setDeclareFeeDialogOpen(false);
+      setDeclareFeeId('');
+      setDeclareFeeFiles([]);
+      setDeclareFeeForm({ mode: 'cash', notes: '' });
+      toast.success('Payment declared. Pending finance review.');
+    },
+    onError: () => toast.error('Failed to declare payment')
+  });
 
   if (isLoading) {
     return (
@@ -216,7 +300,7 @@ export default function ApplicationDetailsPage() {
             <Button
               variant='ghost'
               size='icon'
-              onClick={() => router.push('/admin/applications')}
+              onClick={() => router.back()}
               className='shrink-0'
             >
               <ArrowLeft className='h-4 w-4' />
@@ -233,6 +317,23 @@ export default function ApplicationDetailsPage() {
                   <StatusIcon className='h-3 w-3' />
                   {application.status}
                 </Badge>
+                <Select
+                  value={application.status}
+                  onValueChange={(val) => updateStatusMutation.mutate(val)}
+                >
+                  <SelectTrigger className='h-7 w-auto text-xs'>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value='PENDING'>Pending</SelectItem>
+                    <SelectItem value='ACCEPTED'>Accepted</SelectItem>
+                    <SelectItem value='SUBMITTED'>Submitted</SelectItem>
+                    <SelectItem value='ADMITTED'>Admitted</SelectItem>
+                    <SelectItem value='EXPIRED'>Expired</SelectItem>
+                    <SelectItem value='REJECTED'>Rejected</SelectItem>
+                    <SelectItem value='CANCELLED'>Cancelled</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div className='text-muted-foreground flex flex-wrap items-center gap-x-3 gap-y-1 text-sm'>
                 <span className='font-mono text-xs'>{application.app_id}</span>
@@ -366,7 +467,7 @@ export default function ApplicationDetailsPage() {
         </div>
 
         {/* Main Content Tabs */}
-        <Tabs defaultValue='overview' className='space-y-4'>
+        <Tabs value={tab} onValueChange={setTab} className='space-y-4'>
           <TabsList className='flex-wrap'>
             <TabsTrigger value='overview'>Overview</TabsTrigger>
             <TabsTrigger value='student'>Student</TabsTrigger>
@@ -891,29 +992,54 @@ export default function ApplicationDetailsPage() {
                             </p>
                           </div>
                         </div>
-                        <div className='text-right'>
-                          <p className='text-sm font-semibold tabular-nums'>
-                            {formatCurrency(fee.amount)}
-                          </p>
-                          <Badge
-                            variant={
-                              fee.status === 'success'
-                                ? 'default'
-                                : fee.status === 'failed'
-                                  ? 'destructive'
-                                  : 'secondary'
-                            }
-                            className='text-[10px]'
-                          >
-                            {fee.status}
-                          </Badge>
+                        <div className='flex items-center gap-2 text-right'>
+                          <div>
+                            <p className='text-sm font-semibold tabular-nums'>
+                              {formatCurrency(fee.amount)}
+                            </p>
+                            <Badge
+                              variant={
+                                fee.status === 'success'
+                                  ? 'default'
+                                  : fee.status === 'failed'
+                                    ? 'destructive'
+                                    : 'secondary'
+                              }
+                              className='text-[10px]'
+                            >
+                              {fee.status}
+                            </Badge>
+                          </div>
+                          {fee.status === 'pending' &&
+                            application.status === 'ACCEPTED' && (
+                              <Button
+                                variant='outline'
+                                size='sm'
+                                className='ml-2 h-6 text-[10px]'
+                                onClick={() => {
+                                  setDeclareFeeId(fee.id);
+                                  setDeclareFeeDialogOpen(true);
+                                }}
+                              >
+                                <DollarSign className='mr-1 h-3 w-3' />
+                                Declare Paid
+                              </Button>
+                            )}
+                          {fee.status === 'declared' && (
+                            <Badge
+                              variant='outline'
+                              className='ml-2 border-amber-500/30 text-[10px] text-amber-500'
+                            >
+                              Pending Review
+                            </Badge>
+                          )}
                         </div>
                       </div>
                     ))}
                   </div>
                 ) : (
                   <p className='text-muted-foreground text-sm'>
-                    {application.status === 'APPROVED'
+                    {application.status === 'ACCEPTED'
                       ? 'Fees will be created automatically by the system'
                       : 'Fees are created when the application is approved'}
                   </p>
@@ -1195,6 +1321,154 @@ export default function ApplicationDetailsPage() {
             <AdminJourneyTab applicationId={application.id} />
           </TabsContent>
         </Tabs>
+
+        {/* Declare Fee Paid Dialog */}
+        <Dialog
+          open={declareFeeDialogOpen}
+          onOpenChange={(open) => {
+            setDeclareFeeDialogOpen(open);
+            if (!open) {
+              setDeclareFeeId('');
+              setDeclareFeeFiles([]);
+              setDeclareFeeForm({ mode: 'cash', notes: '' });
+            }
+          }}
+        >
+          <DialogContent className='flex max-h-[85vh] max-w-md flex-col'>
+            <DialogHeader>
+              <DialogTitle>Declare Fee Paid</DialogTitle>
+              <DialogDescription>
+                Upload proof of payment for finance review.
+              </DialogDescription>
+            </DialogHeader>
+            <div className='flex-1 space-y-4 overflow-y-auto py-2'>
+              <div className='space-y-2'>
+                <Label className='text-sm'>Payment Mode</Label>
+                <Select
+                  value={declareFeeForm.mode}
+                  onValueChange={(value) =>
+                    setDeclareFeeForm((f) => ({ ...f, mode: value }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder='How was this paid?' />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value='cash'>Cash</SelectItem>
+                    <SelectItem value='bank'>Bank Transfer</SelectItem>
+                    <SelectItem value='mobile'>Mobile Money</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className='space-y-2'>
+                <Label className='text-sm'>Proof of Payment *</Label>
+                <label className='border-muted-foreground/20 hover:border-muted-foreground/40 hover:bg-muted/30 flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed p-6 transition-colors'>
+                  <Upload className='text-muted-foreground/50 h-8 w-8' />
+                  <div className='text-center'>
+                    <p className='text-sm font-medium'>
+                      Click to upload proof of payment
+                    </p>
+                    <p className='text-muted-foreground mt-0.5 text-xs'>
+                      Receipts, screenshots, deposit slips (images or PDF)
+                    </p>
+                  </div>
+                  <input
+                    type='file'
+                    multiple
+                    accept='image/*,.pdf'
+                    className='hidden'
+                    onChange={(e) => {
+                      const files = Array.from(e.target.files || []);
+                      setDeclareFeeFiles((prev) => [...prev, ...files]);
+                    }}
+                  />
+                </label>
+                {declareFeeFiles.length > 0 && (
+                  <div className='mt-2 space-y-2'>
+                    {declareFeeFiles.map((file, idx) => (
+                      <div
+                        key={idx}
+                        className='bg-muted/20 flex items-center gap-3 rounded-lg border px-3 py-2'
+                      >
+                        {file.type.startsWith('image/') ? (
+                          /* eslint-disable-next-line @next/next/no-img-element */
+                          <img
+                            src={URL.createObjectURL(file)}
+                            alt={file.name}
+                            className='h-10 w-10 rounded object-cover'
+                          />
+                        ) : (
+                          <FileText className='text-muted-foreground bg-muted h-10 w-10 rounded p-2' />
+                        )}
+                        <div className='min-w-0 flex-1'>
+                          <p className='truncate text-sm font-medium'>
+                            {file.name}
+                          </p>
+                          <p className='text-muted-foreground text-xs'>
+                            {(file.size / 1024).toFixed(0)} KB
+                          </p>
+                        </div>
+                        <Button
+                          type='button'
+                          variant='ghost'
+                          size='sm'
+                          className='text-muted-foreground hover:text-destructive h-7 w-7 p-0'
+                          onClick={() =>
+                            setDeclareFeeFiles((prev) =>
+                              prev.filter((_, i) => i !== idx)
+                            )
+                          }
+                        >
+                          <XCircle className='h-4 w-4' />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div className='space-y-2'>
+                <Label className='text-sm'>Notes</Label>
+                <Textarea
+                  placeholder='Optional notes (e.g. bank reference number)...'
+                  value={declareFeeForm.notes}
+                  onChange={(e) =>
+                    setDeclareFeeForm((f) => ({ ...f, notes: e.target.value }))
+                  }
+                  rows={2}
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button
+                variant='outline'
+                onClick={() => setDeclareFeeDialogOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={() =>
+                  declareFeePaidMutation.mutate({
+                    paymentId: declareFeeId,
+                    mode: declareFeeForm.mode,
+                    notes: declareFeeForm.notes,
+                    files: declareFeeFiles
+                  })
+                }
+                disabled={
+                  declareFeePaidMutation.isPending ||
+                  declareFeeFiles.length === 0
+                }
+              >
+                {declareFeePaidMutation.isPending ? (
+                  <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                ) : (
+                  <DollarSign className='mr-2 h-4 w-4' />
+                )}
+                Declare Payment
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </PageContainer>
   );

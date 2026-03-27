@@ -1,6 +1,8 @@
 // @ts-nocheck
 'use client';
 
+import { useQueryState } from 'nuqs';
+
 import { useState, useMemo, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import useClientApi from '@/lib/axios/clientSide';
@@ -1187,7 +1189,9 @@ function MailingListTab() {
 // =============================================================================
 
 export default function SystemDataPage() {
-  const [activeTab, setActiveTab] = useState('constants');
+  const [activeTab, setActiveTab] = useQueryState('tab', {
+    defaultValue: 'constants'
+  });
 
   const analyticsItems = [
     {
@@ -1230,7 +1234,7 @@ export default function SystemDataPage() {
         <SectionAnalytics stats={analyticsItems} />
 
         {/* Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <Tabs value={activeTab ?? ''} onValueChange={setActiveTab}>
           <TabsList>
             <TabsTrigger value='constants'>Number Constants</TabsTrigger>
             <TabsTrigger value='subscriptions'>Subscriptions</TabsTrigger>
