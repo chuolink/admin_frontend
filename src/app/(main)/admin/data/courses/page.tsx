@@ -24,6 +24,12 @@ import { DisciplineFormDialog } from './components/DisciplineFormDialog';
 import { CourseTrendTable } from './components/CourseTrendTable';
 import { CoursePictureTable } from './components/CoursePictureTable';
 import { CourseVideoTable } from './components/CourseVideoTable';
+import {
+  GenericDataTable,
+  type ColumnDef as GenericColumnDef,
+  type FormFieldDef
+} from '@/features/data-admin/components/GenericDataTable';
+import { BulkImportExport } from '@/features/data-admin/components/BulkImportExport';
 
 export default function CoursesPage() {
   const { data: stats, isLoading: statsLoading } = useDataStats();
@@ -108,13 +114,23 @@ export default function CoursesPage() {
               <TabsTrigger value='trends'>Trends</TabsTrigger>
               <TabsTrigger value='pictures'>Pictures</TabsTrigger>
               <TabsTrigger value='videos'>Videos</TabsTrigger>
+              <TabsTrigger value='course-disciplines'>
+                Course Disciplines
+              </TabsTrigger>
             </TabsList>
-            <div>
+            <div className='flex items-center gap-2'>
               {activeTab === 'courses' && (
-                <Button size='sm' onClick={() => setCourseDialogOpen(true)}>
-                  <Plus className='mr-2 h-4 w-4' />
-                  Add Course
-                </Button>
+                <>
+                  <BulkImportExport
+                    endpoint='/data-admin/courses/'
+                    entityName='Course'
+                    queryKey='data-admin-courses'
+                  />
+                  <Button size='sm' onClick={() => setCourseDialogOpen(true)}>
+                    <Plus className='mr-2 h-4 w-4' />
+                    Add Course
+                  </Button>
+                </>
               )}
               {activeTab === 'disciplines' && (
                 <Button size='sm' onClick={() => setDisciplineDialogOpen(true)}>
@@ -169,6 +185,43 @@ export default function CoursesPage() {
             <CourseVideoTable
               dialogOpen={videoDialogOpen}
               onDialogOpenChange={setVideoDialogOpen}
+            />
+          </TabsContent>
+
+          <TabsContent value='course-disciplines' className='mt-4'>
+            <GenericDataTable
+              endpoint='/data-admin/course-disciplines/'
+              queryKey='data-admin-course-disciplines'
+              entityName='Course Discipline'
+              columns={
+                [
+                  { key: 'course_name', header: 'Course', type: 'text' },
+                  {
+                    key: 'discipline_name',
+                    header: 'Discipline',
+                    type: 'text'
+                  },
+                  { key: 'created_at', header: 'Created', type: 'date' }
+                ] as GenericColumnDef[]
+              }
+              formFields={
+                [
+                  {
+                    name: 'course',
+                    label: 'Course',
+                    type: 'entity',
+                    endpoint: '/data-admin/courses/',
+                    queryKey: 'data-admin-courses-picker'
+                  },
+                  {
+                    name: 'discipline',
+                    label: 'Discipline',
+                    type: 'entity',
+                    endpoint: '/data-admin/disciplines/',
+                    queryKey: 'data-admin-disciplines-picker'
+                  }
+                ] as FormFieldDef[]
+              }
             />
           </TabsContent>
         </Tabs>

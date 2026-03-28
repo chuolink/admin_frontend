@@ -58,6 +58,16 @@ export const adminNavGroups: NavGroup[] = [
     ]
   },
   {
+    title: 'Experts',
+    items: [
+      {
+        title: 'Expert Dashboard',
+        url: '/admin/experts',
+        icon: Sparkles
+      }
+    ]
+  },
+  {
     title: 'Students',
     items: [
       {

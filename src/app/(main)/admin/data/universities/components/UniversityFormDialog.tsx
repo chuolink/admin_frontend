@@ -48,6 +48,7 @@ const universitySchema = z.object({
   max_applications: z.coerce.number().optional().default(0),
   website_link: z.string().nullable().optional(),
   admission_link: z.string().nullable().optional(),
+  video: z.string().nullable().optional(),
   video_url: z.string().nullable().optional(),
   img_url: z.string().nullable().optional(),
   description: z.string().optional().default(''),
@@ -106,6 +107,7 @@ export function UniversityFormDialog({
       max_applications: 0,
       website_link: null,
       admission_link: null,
+      video: null,
       video_url: null,
       img_url: null,
       description: '',
@@ -139,6 +141,7 @@ export function UniversityFormDialog({
           max_applications: university.max_applications ?? 0,
           website_link: university.website_link ?? null,
           admission_link: university.admission_link ?? null,
+          video: (university as any).video ?? null,
           video_url: university.video_url ?? null,
           img_url: university.img_url ?? null,
           description: university.description ?? '',
@@ -166,6 +169,7 @@ export function UniversityFormDialog({
           max_applications: 0,
           website_link: null,
           admission_link: null,
+          video: null,
           video_url: null,
           img_url: null,
           description: '',
@@ -206,6 +210,7 @@ export function UniversityFormDialog({
       max_applications: values.max_applications,
       website_link: values.website_link || null,
       admission_link: values.admission_link || null,
+      video: values.video || null,
       video_url: values.video_url || null,
       img_url: values.img_url || null,
       description: values.description || null,
@@ -727,6 +732,24 @@ export function UniversityFormDialog({
 
             {/* Media Tab */}
             <TabsContent value='media' className='mt-4 space-y-4'>
+              <FormField
+                control={form.control}
+                name='video'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Video File (Cloudinary URL)</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder='https://res.cloudinary.com/...'
+                        value={field.value ?? ''}
+                        onChange={(e) => field.onChange(e.target.value || null)}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
               <FormField
                 control={form.control}
                 name='video_url'

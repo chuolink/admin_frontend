@@ -17,6 +17,7 @@ import { UniversityPictureTable } from './components/UniversityPictureTable';
 import { UniversityVideoTable } from './components/UniversityVideoTable';
 import { UniversityStudyReasonTable } from './components/UniversityStudyReasonTable';
 import type { DataUniversity } from '@/features/data-admin/types';
+import { BulkImportExport } from '@/features/data-admin/components/BulkImportExport';
 import {
   GraduationCap,
   Building2,
@@ -146,18 +147,25 @@ export default function UniversitiesDataPage() {
               <TabsTrigger value='study-reasons'>Study Reasons</TabsTrigger>
             </TabsList>
 
-            <div>
+            <div className='flex items-center gap-2'>
               {activeTab === 'universities' && (
-                <Button
-                  size='sm'
-                  onClick={() => {
-                    setEditingUniversity(null);
-                    setUniversityDialogOpen(true);
-                  }}
-                >
-                  <Plus className='mr-2 h-4 w-4' />
-                  Add University
-                </Button>
+                <>
+                  <BulkImportExport
+                    endpoint='/data-admin/universities/'
+                    entityName='University'
+                    queryKey='data-admin-universities'
+                  />
+                  <Button
+                    size='sm'
+                    onClick={() => {
+                      setEditingUniversity(null);
+                      setUniversityDialogOpen(true);
+                    }}
+                  >
+                    <Plus className='mr-2 h-4 w-4' />
+                    Add University
+                  </Button>
+                </>
               )}
               {activeTab === 'expenses' && (
                 <Button size='sm' onClick={() => setExpenseDialogOpen(true)}>

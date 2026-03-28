@@ -27,6 +27,7 @@ import type { DataDiscipline } from '@/features/data-admin/types';
 const disciplineSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   slug: z.string().min(1, 'Slug is required'),
+  image: z.string().nullable().optional(),
   description: z.string().optional()
 });
 
@@ -63,6 +64,7 @@ export function DisciplineFormDialog({
     defaultValues: {
       name: '',
       slug: '',
+      image: null,
       description: ''
     }
   });
@@ -73,12 +75,14 @@ export function DisciplineFormDialog({
       form.reset({
         name: discipline.name,
         slug: discipline.slug,
+        image: (discipline as any).image ?? null,
         description: discipline.description ?? ''
       });
     } else if (mode === 'create') {
       form.reset({
         name: '',
         slug: '',
+        image: null,
         description: ''
       });
     }
@@ -93,8 +97,15 @@ export function DisciplineFormDialog({
   }, [watchName, mode, form]);
 
   const onSubmit = (values: DisciplineFormValues) => {
+    const payload = {
+      name: values.name,
+      slug: values.slug,
+      image: values.image || null,
+      description: values.description || ''
+    };
+
     if (mode === 'create') {
-      createMutation.mutate(values, {
+      createMutation.mutate(payload as any, {
         onSuccess: () => {
           form.reset();
           onOpenChange(false);
@@ -102,7 +113,7 @@ export function DisciplineFormDialog({
       });
     } else if (discipline) {
       updateMutation.mutate(
-        { id: discipline.id, data: values },
+        { id: discipline.id, data: payload as any },
         {
           onSuccess: () => {
             onOpenChange(false);
@@ -143,6 +154,24 @@ export function DisciplineFormDialog({
                 <FormLabel>Slug</FormLabel>
                 <FormControl>
                   <Input placeholder='auto-generated-from-name' {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name='image'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Image URL</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder='https://example.com/image.jpg'
+                    value={field.value ?? ''}
+                    onChange={(e) => field.onChange(e.target.value || null)}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>

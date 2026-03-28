@@ -5,7 +5,6 @@ import { useMemo, useState } from 'react';
 import {
   useReactTable,
   getCoreRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   getFilteredRowModel,
   getFacetedRowModel,
@@ -47,7 +46,7 @@ import {
   TableRow
 } from '@/components/ui/table';
 import { DataTableToolbar } from '@/components/data-table/data-table-toolbar';
-import { DataTablePagination } from '@/components/data-table/data-table-pagination';
+import { ServerPagination } from '@/features/data-admin/components/ServerPagination';
 import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header';
 import { Skeleton } from '@/components/ui/skeleton';
 import { DeleteConfirmDialog } from '@/features/data-admin/components/DeleteConfirmDialog';
@@ -62,7 +61,12 @@ interface CountryDataTableProps {
 }
 
 export function CountryDataTable({ onEdit }: CountryDataTableProps) {
-  const { data: countriesData, isLoading } = useCountries({ page_size: '100' });
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+  const { data: countriesData, isLoading } = useCountries({
+    page: String(page),
+    page_size: String(pageSize)
+  });
   const deleteCountry = useDeleteCountry();
 
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -131,6 +135,17 @@ export function CountryDataTable({ onEdit }: CountryDataTableProps) {
         cell: ({ row }) => (
           <span className='text-muted-foreground font-mono text-sm'>
             {row.getValue('slug')}
+          </span>
+        )
+      },
+      {
+        accessorKey: 'order',
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title='Order' />
+        ),
+        cell: ({ row }) => (
+          <span className='text-muted-foreground text-sm tabular-nums'>
+            {(row.original as any).order ?? 9999}
           </span>
         )
       },
@@ -266,7 +281,6 @@ export function CountryDataTable({ onEdit }: CountryDataTableProps) {
     onGlobalFilterChange: setGlobalFilter,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues()
@@ -320,9 +334,19 @@ export function CountryDataTable({ onEdit }: CountryDataTableProps) {
                   <TableRow
                     key={row.id}
                     data-state={row.getIsSelected() && 'selected'}
+                    className='hover:bg-muted/50 cursor-pointer'
+                    onClick={() => onEdit(row.original)}
                   >
                     {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
+                      <TableCell
+                        key={cell.id}
+                        onClick={
+                          cell.column.id === 'select' ||
+                          cell.column.id === 'actions'
+                            ? (e) => e.stopPropagation()
+                            : undefined
+                        }
+                      >
                         {flexRender(
                           cell.column.columnDef.cell,
                           cell.getContext()
@@ -345,7 +369,16 @@ export function CountryDataTable({ onEdit }: CountryDataTableProps) {
           </Table>
         </div>
 
-        <DataTablePagination table={table} />
+        <ServerPagination
+          totalCount={countriesData?.count ?? 0}
+          page={page}
+          pageSize={pageSize}
+          onPageChange={setPage}
+          onPageSizeChange={(size) => {
+            setPageSize(size);
+            setPage(1);
+          }}
+        />
       </div>
 
       <DeleteConfirmDialog

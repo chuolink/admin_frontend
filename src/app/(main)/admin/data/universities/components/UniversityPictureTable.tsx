@@ -5,7 +5,6 @@ import { useEffect, useMemo, useState } from 'react';
 import {
   useReactTable,
   getCoreRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   getFilteredRowModel,
   flexRender,
@@ -18,6 +17,13 @@ import { z } from 'zod';
 import { Loader2, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -47,12 +53,16 @@ import {
   FormLabel,
   FormMessage
 } from '@/components/ui/form';
-import { DataTablePagination } from '@/components/data-table/data-table-pagination';
+import { ServerPagination } from '@/features/data-admin/components/ServerPagination';
 import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { DeleteConfirmDialog } from '@/features/data-admin/components/DeleteConfirmDialog';
 import { EntityPicker } from '@/features/data-admin/components/EntityPicker';
+import {
+  TableFilters,
+  type FilterDef
+} from '@/features/data-admin/components/TableFilters';
 import {
   useUniversityPictures,
   useCreateUniversityPicture,
@@ -79,9 +89,15 @@ export function UniversityPictureTable({
   onDialogOpenChange
 }: UniversityPictureTableProps) {
   const [universityFilter, setUniversityFilter] = useState<string | null>(null);
-  const { data: picturesData, isLoading } = useUniversityPictures(
-    universityFilter ? { university: universityFilter } : undefined
-  );
+  const [filterValues, setFilterValues] = useState<Record<string, string>>({});
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+  const { data: picturesData, isLoading } = useUniversityPictures({
+    page: String(page),
+    page_size: String(pageSize),
+    ...(universityFilter ? { university: universityFilter } : {}),
+    ...Object.fromEntries(Object.entries(filterValues).filter(([, v]) => v))
+  } as Record<string, string>);
   const createPicture = useCreateUniversityPicture();
   const updatePicture = useUpdateUniversityPicture();
   const deletePicture = useDeleteUniversityPicture();
@@ -240,7 +256,6 @@ export function UniversityPictureTable({
     state: { sorting },
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel()
   });
@@ -261,17 +276,42 @@ export function UniversityPictureTable({
   return (
     <>
       <div className='flex flex-col gap-4'>
-        <div className='max-w-xs'>
-          <EntityPicker
-            endpoint='/data-admin/universities/'
-            queryKey='data-admin-universities'
-            mapItem={(item) => ({
-              id: item.id as string,
-              name: item.name as string
-            })}
-            value={universityFilter}
-            onChange={setUniversityFilter}
-            placeholder='Filter by university...'
+        <div className='flex flex-wrap items-center gap-2'>
+          <div className='max-w-xs'>
+            <EntityPicker
+              endpoint='/data-admin/universities/'
+              queryKey='data-admin-universities'
+              mapItem={(item) => ({
+                id: item.id as string,
+                name: item.name as string
+              })}
+              value={universityFilter}
+              onChange={setUniversityFilter}
+              placeholder='Filter by university...'
+            />
+          </div>
+          <TableFilters
+            filters={
+              [
+                {
+                  key: 'name',
+                  label: 'Category',
+                  type: 'select',
+                  options: [
+                    { value: 'labs', label: 'Labs' },
+                    { value: 'libraries', label: 'Libraries' },
+                    { value: 'hostels', label: 'Hostels' },
+                    { value: 'overview', label: 'Overview' },
+                    { value: 'lecture_rooms', label: 'Lecture Rooms' },
+                    { value: 'other', label: 'Other' }
+                  ]
+                }
+              ] satisfies FilterDef[]
+            }
+            values={filterValues}
+            onChange={(key, val) =>
+              setFilterValues((prev) => ({ ...prev, [key]: val }))
+            }
           />
         </div>
 
@@ -296,9 +336,20 @@ export function UniversityPictureTable({
             <TableBody>
               {table.getRowModel().rows?.length ? (
                 table.getRowModel().rows.map((row) => (
-                  <TableRow key={row.id}>
+                  <TableRow
+                    key={row.id}
+                    className='hover:bg-muted/50 cursor-pointer'
+                    onClick={() => handleEdit(row.original)}
+                  >
                     {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
+                      <TableCell
+                        key={cell.id}
+                        onClick={
+                          cell.column.id === 'actions'
+                            ? (e) => e.stopPropagation()
+                            : undefined
+                        }
+                      >
                         {flexRender(
                           cell.column.columnDef.cell,
                           cell.getContext()
@@ -321,7 +372,16 @@ export function UniversityPictureTable({
           </Table>
         </div>
 
-        <DataTablePagination table={table} />
+        <ServerPagination
+          totalCount={picturesData?.count ?? 0}
+          page={page}
+          pageSize={pageSize}
+          onPageChange={setPage}
+          onPageSizeChange={(size) => {
+            setPageSize(size);
+            setPage(1);
+          }}
+        />
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={handleCloseDialog}>
@@ -361,12 +421,23 @@ export function UniversityPictureTable({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel required>Name (Category)</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder='e.g., labs, libraries, hostels'
-                        {...field}
-                      />
-                    </FormControl>
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder='Select category...' />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value='labs'>Labs</SelectItem>
+                        <SelectItem value='libraries'>Libraries</SelectItem>
+                        <SelectItem value='hostels'>Hostels</SelectItem>
+                        <SelectItem value='overview'>Overview</SelectItem>
+                        <SelectItem value='lecture_rooms'>
+                          Lecture Rooms
+                        </SelectItem>
+                        <SelectItem value='other'>Other</SelectItem>
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}

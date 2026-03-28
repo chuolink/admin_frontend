@@ -5,7 +5,6 @@ import { useMemo, useState } from 'react';
 import {
   useReactTable,
   getCoreRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   getFilteredRowModel,
   getFacetedRowModel,
@@ -42,16 +41,31 @@ import {
   TableRow
 } from '@/components/ui/table';
 import { DataTableToolbar } from '@/components/data-table/data-table-toolbar';
-import { DataTablePagination } from '@/components/data-table/data-table-pagination';
+import { ServerPagination } from '@/features/data-admin/components/ServerPagination';
 import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header';
 import { Skeleton } from '@/components/ui/skeleton';
 import { DeleteConfirmDialog } from '@/features/data-admin/components/DeleteConfirmDialog';
+import {
+  TableFilters,
+  type FilterDef
+} from '@/features/data-admin/components/TableFilters';
 import {
   useCourses,
   useDeleteCourse
 } from '@/features/data-admin/hooks/use-courses';
 import type { DataCourse } from '@/features/data-admin/types';
 import { CourseFormDialog } from './CourseFormDialog';
+
+const courseFilters: FilterDef[] = [
+  { key: 'is_active', label: 'Active', type: 'boolean' },
+  {
+    key: 'category',
+    label: 'Discipline',
+    type: 'entity',
+    endpoint: '/data-admin/disciplines/',
+    queryKey: 'data-admin-disciplines'
+  }
+];
 
 export default function CourseDataTable() {
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -62,6 +76,9 @@ export default function CourseDataTable() {
   });
   const [rowSelection, setRowSelection] = useState({});
   const [globalFilter, setGlobalFilter] = useState('');
+  const [filterValues, setFilterValues] = useState<Record<string, string>>({});
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
 
   // Edit state
   const [editCourse, setEditCourse] = useState<DataCourse | null>(null);
@@ -71,7 +88,18 @@ export default function CourseDataTable() {
   const [deleteCourse, setDeleteCourse] = useState<DataCourse | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
-  const { data, isLoading } = useCourses();
+  const queryParams = useMemo(() => {
+    const params: Record<string, string> = {
+      page: String(page),
+      page_size: String(pageSize)
+    };
+    Object.entries(filterValues).forEach(([k, v]) => {
+      if (v) params[k] = v;
+    });
+    return params;
+  }, [filterValues, page, pageSize]);
+
+  const { data, isLoading } = useCourses(queryParams);
   const deleteMutation = useDeleteCourse();
 
   const handleDelete = () => {
@@ -244,7 +272,6 @@ export default function CourseDataTable() {
     onGlobalFilterChange: setGlobalFilter,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues()
@@ -273,6 +300,13 @@ export default function CourseDataTable() {
           onGlobalFilterChange={setGlobalFilter}
           searchPlaceholder='Search courses...'
         />
+        <TableFilters
+          filters={courseFilters}
+          values={filterValues}
+          onChange={(key, val) =>
+            setFilterValues((prev) => ({ ...prev, [key]: val }))
+          }
+        />
 
         <div className='overflow-x-auto rounded-md border'>
           <Table>
@@ -298,9 +332,22 @@ export default function CourseDataTable() {
                   <TableRow
                     key={row.id}
                     data-state={row.getIsSelected() && 'selected'}
+                    className='hover:bg-muted/50 cursor-pointer'
+                    onClick={() => {
+                      setEditCourse(row.original);
+                      setEditDialogOpen(true);
+                    }}
                   >
                     {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
+                      <TableCell
+                        key={cell.id}
+                        onClick={
+                          cell.column.id === 'select' ||
+                          cell.column.id === 'actions'
+                            ? (e) => e.stopPropagation()
+                            : undefined
+                        }
+                      >
                         {flexRender(
                           cell.column.columnDef.cell,
                           cell.getContext()
@@ -323,7 +370,16 @@ export default function CourseDataTable() {
           </Table>
         </div>
 
-        <DataTablePagination table={table} />
+        <ServerPagination
+          totalCount={data?.count ?? 0}
+          page={page}
+          pageSize={pageSize}
+          onPageChange={setPage}
+          onPageSizeChange={(size) => {
+            setPageSize(size);
+            setPage(1);
+          }}
+        />
       </div>
 
       {/* Edit Dialog */}

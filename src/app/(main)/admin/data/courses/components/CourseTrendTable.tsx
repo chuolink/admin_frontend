@@ -5,7 +5,6 @@ import { useEffect, useMemo, useState } from 'react';
 import {
   useReactTable,
   getCoreRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   getFilteredRowModel,
   flexRender,
@@ -44,7 +43,7 @@ import {
   FormLabel,
   FormMessage
 } from '@/components/ui/form';
-import { DataTablePagination } from '@/components/data-table/data-table-pagination';
+import { ServerPagination } from '@/features/data-admin/components/ServerPagination';
 import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header';
 import { Skeleton } from '@/components/ui/skeleton';
 import { DeleteConfirmDialog } from '@/features/data-admin/components/DeleteConfirmDialog';
@@ -138,9 +137,13 @@ export function CourseTrendTable({
   onDialogOpenChange
 }: CourseTrendTableProps) {
   const [courseFilter, setCourseFilter] = useState<string | null>(null);
-  const { data: trendsData, isLoading } = useCourseTrends(
-    courseFilter ? { course: courseFilter } : undefined
-  );
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+  const { data: trendsData, isLoading } = useCourseTrends({
+    page: String(page),
+    page_size: String(pageSize),
+    ...(courseFilter ? { course: courseFilter } : {})
+  });
   const createTrend = useCreateCourseTrend();
   const updateTrend = useUpdateCourseTrend();
   const deleteTrend = useDeleteCourseTrend();
@@ -366,7 +369,6 @@ export function CourseTrendTable({
     onSortingChange: setSorting,
     onColumnVisibilityChange: setColumnVisibility,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel()
   });
@@ -422,9 +424,20 @@ export function CourseTrendTable({
             <TableBody>
               {table.getRowModel().rows?.length ? (
                 table.getRowModel().rows.map((row) => (
-                  <TableRow key={row.id}>
+                  <TableRow
+                    key={row.id}
+                    className='hover:bg-muted/50 cursor-pointer'
+                    onClick={() => handleEdit(row.original)}
+                  >
                     {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
+                      <TableCell
+                        key={cell.id}
+                        onClick={
+                          cell.column.id === 'actions'
+                            ? (e) => e.stopPropagation()
+                            : undefined
+                        }
+                      >
                         {flexRender(
                           cell.column.columnDef.cell,
                           cell.getContext()
@@ -447,7 +460,16 @@ export function CourseTrendTable({
           </Table>
         </div>
 
-        <DataTablePagination table={table} />
+        <ServerPagination
+          totalCount={trendsData?.count ?? 0}
+          page={page}
+          pageSize={pageSize}
+          onPageChange={setPage}
+          onPageSizeChange={(size) => {
+            setPageSize(size);
+            setPage(1);
+          }}
+        />
       </div>
 
       {/* Edit/Create Sheet — FULL form with all 14 scoring fields */}

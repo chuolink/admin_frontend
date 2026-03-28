@@ -137,6 +137,7 @@ export default function CountriesDataPage() {
               <TabsTrigger value='reasons'>Reasons</TabsTrigger>
               <TabsTrigger value='expenses'>Expenses</TabsTrigger>
               <TabsTrigger value='faqs'>FAQs</TabsTrigger>
+              <TabsTrigger value='pictures'>Pictures</TabsTrigger>
               <TabsTrigger value='testimonials'>Testimonials</TabsTrigger>
             </TabsList>
 
@@ -229,6 +230,27 @@ export default function CountriesDataPage() {
             <CountryFAQTable
               dialogOpen={faqDialogOpen}
               onDialogOpenChange={setFaqDialogOpen}
+            />
+          </TabsContent>
+
+          <TabsContent value='pictures' className='mt-4'>
+            <CountrySubTable
+              endpoint='/data-admin/country-pictures/'
+              queryKey='data-admin-country-pictures'
+              columns={[
+                { key: 'name', label: 'Name' },
+                { key: 'image', label: 'Image URL', truncate: true }
+              ]}
+              formFields={[
+                { name: 'name', label: 'Name', type: 'text', required: true },
+                {
+                  name: 'image',
+                  label: 'Image URL',
+                  type: 'text',
+                  required: true
+                }
+              ]}
+              entityName='Picture'
             />
           </TabsContent>
 

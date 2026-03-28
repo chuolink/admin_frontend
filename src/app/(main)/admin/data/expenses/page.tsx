@@ -82,6 +82,10 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { SectionAnalytics } from '@/features/data-admin/components/SectionAnalytics';
 import { DeleteConfirmDialog } from '@/features/data-admin/components/DeleteConfirmDialog';
 import { EntityPicker } from '@/features/data-admin/components/EntityPicker';
+import {
+  TableFilters,
+  type FilterDef
+} from '@/features/data-admin/components/TableFilters';
 import { useDataStats } from '@/features/data-admin/hooks/use-data-stats';
 import { formatCurrency } from '@/lib/utils';
 import type { PaginatedResponse } from '@/features/data-admin/types';
@@ -259,6 +263,7 @@ interface InlineTableProps<T extends { id: string }> {
   globalFilter: string;
   onGlobalFilterChange: (v: string) => void;
   emptyMessage: string;
+  onRowClick?: (item: T) => void;
 }
 
 function InlineTable<T extends { id: string }>({
@@ -267,7 +272,8 @@ function InlineTable<T extends { id: string }>({
   isLoading,
   globalFilter,
   onGlobalFilterChange,
-  emptyMessage
+  emptyMessage,
+  onRowClick
 }: InlineTableProps<T>) {
   const [sorting, setSorting] = useState<SortingState>([]);
 
@@ -319,9 +325,25 @@ function InlineTable<T extends { id: string }>({
           <TableBody>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id}>
+                <TableRow
+                  key={row.id}
+                  className={
+                    onRowClick ? 'hover:bg-muted/50 cursor-pointer' : ''
+                  }
+                  onClick={
+                    onRowClick ? () => onRowClick(row.original) : undefined
+                  }
+                >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell
+                      key={cell.id}
+                      onClick={
+                        cell.column.id === 'actions' ||
+                        cell.column.id === 'select'
+                          ? (e) => e.stopPropagation()
+                          : undefined
+                      }
+                    >
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()
@@ -826,10 +848,30 @@ function ActionsMenu({
 // General Expenses Tab
 // =============================================================================
 
+const generalExpenseFilters: FilterDef[] = [
+  { key: 'is_default', label: 'Default', type: 'boolean' },
+  {
+    key: 'currency',
+    label: 'Currency',
+    type: 'select',
+    options: [
+      { value: 'TZS', label: 'TZS' },
+      { value: 'USD', label: 'USD' },
+      { value: 'EUR', label: 'EUR' },
+      { value: 'GBP', label: 'GBP' }
+    ]
+  }
+];
+
 function GeneralExpensesTab() {
+  const [filterValues, setFilterValues] = useState<Record<string, string>>({});
+  const filteredParams = Object.fromEntries(
+    Object.entries(filterValues).filter(([, v]) => v)
+  );
   const { data, isLoading } = useExpenseList<GeneralExpense>(
     '/data-admin/general-expenses/',
-    'general-expenses'
+    'general-expenses',
+    Object.keys(filteredParams).length > 0 ? filteredParams : undefined
   );
   const createMut = useExpenseCreate<GeneralExpense>(
     '/data-admin/general-expenses/',
@@ -924,17 +966,26 @@ function GeneralExpensesTab() {
 
   return (
     <>
-      <div className='mb-4 flex justify-end'>
-        <Button
-          size='sm'
-          onClick={() => {
-            setEditing(null);
-            setDialogOpen(true);
-          }}
-        >
-          <Plus className='mr-2 h-4 w-4' />
-          Add General Expense
-        </Button>
+      <div className='mb-4 flex flex-wrap items-center gap-2'>
+        <TableFilters
+          filters={generalExpenseFilters}
+          values={filterValues}
+          onChange={(key, val) =>
+            setFilterValues((prev) => ({ ...prev, [key]: val }))
+          }
+        />
+        <div className='ml-auto'>
+          <Button
+            size='sm'
+            onClick={() => {
+              setEditing(null);
+              setDialogOpen(true);
+            }}
+          >
+            <Plus className='mr-2 h-4 w-4' />
+            Add General Expense
+          </Button>
+        </div>
       </div>
 
       <InlineTable
@@ -944,6 +995,10 @@ function GeneralExpensesTab() {
         globalFilter={globalFilter}
         onGlobalFilterChange={setGlobalFilter}
         emptyMessage='No general expenses found.'
+        onRowClick={(item) => {
+          setEditing(item);
+          setDialogOpen(true);
+        }}
       />
 
       <ExpenseFormDialog
@@ -1001,13 +1056,32 @@ function GeneralExpensesTab() {
 // Country Expenses Tab
 // =============================================================================
 
+const countryExpenseFilters: FilterDef[] = [
+  { key: 'is_default', label: 'Default', type: 'boolean' },
+  {
+    key: 'currency',
+    label: 'Currency',
+    type: 'select',
+    options: [
+      { value: 'TZS', label: 'TZS' },
+      { value: 'USD', label: 'USD' },
+      { value: 'EUR', label: 'EUR' },
+      { value: 'GBP', label: 'GBP' }
+    ]
+  }
+];
+
 function CountryExpensesTab() {
   const [filterCountry, setFilterCountry] = useState<string | null>(null);
+  const [filterValues, setFilterValues] = useState<Record<string, string>>({});
 
+  const extraFilters = Object.fromEntries(
+    Object.entries(filterValues).filter(([, v]) => v)
+  );
   const { data, isLoading } = useExpenseList<CountryExpense>(
     '/data-admin/country-expenses/',
     'country-expenses',
-    { country: filterCountry }
+    { country: filterCountry, ...extraFilters }
   );
   const createMut = useExpenseCreate<CountryExpense>(
     '/data-admin/country-expenses/',
@@ -1111,7 +1185,7 @@ function CountryExpensesTab() {
 
   return (
     <>
-      <div className='mb-4 flex items-center justify-between gap-4'>
+      <div className='mb-4 flex flex-wrap items-center gap-2'>
         <div className='w-72'>
           <EntityPicker
             endpoint='/data-admin/countries/'
@@ -1125,16 +1199,25 @@ function CountryExpensesTab() {
             placeholder='Filter by country...'
           />
         </div>
-        <Button
-          size='sm'
-          onClick={() => {
-            setEditing(null);
-            setDialogOpen(true);
-          }}
-        >
-          <Plus className='mr-2 h-4 w-4' />
-          Add Country Expense
-        </Button>
+        <TableFilters
+          filters={countryExpenseFilters}
+          values={filterValues}
+          onChange={(key, val) =>
+            setFilterValues((prev) => ({ ...prev, [key]: val }))
+          }
+        />
+        <div className='ml-auto'>
+          <Button
+            size='sm'
+            onClick={() => {
+              setEditing(null);
+              setDialogOpen(true);
+            }}
+          >
+            <Plus className='mr-2 h-4 w-4' />
+            Add Country Expense
+          </Button>
+        </div>
       </div>
 
       <InlineTable
@@ -1144,6 +1227,10 @@ function CountryExpensesTab() {
         globalFilter={globalFilter}
         onGlobalFilterChange={setGlobalFilter}
         emptyMessage='No country expenses found.'
+        onRowClick={(item) => {
+          setEditing(item);
+          setDialogOpen(true);
+        }}
       />
 
       <ExpenseFormDialog
@@ -1204,13 +1291,32 @@ function CountryExpensesTab() {
 // University Expenses Tab
 // =============================================================================
 
+const universityExpenseFilters: FilterDef[] = [
+  { key: 'is_default', label: 'Default', type: 'boolean' },
+  {
+    key: 'currency',
+    label: 'Currency',
+    type: 'select',
+    options: [
+      { value: 'TZS', label: 'TZS' },
+      { value: 'USD', label: 'USD' },
+      { value: 'EUR', label: 'EUR' },
+      { value: 'GBP', label: 'GBP' }
+    ]
+  }
+];
+
 function UniversityExpensesTab() {
   const [filterUniversity, setFilterUniversity] = useState<string | null>(null);
+  const [filterValues, setFilterValues] = useState<Record<string, string>>({});
 
+  const extraFilters = Object.fromEntries(
+    Object.entries(filterValues).filter(([, v]) => v)
+  );
   const { data, isLoading } = useExpenseList<UniversityExpense>(
     '/data-admin/university-expenses/',
     'university-expenses',
-    { university: filterUniversity }
+    { university: filterUniversity, ...extraFilters }
   );
   const createMut = useExpenseCreate<UniversityExpense>(
     '/data-admin/university-expenses/',
@@ -1314,7 +1420,7 @@ function UniversityExpensesTab() {
 
   return (
     <>
-      <div className='mb-4 flex items-center justify-between gap-4'>
+      <div className='mb-4 flex flex-wrap items-center gap-2'>
         <div className='w-72'>
           <EntityPicker
             endpoint='/data-admin/universities/'
@@ -1329,16 +1435,25 @@ function UniversityExpensesTab() {
             placeholder='Filter by university...'
           />
         </div>
-        <Button
-          size='sm'
-          onClick={() => {
-            setEditing(null);
-            setDialogOpen(true);
-          }}
-        >
-          <Plus className='mr-2 h-4 w-4' />
-          Add University Expense
-        </Button>
+        <TableFilters
+          filters={universityExpenseFilters}
+          values={filterValues}
+          onChange={(key, val) =>
+            setFilterValues((prev) => ({ ...prev, [key]: val }))
+          }
+        />
+        <div className='ml-auto'>
+          <Button
+            size='sm'
+            onClick={() => {
+              setEditing(null);
+              setDialogOpen(true);
+            }}
+          >
+            <Plus className='mr-2 h-4 w-4' />
+            Add University Expense
+          </Button>
+        </div>
       </div>
 
       <InlineTable
@@ -1348,6 +1463,10 @@ function UniversityExpensesTab() {
         globalFilter={globalFilter}
         onGlobalFilterChange={setGlobalFilter}
         emptyMessage='No university expenses found.'
+        onRowClick={(item) => {
+          setEditing(item);
+          setDialogOpen(true);
+        }}
       />
 
       <ExpenseFormDialog
@@ -1408,11 +1527,30 @@ function UniversityExpensesTab() {
 // Course Offering Expenses Tab
 // =============================================================================
 
+const offeringExpenseFilters: FilterDef[] = [
+  { key: 'is_default', label: 'Default', type: 'boolean' },
+  {
+    key: 'currency',
+    label: 'Currency',
+    type: 'select',
+    options: [
+      { value: 'TZS', label: 'TZS' },
+      { value: 'USD', label: 'USD' },
+      { value: 'EUR', label: 'EUR' },
+      { value: 'GBP', label: 'GBP' }
+    ]
+  }
+];
+
 function OfferingExpensesTab() {
   const [filterUniversity, setFilterUniversity] = useState<string | null>(null);
   const [filterCourse, setFilterCourse] = useState<string | null>(null);
+  const [filterValues, setFilterValues] = useState<Record<string, string>>({});
 
-  const params: Record<string, string | null> = {};
+  const extraFilters = Object.fromEntries(
+    Object.entries(filterValues).filter(([, v]) => v)
+  );
+  const params: Record<string, string | null> = { ...extraFilters };
   if (filterUniversity) params.university = filterUniversity;
   if (filterCourse) params.course = filterCourse;
 
@@ -1517,45 +1655,52 @@ function OfferingExpensesTab() {
 
   return (
     <>
-      <div className='mb-4 flex items-center justify-between gap-4'>
-        <div className='flex gap-3'>
-          <div className='w-64'>
-            <EntityPicker
-              endpoint='/data-admin/universities/'
-              queryKey='data-admin-universities'
-              mapItem={(item) => ({
-                id: item.id as string,
-                name: item.name as string
-              })}
-              value={filterUniversity}
-              onChange={setFilterUniversity}
-              placeholder='Filter by university...'
-            />
-          </div>
-          <div className='w-64'>
-            <EntityPicker
-              endpoint='/data-admin/courses/'
-              queryKey='data-admin-courses'
-              mapItem={(item) => ({
-                id: item.id as string,
-                name: item.name as string
-              })}
-              value={filterCourse}
-              onChange={setFilterCourse}
-              placeholder='Filter by course...'
-            />
-          </div>
+      <div className='mb-4 flex flex-wrap items-center gap-2'>
+        <div className='w-64'>
+          <EntityPicker
+            endpoint='/data-admin/universities/'
+            queryKey='data-admin-universities'
+            mapItem={(item) => ({
+              id: item.id as string,
+              name: item.name as string
+            })}
+            value={filterUniversity}
+            onChange={setFilterUniversity}
+            placeholder='Filter by university...'
+          />
         </div>
-        <Button
-          size='sm'
-          onClick={() => {
-            setEditing(null);
-            setDialogOpen(true);
-          }}
-        >
-          <Plus className='mr-2 h-4 w-4' />
-          Add Offering Expense
-        </Button>
+        <div className='w-64'>
+          <EntityPicker
+            endpoint='/data-admin/courses/'
+            queryKey='data-admin-courses'
+            mapItem={(item) => ({
+              id: item.id as string,
+              name: item.name as string
+            })}
+            value={filterCourse}
+            onChange={setFilterCourse}
+            placeholder='Filter by course...'
+          />
+        </div>
+        <TableFilters
+          filters={offeringExpenseFilters}
+          values={filterValues}
+          onChange={(key, val) =>
+            setFilterValues((prev) => ({ ...prev, [key]: val }))
+          }
+        />
+        <div className='ml-auto'>
+          <Button
+            size='sm'
+            onClick={() => {
+              setEditing(null);
+              setDialogOpen(true);
+            }}
+          >
+            <Plus className='mr-2 h-4 w-4' />
+            Add Offering Expense
+          </Button>
+        </div>
       </div>
 
       <InlineTable
@@ -1565,6 +1710,10 @@ function OfferingExpensesTab() {
         globalFilter={globalFilter}
         onGlobalFilterChange={setGlobalFilter}
         emptyMessage='No offering expenses found.'
+        onRowClick={(item) => {
+          setEditing(item);
+          setDialogOpen(true);
+        }}
       />
 
       <ExpenseFormDialog

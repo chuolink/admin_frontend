@@ -5,7 +5,6 @@ import { useEffect, useMemo, useState } from 'react';
 import {
   useReactTable,
   getCoreRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   getFilteredRowModel,
   flexRender,
@@ -48,7 +47,7 @@ import {
   FormLabel,
   FormMessage
 } from '@/components/ui/form';
-import { DataTablePagination } from '@/components/data-table/data-table-pagination';
+import { ServerPagination } from '@/features/data-admin/components/ServerPagination';
 import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header';
 import { Skeleton } from '@/components/ui/skeleton';
 import { DeleteConfirmDialog } from '@/features/data-admin/components/DeleteConfirmDialog';
@@ -79,9 +78,13 @@ export function UniversityStudyReasonTable({
   onDialogOpenChange
 }: UniversityStudyReasonTableProps) {
   const [universityFilter, setUniversityFilter] = useState<string | null>(null);
-  const { data: reasonsData, isLoading } = useUniversityStudyReasons(
-    universityFilter ? { university: universityFilter } : undefined
-  );
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+  const { data: reasonsData, isLoading } = useUniversityStudyReasons({
+    page: String(page),
+    page_size: String(pageSize),
+    ...(universityFilter ? { university: universityFilter } : {})
+  });
   const createReason = useCreateUniversityStudyReason();
   const updateReason = useUpdateUniversityStudyReason();
   const deleteReason = useDeleteUniversityStudyReason();
@@ -235,7 +238,6 @@ export function UniversityStudyReasonTable({
     state: { sorting },
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel()
   });
@@ -291,9 +293,20 @@ export function UniversityStudyReasonTable({
             <TableBody>
               {table.getRowModel().rows?.length ? (
                 table.getRowModel().rows.map((row) => (
-                  <TableRow key={row.id}>
+                  <TableRow
+                    key={row.id}
+                    className='hover:bg-muted/50 cursor-pointer'
+                    onClick={() => handleEdit(row.original)}
+                  >
                     {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
+                      <TableCell
+                        key={cell.id}
+                        onClick={
+                          cell.column.id === 'actions'
+                            ? (e) => e.stopPropagation()
+                            : undefined
+                        }
+                      >
                         {flexRender(
                           cell.column.columnDef.cell,
                           cell.getContext()
@@ -316,7 +329,16 @@ export function UniversityStudyReasonTable({
           </Table>
         </div>
 
-        <DataTablePagination table={table} />
+        <ServerPagination
+          totalCount={reasonsData?.count ?? 0}
+          page={page}
+          pageSize={pageSize}
+          onPageChange={setPage}
+          onPageSizeChange={(size) => {
+            setPageSize(size);
+            setPage(1);
+          }}
+        />
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={handleCloseDialog}>

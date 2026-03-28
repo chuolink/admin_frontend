@@ -5,7 +5,6 @@ import { useEffect, useMemo, useState } from 'react';
 import {
   useReactTable,
   getCoreRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   getFilteredRowModel,
   flexRender,
@@ -56,11 +55,15 @@ import {
   FormLabel,
   FormMessage
 } from '@/components/ui/form';
-import { DataTablePagination } from '@/components/data-table/data-table-pagination';
+import { ServerPagination } from '@/features/data-admin/components/ServerPagination';
 import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header';
 import { Skeleton } from '@/components/ui/skeleton';
 import { DeleteConfirmDialog } from '@/features/data-admin/components/DeleteConfirmDialog';
 import { EntityPicker } from '@/features/data-admin/components/EntityPicker';
+import {
+  TableFilters,
+  type FilterDef
+} from '@/features/data-admin/components/TableFilters';
 import {
   useUniversityExpenses,
   useCreateUniversityExpense,
@@ -91,9 +94,15 @@ export function UniversityExpenseTable({
   onDialogOpenChange
 }: UniversityExpenseTableProps) {
   const [universityFilter, setUniversityFilter] = useState<string | null>(null);
-  const { data: expensesData, isLoading } = useUniversityExpenses(
-    universityFilter ? { university: universityFilter } : undefined
-  );
+  const [filterValues, setFilterValues] = useState<Record<string, string>>({});
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+  const { data: expensesData, isLoading } = useUniversityExpenses({
+    page: String(page),
+    page_size: String(pageSize),
+    ...(universityFilter ? { university: universityFilter } : {}),
+    ...Object.fromEntries(Object.entries(filterValues).filter(([, v]) => v))
+  } as Record<string, string>);
   const createExpense = useCreateUniversityExpense();
   const updateExpense = useUpdateUniversityExpense();
   const deleteExpense = useDeleteUniversityExpense();
@@ -301,7 +310,6 @@ export function UniversityExpenseTable({
     state: { sorting },
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel()
   });
@@ -322,17 +330,51 @@ export function UniversityExpenseTable({
   return (
     <>
       <div className='flex flex-col gap-4'>
-        <div className='max-w-xs'>
-          <EntityPicker
-            endpoint='/data-admin/universities/'
-            queryKey='data-admin-universities'
-            mapItem={(item) => ({
-              id: item.id as string,
-              name: item.name as string
-            })}
-            value={universityFilter}
-            onChange={setUniversityFilter}
-            placeholder='Filter by university...'
+        <div className='flex flex-wrap items-center gap-2'>
+          <div className='max-w-xs'>
+            <EntityPicker
+              endpoint='/data-admin/universities/'
+              queryKey='data-admin-universities'
+              mapItem={(item) => ({
+                id: item.id as string,
+                name: item.name as string
+              })}
+              value={universityFilter}
+              onChange={setUniversityFilter}
+              placeholder='Filter by university...'
+            />
+          </div>
+          <TableFilters
+            filters={
+              [
+                {
+                  key: 'is_default',
+                  label: 'Default',
+                  type: 'boolean'
+                },
+                {
+                  key: 'currency',
+                  label: 'Currency',
+                  type: 'select',
+                  options: [
+                    { value: 'TZS', label: 'TZS' },
+                    { value: 'USD', label: 'USD' },
+                    { value: 'EUR', label: 'EUR' },
+                    { value: 'GBP', label: 'GBP' },
+                    { value: 'KES', label: 'KES' },
+                    { value: 'UGX', label: 'UGX' },
+                    { value: 'RWF', label: 'RWF' },
+                    { value: 'CAD', label: 'CAD' },
+                    { value: 'AUD', label: 'AUD' },
+                    { value: 'CNY', label: 'CNY' }
+                  ]
+                }
+              ] satisfies FilterDef[]
+            }
+            values={filterValues}
+            onChange={(key, val) =>
+              setFilterValues((prev) => ({ ...prev, [key]: val }))
+            }
           />
         </div>
 
@@ -357,9 +399,20 @@ export function UniversityExpenseTable({
             <TableBody>
               {table.getRowModel().rows?.length ? (
                 table.getRowModel().rows.map((row) => (
-                  <TableRow key={row.id}>
+                  <TableRow
+                    key={row.id}
+                    className='hover:bg-muted/50 cursor-pointer'
+                    onClick={() => handleEdit(row.original)}
+                  >
                     {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
+                      <TableCell
+                        key={cell.id}
+                        onClick={
+                          cell.column.id === 'actions'
+                            ? (e) => e.stopPropagation()
+                            : undefined
+                        }
+                      >
                         {flexRender(
                           cell.column.columnDef.cell,
                           cell.getContext()
@@ -382,7 +435,16 @@ export function UniversityExpenseTable({
           </Table>
         </div>
 
-        <DataTablePagination table={table} />
+        <ServerPagination
+          totalCount={expensesData?.count ?? 0}
+          page={page}
+          pageSize={pageSize}
+          onPageChange={setPage}
+          onPageSizeChange={(size) => {
+            setPageSize(size);
+            setPage(1);
+          }}
+        />
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={handleCloseDialog}>

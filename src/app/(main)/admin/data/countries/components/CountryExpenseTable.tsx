@@ -5,7 +5,6 @@ import { useEffect, useMemo, useState } from 'react';
 import {
   useReactTable,
   getCoreRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   getFilteredRowModel,
   flexRender,
@@ -57,11 +56,15 @@ import {
   FormLabel,
   FormMessage
 } from '@/components/ui/form';
-import { DataTablePagination } from '@/components/data-table/data-table-pagination';
+import { ServerPagination } from '@/features/data-admin/components/ServerPagination';
 import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header';
 import { Skeleton } from '@/components/ui/skeleton';
 import { DeleteConfirmDialog } from '@/features/data-admin/components/DeleteConfirmDialog';
 import { EntityPicker } from '@/features/data-admin/components/EntityPicker';
+import {
+  TableFilters,
+  type FilterDef
+} from '@/features/data-admin/components/TableFilters';
 import {
   useCountryExpenses,
   useCreateCountryExpense,
@@ -96,9 +99,36 @@ export function CountryExpenseTable({
   onDialogOpenChange
 }: CountryExpenseTableProps) {
   const [countryFilter, setCountryFilter] = useState<string | null>(null);
-  const { data: expensesData, isLoading } = useCountryExpenses(
-    countryFilter ? { country: countryFilter } : undefined
-  );
+  const [filterValues, setFilterValues] = useState<Record<string, string>>({});
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+
+  const queryParams = useMemo(() => {
+    const params: Record<string, string> = {
+      page: String(page),
+      page_size: String(pageSize)
+    };
+    if (countryFilter) params.country = countryFilter;
+    Object.entries(filterValues).forEach(([k, v]) => {
+      if (v) params[k] = v;
+    });
+    return params;
+  }, [countryFilter, filterValues, page, pageSize]);
+
+  const { data: expensesData, isLoading } = useCountryExpenses(queryParams);
+
+  const filters: FilterDef[] = [
+    {
+      key: 'currency',
+      label: 'Currency',
+      type: 'select',
+      options: [
+        { value: 'TZS', label: 'TZS' },
+        { value: 'USD', label: 'USD' }
+      ]
+    },
+    { key: 'is_default', label: 'Default', type: 'boolean' }
+  ];
   const createExpense = useCreateCountryExpense();
   const updateExpense = useUpdateCountryExpense();
   const deleteExpense = useDeleteCountryExpense();
@@ -326,7 +356,6 @@ export function CountryExpenseTable({
     state: { sorting },
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel()
   });
@@ -347,18 +376,27 @@ export function CountryExpenseTable({
   return (
     <>
       <div className='flex flex-col gap-4'>
-        {/* Country filter */}
-        <div className='max-w-xs'>
-          <EntityPicker
-            endpoint='/data-admin/countries/'
-            queryKey='data-admin-countries'
-            mapItem={(item) => ({
-              id: item.id as string,
-              name: item.name as string
-            })}
-            value={countryFilter}
-            onChange={setCountryFilter}
-            placeholder='Filter by country...'
+        {/* Filters */}
+        <div className='flex flex-wrap items-center gap-2'>
+          <div className='max-w-xs'>
+            <EntityPicker
+              endpoint='/data-admin/countries/'
+              queryKey='data-admin-countries'
+              mapItem={(item) => ({
+                id: item.id as string,
+                name: item.name as string
+              })}
+              value={countryFilter}
+              onChange={setCountryFilter}
+              placeholder='Filter by country...'
+            />
+          </div>
+          <TableFilters
+            filters={filters}
+            values={filterValues}
+            onChange={(key, val) =>
+              setFilterValues((prev) => ({ ...prev, [key]: val }))
+            }
           />
         </div>
 
@@ -383,9 +421,20 @@ export function CountryExpenseTable({
             <TableBody>
               {table.getRowModel().rows?.length ? (
                 table.getRowModel().rows.map((row) => (
-                  <TableRow key={row.id}>
+                  <TableRow
+                    key={row.id}
+                    className='hover:bg-muted/50 cursor-pointer'
+                    onClick={() => handleEdit(row.original)}
+                  >
                     {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
+                      <TableCell
+                        key={cell.id}
+                        onClick={
+                          cell.column.id === 'actions'
+                            ? (e) => e.stopPropagation()
+                            : undefined
+                        }
+                      >
                         {flexRender(
                           cell.column.columnDef.cell,
                           cell.getContext()
@@ -408,7 +457,16 @@ export function CountryExpenseTable({
           </Table>
         </div>
 
-        <DataTablePagination table={table} />
+        <ServerPagination
+          totalCount={expensesData?.count ?? 0}
+          page={page}
+          pageSize={pageSize}
+          onPageChange={setPage}
+          onPageSizeChange={(size) => {
+            setPageSize(size);
+            setPage(1);
+          }}
+        />
       </div>
 
       {/* Add/Edit Expense Dialog */}

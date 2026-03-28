@@ -5,7 +5,6 @@ import { useMemo, useState } from 'react';
 import {
   useReactTable,
   getCoreRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   getFilteredRowModel,
   getFacetedRowModel,
@@ -47,10 +46,14 @@ import {
   TableRow
 } from '@/components/ui/table';
 import { DataTableToolbar } from '@/components/data-table/data-table-toolbar';
-import { DataTablePagination } from '@/components/data-table/data-table-pagination';
+import { ServerPagination } from '@/features/data-admin/components/ServerPagination';
 import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header';
 import { Skeleton } from '@/components/ui/skeleton';
 import { DeleteConfirmDialog } from '@/features/data-admin/components/DeleteConfirmDialog';
+import {
+  TableFilters,
+  type FilterDef
+} from '@/features/data-admin/components/TableFilters';
 import {
   useUniversities,
   useDeleteUniversity
@@ -80,10 +83,53 @@ interface UniversityDataTableProps {
   onEdit: (university: DataUniversity) => void;
 }
 
+const universityFilters: FilterDef[] = [
+  {
+    key: 'country',
+    label: 'Country',
+    type: 'entity',
+    endpoint: '/data-admin/countries/',
+    queryKey: 'data-admin-countries'
+  },
+  {
+    key: 'category',
+    label: 'Category',
+    type: 'select',
+    options: [
+      { value: 'PUBLIC', label: 'Public' },
+      { value: 'PRIVATE', label: 'Private' }
+    ]
+  },
+  {
+    key: 'institution_type',
+    label: 'Institution Type',
+    type: 'select',
+    options: [
+      { value: 'university', label: 'University' },
+      { value: 'college', label: 'College' },
+      { value: 'institute', label: 'Institute' }
+    ]
+  },
+  { key: 'scholarship', label: 'Scholarship', type: 'boolean' }
+];
+
 export function UniversityDataTable({ onEdit }: UniversityDataTableProps) {
-  const { data: universitiesData, isLoading } = useUniversities({
-    page_size: 100
-  });
+  const [filterValues, setFilterValues] = useState<Record<string, string>>({});
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+
+  const queryParams = useMemo(() => {
+    const params: Record<string, string> = {
+      page: String(page),
+      page_size: String(pageSize)
+    };
+    Object.entries(filterValues).forEach(([k, v]) => {
+      if (v) params[k] = v;
+    });
+    return params;
+  }, [filterValues, page, pageSize]);
+
+  const { data: universitiesData, isLoading } = useUniversities(queryParams);
   const deleteUniversity = useDeleteUniversity();
 
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -333,7 +379,6 @@ export function UniversityDataTable({ onEdit }: UniversityDataTableProps) {
     onGlobalFilterChange: setGlobalFilter,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues()
@@ -375,6 +420,13 @@ export function UniversityDataTable({ onEdit }: UniversityDataTableProps) {
             }
           ]}
         />
+        <TableFilters
+          filters={universityFilters}
+          values={filterValues}
+          onChange={(key, val) =>
+            setFilterValues((prev) => ({ ...prev, [key]: val }))
+          }
+        />
 
         <div className='overflow-x-auto rounded-md border'>
           <Table>
@@ -400,9 +452,19 @@ export function UniversityDataTable({ onEdit }: UniversityDataTableProps) {
                   <TableRow
                     key={row.id}
                     data-state={row.getIsSelected() && 'selected'}
+                    className='hover:bg-muted/50 cursor-pointer'
+                    onClick={() => onEdit(row.original)}
                   >
                     {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
+                      <TableCell
+                        key={cell.id}
+                        onClick={
+                          cell.column.id === 'select' ||
+                          cell.column.id === 'actions'
+                            ? (e) => e.stopPropagation()
+                            : undefined
+                        }
+                      >
                         {flexRender(
                           cell.column.columnDef.cell,
                           cell.getContext()
@@ -425,7 +487,16 @@ export function UniversityDataTable({ onEdit }: UniversityDataTableProps) {
           </Table>
         </div>
 
-        <DataTablePagination table={table} />
+        <ServerPagination
+          totalCount={universitiesData?.count ?? 0}
+          page={page}
+          pageSize={pageSize}
+          onPageChange={setPage}
+          onPageSizeChange={(size) => {
+            setPageSize(size);
+            setPage(1);
+          }}
+        />
       </div>
 
       <DeleteConfirmDialog
