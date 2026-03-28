@@ -33,6 +33,7 @@ import {
   Loader2
 } from 'lucide-react';
 import PageContainer from '@/components/layout/page-container';
+import { BulkImportExport } from '@/features/data-admin/components/BulkImportExport';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -79,6 +80,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { SectionAnalytics } from '@/features/data-admin/components/SectionAnalytics';
 import { DeleteConfirmDialog } from '@/features/data-admin/components/DeleteConfirmDialog';
+import {
+  TableFilters,
+  type FilterDef
+} from '@/features/data-admin/components/TableFilters';
 import { useDataStats } from '@/features/data-admin/hooks/use-data-stats';
 import type {
   DataALevelCombination,
@@ -188,6 +193,7 @@ interface InlineTableProps<T extends { id: string }> {
   globalFilter: string;
   onGlobalFilterChange: (v: string) => void;
   emptyMessage: string;
+  onRowClick?: (item: T) => void;
 }
 
 function InlineTable<T extends { id: string }>({
@@ -196,7 +202,8 @@ function InlineTable<T extends { id: string }>({
   isLoading,
   globalFilter,
   onGlobalFilterChange,
-  emptyMessage
+  emptyMessage,
+  onRowClick
 }: InlineTableProps<T>) {
   const [sorting, setSorting] = useState<SortingState>([]);
 
@@ -248,9 +255,25 @@ function InlineTable<T extends { id: string }>({
           <TableBody>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id}>
+                <TableRow
+                  key={row.id}
+                  className={
+                    onRowClick ? 'hover:bg-muted/50 cursor-pointer' : ''
+                  }
+                  onClick={
+                    onRowClick ? () => onRowClick(row.original) : undefined
+                  }
+                >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell
+                      key={cell.id}
+                      onClick={
+                        cell.column.id === 'actions' ||
+                        cell.column.id === 'select'
+                          ? (e) => e.stopPropagation()
+                          : undefined
+                      }
+                    >
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()
@@ -304,8 +327,8 @@ function InlineTable<T extends { id: string }>({
 // =============================================================================
 
 const combinationSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
-  code: z.string().min(1, 'Code is required'),
+  combination: z.string().min(1, 'Combination is required'),
+  codes: z.string().min(1, 'Codes is required'),
   category: z.string().optional().default(''),
   description: z.string().optional().default('')
 });
@@ -337,23 +360,48 @@ function ALevelCombinationsTab() {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [toDelete, setToDelete] = useState<DataALevelCombination | null>(null);
   const [globalFilter, setGlobalFilter] = useState('');
+  const [combFilterValues, setCombFilterValues] = useState<
+    Record<string, string>
+  >({});
+
+  const combAllItems = data?.results ?? [];
+  const combCategoryOptions = useMemo(() => {
+    const cats = [
+      ...new Set(combAllItems.map((i: any) => i.category).filter(Boolean))
+    ];
+    return cats.map((c) => ({ value: c as string, label: c as string }));
+  }, [combAllItems]);
+
+  const combFilteredItems = useMemo(() => {
+    let items = combAllItems;
+    if (combFilterValues.category)
+      items = items.filter(
+        (i: any) => i.category === combFilterValues.category
+      );
+    return items;
+  }, [combAllItems, combFilterValues]);
 
   const form = useForm<CombinationForm>({
     resolver: zodResolver(combinationSchema),
-    defaultValues: { name: '', code: '', category: '', description: '' }
+    defaultValues: { combination: '', codes: '', category: '', description: '' }
   });
 
   useEffect(() => {
     if (dialogOpen) {
       if (editing) {
         form.reset({
-          name: editing.name,
-          code: editing.code,
+          combination: (editing as any).combination ?? editing.name,
+          codes: (editing as any).codes ?? editing.code,
           category: (editing as any).category ?? '',
           description: (editing as any).description ?? ''
         });
       } else {
-        form.reset({ name: '', code: '', category: '', description: '' });
+        form.reset({
+          combination: '',
+          codes: '',
+          category: '',
+          description: ''
+        });
       }
     }
   }, [dialogOpen, editing, form]);
@@ -480,26 +528,46 @@ function ALevelCombinationsTab() {
 
   return (
     <>
-      <div className='mb-4 flex justify-end'>
-        <Button
-          size='sm'
-          onClick={() => {
-            setEditing(null);
-            setDialogOpen(true);
-          }}
-        >
-          <Plus className='mr-2 h-4 w-4' />
-          Add Combination
-        </Button>
+      <div className='mb-4 flex flex-wrap items-center gap-2'>
+        <TableFilters
+          filters={[
+            {
+              key: 'category',
+              label: 'Category',
+              type: 'select',
+              options: combCategoryOptions
+            }
+          ]}
+          values={combFilterValues}
+          onChange={(key, val) =>
+            setCombFilterValues((prev) => ({ ...prev, [key]: val }))
+          }
+        />
+        <div className='ml-auto'>
+          <Button
+            size='sm'
+            onClick={() => {
+              setEditing(null);
+              setDialogOpen(true);
+            }}
+          >
+            <Plus className='mr-2 h-4 w-4' />
+            Add Combination
+          </Button>
+        </div>
       </div>
 
       <InlineTable
-        data={data?.results ?? []}
+        data={combFilteredItems}
         columns={columns}
         isLoading={isLoading}
         globalFilter={globalFilter}
         onGlobalFilterChange={setGlobalFilter}
         emptyMessage='No A-Level combinations found.'
+        onRowClick={(item) => {
+          setEditing(item);
+          setDialogOpen(true);
+        }}
       />
 
       <Dialog
@@ -519,10 +587,10 @@ function ALevelCombinationsTab() {
             <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
               <FormField
                 control={form.control}
-                name='name'
+                name='combination'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel required>Name</FormLabel>
+                    <FormLabel required>Combination</FormLabel>
                     <FormControl>
                       <Input placeholder='e.g. PCB' {...field} />
                     </FormControl>
@@ -532,12 +600,12 @@ function ALevelCombinationsTab() {
               />
               <FormField
                 control={form.control}
-                name='code'
+                name='codes'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel required>Code</FormLabel>
+                    <FormLabel required>Codes</FormLabel>
                     <FormControl>
-                      <Input placeholder='e.g. PCB' {...field} />
+                      <Input placeholder='e.g. 141,142,151' {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -550,7 +618,7 @@ function ALevelCombinationsTab() {
                   <FormItem>
                     <FormLabel>Category</FormLabel>
                     <FormControl>
-                      <Input placeholder='e.g. Science' {...field} />
+                      <Input placeholder='e.g. SCIENCE' {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -617,10 +685,11 @@ function ALevelCombinationsTab() {
 
 const alevelSubjectSchema = z.object({
   name: z.string().min(1, 'Name is required'),
+  slug: z.string().optional().default(''),
   code: z.string().min(1, 'Code is required'),
+  necta_name: z.string().optional().default(''),
   type: z.string().optional().default(''),
-  category: z.string().optional().default(''),
-  is_active: z.boolean().default(true)
+  category: z.string().optional().default('')
 });
 type ALevelSubjectForm = z.infer<typeof alevelSubjectSchema>;
 
@@ -650,15 +719,40 @@ function ALevelSubjectsTab() {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [toDelete, setToDelete] = useState<DataALevelSubject | null>(null);
   const [globalFilter, setGlobalFilter] = useState('');
+  const [filterValues, setFilterValues] = useState<Record<string, string>>({});
+
+  const allItems = data?.results ?? [];
+  const typeOptions = useMemo(() => {
+    const types = [
+      ...new Set(allItems.map((i: any) => i.type).filter(Boolean))
+    ];
+    return types.map((t) => ({ value: t as string, label: t as string }));
+  }, [allItems]);
+  const categoryOptions = useMemo(() => {
+    const cats = [
+      ...new Set(allItems.map((i: any) => i.category).filter(Boolean))
+    ];
+    return cats.map((c) => ({ value: c as string, label: c as string }));
+  }, [allItems]);
+
+  const filteredItems = useMemo(() => {
+    let items = allItems;
+    if (filterValues.type)
+      items = items.filter((i: any) => i.type === filterValues.type);
+    if (filterValues.category)
+      items = items.filter((i: any) => i.category === filterValues.category);
+    return items;
+  }, [allItems, filterValues]);
 
   const form = useForm<ALevelSubjectForm>({
     resolver: zodResolver(alevelSubjectSchema),
     defaultValues: {
       name: '',
+      slug: '',
       code: '',
+      necta_name: '',
       type: '',
-      category: '',
-      is_active: true
+      category: ''
     }
   });
 
@@ -667,18 +761,20 @@ function ALevelSubjectsTab() {
       if (editing) {
         form.reset({
           name: editing.name,
+          slug: (editing as any).slug ?? '',
           code: editing.code,
+          necta_name: (editing as any).necta_name ?? '',
           type: (editing as any).type ?? '',
-          category: (editing as any).category ?? '',
-          is_active: editing.is_active
+          category: (editing as any).category ?? ''
         });
       } else {
         form.reset({
           name: '',
+          slug: '',
           code: '',
+          necta_name: '',
           type: '',
-          category: '',
-          is_active: true
+          category: ''
         });
       }
     }
@@ -799,26 +895,57 @@ function ALevelSubjectsTab() {
 
   return (
     <>
-      <div className='mb-4 flex justify-end'>
-        <Button
-          size='sm'
-          onClick={() => {
-            setEditing(null);
-            setDialogOpen(true);
-          }}
-        >
-          <Plus className='mr-2 h-4 w-4' />
-          Add Subject
-        </Button>
+      <div className='mb-4 flex flex-wrap items-center gap-2'>
+        <TableFilters
+          filters={[
+            {
+              key: 'type',
+              label: 'Type',
+              type: 'select',
+              options: typeOptions
+            },
+            {
+              key: 'category',
+              label: 'Category',
+              type: 'select',
+              options: categoryOptions
+            }
+          ]}
+          values={filterValues}
+          onChange={(key, val) =>
+            setFilterValues((prev) => ({ ...prev, [key]: val }))
+          }
+        />
+        <div className='ml-auto flex items-center gap-2'>
+          <BulkImportExport
+            endpoint='/data-admin/alevel-subjects/'
+            entityName='A-Level Subject'
+            queryKey='data-admin-alevel-subjects'
+          />
+          <Button
+            size='sm'
+            onClick={() => {
+              setEditing(null);
+              setDialogOpen(true);
+            }}
+          >
+            <Plus className='mr-2 h-4 w-4' />
+            Add Subject
+          </Button>
+        </div>
       </div>
 
       <InlineTable
-        data={data?.results ?? []}
+        data={filteredItems}
         columns={columns}
         isLoading={isLoading}
         globalFilter={globalFilter}
         onGlobalFilterChange={setGlobalFilter}
         emptyMessage='No A-Level subjects found.'
+        onRowClick={(item) => {
+          setEditing(item);
+          setDialogOpen(true);
+        }}
       />
 
       <Dialog
@@ -849,14 +976,42 @@ function ALevelSubjectsTab() {
                   </FormItem>
                 )}
               />
+              <div className='grid grid-cols-2 gap-4'>
+                <FormField
+                  control={form.control}
+                  name='slug'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Slug</FormLabel>
+                      <FormControl>
+                        <Input placeholder='e.g. physics' {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name='code'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel required>Code</FormLabel>
+                      <FormControl>
+                        <Input placeholder='e.g. PHY' {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
               <FormField
                 control={form.control}
-                name='code'
+                name='necta_name'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel required>Code</FormLabel>
+                    <FormLabel>NECTA Name</FormLabel>
                     <FormControl>
-                      <Input placeholder='e.g. PHY' {...field} />
+                      <Input placeholder='e.g. PHYSICS' {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -875,9 +1030,8 @@ function ALevelSubjectsTab() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value='Principal'>Principal</SelectItem>
-                        <SelectItem value='Subsidiary'>Subsidiary</SelectItem>
-                        <SelectItem value='Elective'>Elective</SelectItem>
+                        <SelectItem value='PRINCIPAL'>Principal</SelectItem>
+                        <SelectItem value='ELECTIVE'>Elective</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -891,24 +1045,9 @@ function ALevelSubjectsTab() {
                   <FormItem>
                     <FormLabel>Category</FormLabel>
                     <FormControl>
-                      <Input placeholder='e.g. Science' {...field} />
+                      <Input placeholder='e.g. SCIENCE' {...field} />
                     </FormControl>
                     <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name='is_active'
-                render={({ field }) => (
-                  <FormItem className='flex items-center gap-3 space-y-0 rounded-md border p-3'>
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                    <FormLabel className='font-normal'>Active</FormLabel>
                   </FormItem>
                 )}
               />
@@ -960,9 +1099,9 @@ function ALevelSubjectsTab() {
 
 const alevelGradeSchema = z.object({
   grade: z.string().min(1, 'Grade is required'),
-  points: z.coerce.number().min(0, 'Points must be 0 or more'),
-  min_marks: z.coerce.number().optional(),
-  max_marks: z.coerce.number().optional(),
+  point: z.coerce.number().min(0, 'Point must be 0 or more'),
+  min: z.coerce.number().optional(),
+  max: z.coerce.number().optional(),
   range: z.string().optional().default(''),
   description: z.string().optional().default('')
 });
@@ -999,9 +1138,9 @@ function ALevelGradesTab() {
     resolver: zodResolver(alevelGradeSchema),
     defaultValues: {
       grade: '',
-      points: 0,
-      min_marks: undefined,
-      max_marks: undefined,
+      point: 0,
+      min: undefined,
+      max: undefined,
       range: '',
       description: ''
     }
@@ -1012,18 +1151,18 @@ function ALevelGradesTab() {
       if (editing) {
         form.reset({
           grade: editing.grade,
-          points: editing.points,
-          min_marks: (editing as any).min_marks ?? undefined,
-          max_marks: (editing as any).max_marks ?? undefined,
+          point: (editing as any).point ?? 0,
+          min: (editing as any).min ?? undefined,
+          max: (editing as any).max ?? undefined,
           range: (editing as any).range ?? '',
           description: (editing as any).description ?? ''
         });
       } else {
         form.reset({
           grade: '',
-          points: 0,
-          min_marks: undefined,
-          max_marks: undefined,
+          point: 0,
+          min: undefined,
+          max: undefined,
           range: '',
           description: ''
         });
@@ -1167,6 +1306,10 @@ function ALevelGradesTab() {
         globalFilter={globalFilter}
         onGlobalFilterChange={setGlobalFilter}
         emptyMessage='No A-Level grades found.'
+        onRowClick={(item) => {
+          setEditing(item);
+          setDialogOpen(true);
+        }}
       />
 
       <Dialog
@@ -1200,7 +1343,7 @@ function ALevelGradesTab() {
                 />
                 <FormField
                   control={form.control}
-                  name='points'
+                  name='point'
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel required>Points</FormLabel>
@@ -1215,7 +1358,7 @@ function ALevelGradesTab() {
               <div className='grid grid-cols-2 gap-4'>
                 <FormField
                   control={form.control}
-                  name='min_marks'
+                  name='min'
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Min Marks</FormLabel>
@@ -1228,7 +1371,7 @@ function ALevelGradesTab() {
                 />
                 <FormField
                   control={form.control}
-                  name='max_marks'
+                  name='max'
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Max Marks</FormLabel>
@@ -1314,10 +1457,10 @@ function ALevelGradesTab() {
 
 const olevelSubjectSchema = z.object({
   name: z.string().min(1, 'Name is required'),
+  slug: z.string().optional().default(''),
   code: z.string().min(1, 'Code is required'),
   type: z.string().optional().default(''),
-  category: z.string().optional().default(''),
-  is_active: z.boolean().default(true)
+  category: z.string().optional().default('')
 });
 type OLevelSubjectForm = z.infer<typeof olevelSubjectSchema>;
 
@@ -1347,15 +1490,41 @@ function OLevelSubjectsTab() {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [toDelete, setToDelete] = useState<DataOLevelSubject | null>(null);
   const [globalFilter, setGlobalFilter] = useState('');
+  const [oFilterValues, setOFilterValues] = useState<Record<string, string>>(
+    {}
+  );
+
+  const oAllItems = data?.results ?? [];
+  const oTypeOptions = useMemo(() => {
+    const types = [
+      ...new Set(oAllItems.map((i: any) => i.type).filter(Boolean))
+    ];
+    return types.map((t) => ({ value: t as string, label: t as string }));
+  }, [oAllItems]);
+  const oCategoryOptions = useMemo(() => {
+    const cats = [
+      ...new Set(oAllItems.map((i: any) => i.category).filter(Boolean))
+    ];
+    return cats.map((c) => ({ value: c as string, label: c as string }));
+  }, [oAllItems]);
+
+  const oFilteredItems = useMemo(() => {
+    let items = oAllItems;
+    if (oFilterValues.type)
+      items = items.filter((i: any) => i.type === oFilterValues.type);
+    if (oFilterValues.category)
+      items = items.filter((i: any) => i.category === oFilterValues.category);
+    return items;
+  }, [oAllItems, oFilterValues]);
 
   const form = useForm<OLevelSubjectForm>({
     resolver: zodResolver(olevelSubjectSchema),
     defaultValues: {
       name: '',
+      slug: '',
       code: '',
       type: '',
-      category: '',
-      is_active: true
+      category: ''
     }
   });
 
@@ -1364,18 +1533,18 @@ function OLevelSubjectsTab() {
       if (editing) {
         form.reset({
           name: editing.name,
+          slug: (editing as any).slug ?? '',
           code: editing.code,
           type: (editing as any).type ?? '',
-          category: (editing as any).category ?? '',
-          is_active: editing.is_active
+          category: (editing as any).category ?? ''
         });
       } else {
         form.reset({
           name: '',
+          slug: '',
           code: '',
           type: '',
-          category: '',
-          is_active: true
+          category: ''
         });
       }
     }
@@ -1496,26 +1665,57 @@ function OLevelSubjectsTab() {
 
   return (
     <>
-      <div className='mb-4 flex justify-end'>
-        <Button
-          size='sm'
-          onClick={() => {
-            setEditing(null);
-            setDialogOpen(true);
-          }}
-        >
-          <Plus className='mr-2 h-4 w-4' />
-          Add Subject
-        </Button>
+      <div className='mb-4 flex flex-wrap items-center gap-2'>
+        <TableFilters
+          filters={[
+            {
+              key: 'type',
+              label: 'Type',
+              type: 'select',
+              options: oTypeOptions
+            },
+            {
+              key: 'category',
+              label: 'Category',
+              type: 'select',
+              options: oCategoryOptions
+            }
+          ]}
+          values={oFilterValues}
+          onChange={(key, val) =>
+            setOFilterValues((prev) => ({ ...prev, [key]: val }))
+          }
+        />
+        <div className='ml-auto flex items-center gap-2'>
+          <BulkImportExport
+            endpoint='/data-admin/olevel-subjects/'
+            entityName='O-Level Subject'
+            queryKey='data-admin-olevel-subjects'
+          />
+          <Button
+            size='sm'
+            onClick={() => {
+              setEditing(null);
+              setDialogOpen(true);
+            }}
+          >
+            <Plus className='mr-2 h-4 w-4' />
+            Add Subject
+          </Button>
+        </div>
       </div>
 
       <InlineTable
-        data={data?.results ?? []}
+        data={oFilteredItems}
         columns={columns}
         isLoading={isLoading}
         globalFilter={globalFilter}
         onGlobalFilterChange={setGlobalFilter}
         emptyMessage='No O-Level subjects found.'
+        onRowClick={(item) => {
+          setEditing(item);
+          setDialogOpen(true);
+        }}
       />
 
       <Dialog
@@ -1546,19 +1746,34 @@ function OLevelSubjectsTab() {
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name='code'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel required>Code</FormLabel>
-                    <FormControl>
-                      <Input placeholder='e.g. MATH' {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className='grid grid-cols-2 gap-4'>
+                <FormField
+                  control={form.control}
+                  name='slug'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Slug</FormLabel>
+                      <FormControl>
+                        <Input placeholder='e.g. mathematics' {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name='code'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel required>Code</FormLabel>
+                      <FormControl>
+                        <Input placeholder='e.g. MATH' {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
               <FormField
                 control={form.control}
                 name='type'
@@ -1566,7 +1781,7 @@ function OLevelSubjectsTab() {
                   <FormItem>
                     <FormLabel>Type</FormLabel>
                     <FormControl>
-                      <Input placeholder='e.g. Compulsory' {...field} />
+                      <Input placeholder='e.g. PRINCIPAL' {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -1648,9 +1863,9 @@ function OLevelSubjectsTab() {
 
 const olevelGradeSchema = z.object({
   grade: z.string().min(1, 'Grade is required'),
-  points: z.coerce.number().min(0, 'Points must be 0 or more'),
-  min_marks: z.coerce.number().optional(),
-  max_marks: z.coerce.number().optional(),
+  point: z.coerce.number().min(0, 'Point must be 0 or more'),
+  min: z.coerce.number().optional(),
+  max: z.coerce.number().optional(),
   range: z.string().optional().default(''),
   description: z.string().optional().default('')
 });
@@ -1687,9 +1902,9 @@ function OLevelGradesTab() {
     resolver: zodResolver(olevelGradeSchema),
     defaultValues: {
       grade: '',
-      points: 0,
-      min_marks: undefined,
-      max_marks: undefined,
+      point: 0,
+      min: undefined,
+      max: undefined,
       range: '',
       description: ''
     }
@@ -1700,18 +1915,18 @@ function OLevelGradesTab() {
       if (editing) {
         form.reset({
           grade: editing.grade,
-          points: editing.points,
-          min_marks: (editing as any).min_marks ?? undefined,
-          max_marks: (editing as any).max_marks ?? undefined,
+          point: (editing as any).point ?? 0,
+          min: (editing as any).min ?? undefined,
+          max: (editing as any).max ?? undefined,
           range: (editing as any).range ?? '',
           description: (editing as any).description ?? ''
         });
       } else {
         form.reset({
           grade: '',
-          points: 0,
-          min_marks: undefined,
-          max_marks: undefined,
+          point: 0,
+          min: undefined,
+          max: undefined,
           range: '',
           description: ''
         });
@@ -1855,6 +2070,10 @@ function OLevelGradesTab() {
         globalFilter={globalFilter}
         onGlobalFilterChange={setGlobalFilter}
         emptyMessage='No O-Level grades found.'
+        onRowClick={(item) => {
+          setEditing(item);
+          setDialogOpen(true);
+        }}
       />
 
       <Dialog
@@ -1888,7 +2107,7 @@ function OLevelGradesTab() {
                 />
                 <FormField
                   control={form.control}
-                  name='points'
+                  name='point'
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel required>Points</FormLabel>
@@ -1903,7 +2122,7 @@ function OLevelGradesTab() {
               <div className='grid grid-cols-2 gap-4'>
                 <FormField
                   control={form.control}
-                  name='min_marks'
+                  name='min'
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Min Marks</FormLabel>
@@ -1916,7 +2135,7 @@ function OLevelGradesTab() {
                 />
                 <FormField
                   control={form.control}
-                  name='max_marks'
+                  name='max'
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Max Marks</FormLabel>
@@ -1989,6 +2208,283 @@ function OLevelGradesTab() {
               }
             });
           }
+        }}
+        isPending={deleteMut.isPending}
+      />
+    </>
+  );
+}
+
+// =============================================================================
+// Combination Subjects Tab (link subjects to combinations)
+// =============================================================================
+
+interface CombinationSubjectItem {
+  id: string;
+  combination: string;
+  combination_name?: string;
+  subject: string;
+  subject_name?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+const combSubjectSchema = z.object({
+  combination: z.string().min(1, 'Combination is required'),
+  subject: z.string().min(1, 'Subject is required')
+});
+type CombSubjectFormValues = z.infer<typeof combSubjectSchema>;
+
+function CombinationSubjectsTab() {
+  const { data, isLoading } = useAcademicList<CombinationSubjectItem>(
+    '/data-admin/alevel-combination-subjects/',
+    'alevel-combination-subjects'
+  );
+  const createMut = useAcademicCreate<CombinationSubjectItem>(
+    '/data-admin/alevel-combination-subjects/',
+    'alevel-combination-subjects',
+    'Combination Subject'
+  );
+  const updateMut = useAcademicUpdate<CombinationSubjectItem>(
+    '/data-admin/alevel-combination-subjects/',
+    'alevel-combination-subjects',
+    'Combination Subject'
+  );
+  const deleteMut = useAcademicDelete(
+    '/data-admin/alevel-combination-subjects/',
+    'alevel-combination-subjects',
+    'Combination Subject'
+  );
+
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editing, setEditing] = useState<CombinationSubjectItem | null>(null);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [toDelete, setToDelete] = useState<CombinationSubjectItem | null>(null);
+  const [globalFilter, setGlobalFilter] = useState('');
+
+  const form = useForm<CombSubjectFormValues>({
+    resolver: zodResolver(combSubjectSchema),
+    defaultValues: { combination: '', subject: '' }
+  });
+
+  useEffect(() => {
+    if (dialogOpen && !editing) {
+      form.reset({ combination: '', subject: '' });
+    }
+  }, [dialogOpen, editing, form]);
+
+  const handleEdit = (item: CombinationSubjectItem) => {
+    setEditing(item);
+    form.reset({ combination: item.combination, subject: item.subject });
+    setDialogOpen(true);
+  };
+
+  const onSubmit = (values: CombSubjectFormValues) => {
+    if (editing) {
+      updateMut.mutate(
+        { id: editing.id, data: values },
+        {
+          onSuccess: () => {
+            setDialogOpen(false);
+            setEditing(null);
+          }
+        }
+      );
+    } else {
+      createMut.mutate(values, {
+        onSuccess: () => {
+          setDialogOpen(false);
+          setEditing(null);
+        }
+      });
+    }
+  };
+
+  const items = data?.results ?? [];
+  const filteredItems = globalFilter
+    ? items.filter(
+        (i) =>
+          (i.combination_name ?? '')
+            .toLowerCase()
+            .includes(globalFilter.toLowerCase()) ||
+          (i.subject_name ?? '')
+            .toLowerCase()
+            .includes(globalFilter.toLowerCase())
+      )
+    : items;
+
+  const columns: ColumnDef<CombinationSubjectItem>[] = useMemo(
+    () => [
+      {
+        accessorKey: 'combination_name',
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title='Combination' />
+        ),
+        cell: ({ row }) => (
+          <Badge variant='secondary'>
+            {row.original.combination_name ?? row.original.combination}
+          </Badge>
+        )
+      },
+      {
+        accessorKey: 'subject_name',
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title='Subject' />
+        ),
+        cell: ({ row }) => (
+          <span className='font-medium'>
+            {row.original.subject_name ?? row.original.subject}
+          </span>
+        )
+      },
+      {
+        id: 'actions',
+        cell: ({ row }) => {
+          const item = row.original;
+          return (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant='ghost'
+                  className='data-[state=open]:bg-muted flex h-8 w-8 p-0'
+                >
+                  <MoreHorizontal className='h-4 w-4' />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align='end' className='w-[160px]'>
+                <DropdownMenuItem onClick={() => handleEdit(item)}>
+                  <Pencil className='mr-2 h-4 w-4' />
+                  Edit
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className='text-destructive focus:text-destructive'
+                  onClick={() => {
+                    setToDelete(item);
+                    setDeleteOpen(true);
+                  }}
+                >
+                  <Trash2 className='mr-2 h-4 w-4' />
+                  Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          );
+        },
+        enableSorting: false,
+        enableHiding: false
+      }
+    ],
+    []
+  );
+
+  const isPending = createMut.isPending || updateMut.isPending;
+
+  return (
+    <>
+      <InlineTable
+        data={filteredItems}
+        columns={columns}
+        isLoading={isLoading}
+        globalFilter={globalFilter}
+        onGlobalFilterChange={setGlobalFilter}
+        emptyMessage='No combination subjects found.'
+        onRowClick={(item) => handleEdit(item)}
+      />
+
+      <div className='mt-4 flex justify-end'>
+        <Button
+          size='sm'
+          onClick={() => {
+            setEditing(null);
+            form.reset({ combination: '', subject: '' });
+            setDialogOpen(true);
+          }}
+        >
+          <Plus className='mr-2 h-4 w-4' /> Add Subject to Combination
+        </Button>
+      </div>
+
+      <Dialog
+        open={dialogOpen}
+        onOpenChange={(open) => {
+          setDialogOpen(open);
+          if (!open) setEditing(null);
+        }}
+      >
+        <DialogContent className='max-w-lg'>
+          <DialogHeader>
+            <DialogTitle>
+              {editing
+                ? 'Edit Combination Subject'
+                : 'Add Subject to Combination'}
+            </DialogTitle>
+          </DialogHeader>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
+              <FormField
+                control={form.control}
+                name='combination'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Combination *</FormLabel>
+                    <FormControl>
+                      <Input placeholder='Combination ID' {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name='subject'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Subject *</FormLabel>
+                    <FormControl>
+                      <Input placeholder='Subject ID' {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <div className='flex justify-end gap-2 pt-2'>
+                <Button
+                  type='button'
+                  variant='outline'
+                  onClick={() => {
+                    setDialogOpen(false);
+                    setEditing(null);
+                  }}
+                  disabled={isPending}
+                >
+                  Cancel
+                </Button>
+                <Button type='submit' disabled={isPending}>
+                  {isPending && (
+                    <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                  )}
+                  {editing ? 'Update' : 'Create'}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+
+      <DeleteConfirmDialog
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        title='Delete Combination Subject'
+        description='Are you sure? This action cannot be undone.'
+        onConfirm={() => {
+          if (!toDelete) return;
+          deleteMut.mutate(toDelete.id, {
+            onSuccess: () => {
+              setDeleteOpen(false);
+              setToDelete(null);
+            }
+          });
         }}
         isPending={deleteMut.isPending}
       />
@@ -2080,6 +2576,9 @@ export default function AcademicsDataPage() {
             <TabsTrigger value='alevel-combinations'>
               A-Level Combinations
             </TabsTrigger>
+            <TabsTrigger value='combination-subjects'>
+              Combination Subjects
+            </TabsTrigger>
             <TabsTrigger value='alevel-subjects'>A-Level Subjects</TabsTrigger>
             <TabsTrigger value='alevel-grades'>A-Level Grades</TabsTrigger>
             <TabsTrigger value='olevel-subjects'>O-Level Subjects</TabsTrigger>
@@ -2088,6 +2587,10 @@ export default function AcademicsDataPage() {
 
           <TabsContent value='alevel-combinations' className='mt-4'>
             <ALevelCombinationsTab />
+          </TabsContent>
+
+          <TabsContent value='combination-subjects' className='mt-4'>
+            <CombinationSubjectsTab />
           </TabsContent>
 
           <TabsContent value='alevel-subjects' className='mt-4'>

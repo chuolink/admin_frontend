@@ -5,7 +5,6 @@ import { useMemo, useState } from 'react';
 import {
   useReactTable,
   getCoreRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   getFilteredRowModel,
   flexRender,
@@ -31,7 +30,7 @@ import {
   TableRow
 } from '@/components/ui/table';
 import { DataTableToolbar } from '@/components/data-table/data-table-toolbar';
-import { DataTablePagination } from '@/components/data-table/data-table-pagination';
+import { ServerPagination } from '@/features/data-admin/components/ServerPagination';
 import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header';
 import { Skeleton } from '@/components/ui/skeleton';
 import { DeleteConfirmDialog } from '@/features/data-admin/components/DeleteConfirmDialog';
@@ -45,6 +44,8 @@ import { DisciplineFormDialog } from './DisciplineFormDialog';
 export default function DisciplineDataTable() {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState('');
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
 
   // Edit state
   const [editDiscipline, setEditDiscipline] = useState<DataDiscipline | null>(
@@ -57,7 +58,10 @@ export default function DisciplineDataTable() {
     useState<DataDiscipline | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
-  const { data, isLoading } = useDisciplines();
+  const { data, isLoading } = useDisciplines({
+    page: String(page),
+    page_size: String(pageSize)
+  });
   const deleteMutation = useDeleteDiscipline();
 
   const handleDelete = () => {
@@ -169,7 +173,6 @@ export default function DisciplineDataTable() {
     onGlobalFilterChange: setGlobalFilter,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel()
   });
 
@@ -217,9 +220,23 @@ export default function DisciplineDataTable() {
             <TableBody>
               {table.getRowModel().rows?.length ? (
                 table.getRowModel().rows.map((row) => (
-                  <TableRow key={row.id}>
+                  <TableRow
+                    key={row.id}
+                    className='hover:bg-muted/50 cursor-pointer'
+                    onClick={() => {
+                      setEditDiscipline(row.original);
+                      setEditDialogOpen(true);
+                    }}
+                  >
                     {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
+                      <TableCell
+                        key={cell.id}
+                        onClick={
+                          cell.column.id === 'actions'
+                            ? (e) => e.stopPropagation()
+                            : undefined
+                        }
+                      >
                         {flexRender(
                           cell.column.columnDef.cell,
                           cell.getContext()
@@ -242,7 +259,16 @@ export default function DisciplineDataTable() {
           </Table>
         </div>
 
-        <DataTablePagination table={table} />
+        <ServerPagination
+          totalCount={data?.count ?? 0}
+          page={page}
+          pageSize={pageSize}
+          onPageChange={setPage}
+          onPageSizeChange={(size) => {
+            setPageSize(size);
+            setPage(1);
+          }}
+        />
       </div>
 
       {/* Edit Dialog */}

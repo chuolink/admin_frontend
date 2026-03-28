@@ -76,6 +76,7 @@ const offeringSchema = z.object({
   requirement: z.string().optional().default(''),
   detailed_requirement: z.string().optional().default(''),
   requirement_json: z.string().optional().default(''),
+  requirement_version: z.coerce.number().min(0).optional().default(0),
 
   // Expenses
   course_expenses: z.array(expenseSchema).default([])
@@ -130,6 +131,7 @@ export function OfferingFormDialog({
       requirement: '',
       detailed_requirement: '',
       requirement_json: '',
+      requirement_version: 0,
       course_expenses: []
     }
   });
@@ -158,6 +160,7 @@ export function OfferingFormDialog({
         requirement: '',
         detailed_requirement: '',
         requirement_json: '',
+        requirement_version: 0,
         course_expenses: []
       });
     } else if (mode === 'create') {
@@ -177,6 +180,7 @@ export function OfferingFormDialog({
         requirement: '',
         detailed_requirement: '',
         requirement_json: '',
+        requirement_version: 0,
         course_expenses: []
       });
       setFormTab('basic');
@@ -202,6 +206,7 @@ export function OfferingFormDialog({
           ? JSON.stringify(existingRequirements.requirement_json)
           : ''
       );
+      form.setValue('requirement_version', existingRequirements.version ?? 0);
     }
   }, [existingRequirements, mode, form]);
 
@@ -245,7 +250,8 @@ export function OfferingFormDialog({
         detailed_requirement: values.detailed_requirement || null,
         requirement_json: values.requirement_json
           ? JSON.parse(values.requirement_json)
-          : undefined
+          : undefined,
+        version: values.requirement_version || 0
       },
       course_expenses: values.course_expenses.map((exp) => ({
         ...(exp.id ? { id: exp.id } : {}),
@@ -616,6 +622,23 @@ export function OfferingFormDialog({
                     </FormControl>
                     <FormDescription>
                       Optional JSON object for structured requirement data
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name='requirement_version'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Requirements Version</FormLabel>
+                    <FormControl>
+                      <Input type='number' min='0' placeholder='0' {...field} />
+                    </FormControl>
+                    <FormDescription>
+                      Version number for tracking requirement changes
                     </FormDescription>
                     <FormMessage />
                   </FormItem>

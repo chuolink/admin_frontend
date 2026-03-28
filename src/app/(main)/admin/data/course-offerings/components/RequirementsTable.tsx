@@ -5,7 +5,6 @@ import { useMemo, useState } from 'react';
 import {
   useReactTable,
   getCoreRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   getFilteredRowModel,
   flexRender,
@@ -15,6 +14,10 @@ import {
 import { ClipboardList } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import {
+  TableFilters,
+  type FilterDef
+} from '@/features/data-admin/components/TableFilters';
+import {
   Table,
   TableBody,
   TableCell,
@@ -23,22 +26,52 @@ import {
   TableRow
 } from '@/components/ui/table';
 import { DataTableToolbar } from '@/components/data-table/data-table-toolbar';
-import { DataTablePagination } from '@/components/data-table/data-table-pagination';
+import { ServerPagination } from '@/features/data-admin/components/ServerPagination';
 import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useCourseOfferings } from '@/features/data-admin/hooks/use-course-offerings';
 import type { DataCourseOffering } from '@/features/data-admin/types';
 
+const requirementFilters: FilterDef[] = [
+  {
+    key: 'university',
+    label: 'University',
+    type: 'entity',
+    endpoint: '/data-admin/universities/',
+    queryKey: 'data-admin-universities',
+    mapItem: (item) => ({ value: String(item.id), label: String(item.name) })
+  },
+  {
+    key: 'course',
+    label: 'Course',
+    type: 'entity',
+    endpoint: '/data-admin/courses/',
+    queryKey: 'data-admin-courses',
+    mapItem: (item) => ({ value: String(item.id), label: String(item.name) })
+  }
+];
+
 export default function RequirementsTable() {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState('');
+  const [filterValues, setFilterValues] = useState<Record<string, string>>({});
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
 
-  const { data, isLoading } = useCourseOfferings();
+  const queryParams = useMemo(() => {
+    const params: Record<string, string> = {
+      page: String(page),
+      page_size: String(pageSize),
+      has_requirements: 'true'
+    };
+    Object.entries(filterValues).forEach(([k, v]) => {
+      if (v) params[k] = v;
+    });
+    return params;
+  }, [filterValues, page, pageSize]);
+  const { data, isLoading } = useCourseOfferings(queryParams);
 
-  // Filter to only show offerings with requirements
-  const offeringsWithReqs = useMemo(() => {
-    return (data?.results ?? []).filter((o) => o.has_requirements);
-  }, [data]);
+  const offeringsWithReqs = data?.results ?? [];
 
   const columns = useMemo<ColumnDef<DataCourseOffering>[]>(
     () => [
@@ -104,7 +137,6 @@ export default function RequirementsTable() {
     onGlobalFilterChange: setGlobalFilter,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel()
   });
 
@@ -121,12 +153,21 @@ export default function RequirementsTable() {
 
   return (
     <div className='flex flex-col gap-4'>
-      <DataTableToolbar
-        table={table}
-        globalFilter={globalFilter}
-        onGlobalFilterChange={setGlobalFilter}
-        searchPlaceholder='Filter offerings with requirements...'
-      />
+      <div className='flex flex-wrap items-center gap-2'>
+        <DataTableToolbar
+          table={table}
+          globalFilter={globalFilter}
+          onGlobalFilterChange={setGlobalFilter}
+          searchPlaceholder='Filter offerings with requirements...'
+        />
+        <TableFilters
+          filters={requirementFilters}
+          values={filterValues}
+          onChange={(key, val) =>
+            setFilterValues((prev) => ({ ...prev, [key]: val }))
+          }
+        />
+      </div>
 
       <div className='overflow-x-auto rounded-md border'>
         <Table>
@@ -174,7 +215,16 @@ export default function RequirementsTable() {
         </Table>
       </div>
 
-      <DataTablePagination table={table} />
+      <ServerPagination
+        totalCount={data?.count ?? 0}
+        page={page}
+        pageSize={pageSize}
+        onPageChange={setPage}
+        onPageSizeChange={(size) => {
+          setPageSize(size);
+          setPage(1);
+        }}
+      />
     </div>
   );
 }

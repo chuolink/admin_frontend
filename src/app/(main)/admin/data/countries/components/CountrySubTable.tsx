@@ -200,7 +200,11 @@ export function CountrySubTable({
             <TableBody>
               {items.length > 0 ? (
                 items.map((item: Record<string, any>) => (
-                  <TableRow key={item.id}>
+                  <TableRow
+                    key={item.id}
+                    className='hover:bg-muted/50 cursor-pointer'
+                    onClick={() => handleEdit(item)}
+                  >
                     <TableCell className='font-medium'>
                       {item.country_name ?? '—'}
                     </TableCell>
@@ -220,7 +224,7 @@ export function CountrySubTable({
                         )}
                       </TableCell>
                     ))}
-                    <TableCell>
+                    <TableCell onClick={(e) => e.stopPropagation()}>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant='ghost' className='h-8 w-8 p-0'>
@@ -350,7 +354,7 @@ export function CountrySubTable({
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
         title={`Delete ${entityName}`}
-        description={`Are you sure? This cannot be undone.`}
+        description={`Are you sure you want to delete "${itemToDelete?.name || itemToDelete?.title || itemToDelete?.text || itemToDelete?.id || ''}"? This action cannot be undone.`}
         onConfirm={() => itemToDelete && deleteMutation.mutate(itemToDelete.id)}
         isPending={deleteMutation.isPending}
       />

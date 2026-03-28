@@ -10,7 +10,8 @@ import {
   ClipboardList,
   AlertTriangle,
   Receipt,
-  DollarSign
+  DollarSign,
+  Plus
 } from 'lucide-react';
 import PageContainer from '@/components/layout/page-container';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -23,6 +24,7 @@ import OfferingDataTable from './components/OfferingDataTable';
 import RequirementsTable from './components/RequirementsTable';
 import ExpensesTable from './components/ExpensesTable';
 import { OfferingFormDialog } from './components/OfferingFormDialog';
+import { BulkImportExport } from '@/features/data-admin/components/BulkImportExport';
 
 export default function CourseOfferingsPage() {
   const { data: stats, isLoading: statsLoading } = useDataStats();
@@ -118,11 +120,19 @@ export default function CourseOfferingsPage() {
               <TabsTrigger value='requirements'>Requirements</TabsTrigger>
               <TabsTrigger value='expenses'>Expenses</TabsTrigger>
             </TabsList>
-            <div>
+            <div className='flex items-center gap-2'>
               {activeTab === 'offerings' && (
-                <Button size='sm' onClick={() => setOfferingDialogOpen(true)}>
-                  Add Offering
-                </Button>
+                <>
+                  <BulkImportExport
+                    endpoint='/data-admin/course-offerings/'
+                    entityName='Offering'
+                    queryKey='data-admin-course-offerings'
+                  />
+                  <Button size='sm' onClick={() => setOfferingDialogOpen(true)}>
+                    <Plus className='mr-2 h-4 w-4' />
+                    Add Offering
+                  </Button>
+                </>
               )}
             </div>
           </div>

@@ -37,6 +37,7 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 import PageContainer from '@/components/layout/page-container';
+import { BulkImportExport } from '@/features/data-admin/components/BulkImportExport';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -83,7 +84,16 @@ import { Textarea } from '@/components/ui/textarea';
 import { SectionAnalytics } from '@/features/data-admin/components/SectionAnalytics';
 import { DeleteConfirmDialog } from '@/features/data-admin/components/DeleteConfirmDialog';
 import { EntityPicker } from '@/features/data-admin/components/EntityPicker';
+import {
+  TableFilters,
+  type FilterDef
+} from '@/features/data-admin/components/TableFilters';
 import { useDataStats } from '@/features/data-admin/hooks/use-data-stats';
+import {
+  GenericDataTable,
+  type ColumnDef as GenericColumnDef,
+  type FormFieldDef
+} from '@/features/data-admin/components/GenericDataTable';
 import type {
   DataCareer,
   DataScholarship,
@@ -99,10 +109,15 @@ interface CareerTrend {
   career: string;
   career_name?: string;
   category: string;
-  demand_level: string;
-  growth_percentage: number | null;
-  description: string;
-  year: number | null;
+  formal_employment_chances: number | null;
+  self_employment_chances: number | null;
+  world_trend_demand: number | null;
+  local_market_demand: number | null;
+  local_market_supply: number | null;
+  major_stakeholders: string;
+  side_hustles: string;
+  market_perspective: string;
+  relevant_courses: string;
   created_at: string;
   updated_at: string;
 }
@@ -220,6 +235,7 @@ interface InlineTableProps<T extends { id: string }> {
   globalFilter: string;
   onGlobalFilterChange: (v: string) => void;
   emptyMessage: string;
+  onRowClick?: (item: T) => void;
 }
 
 function InlineTable<T extends { id: string }>({
@@ -228,7 +244,8 @@ function InlineTable<T extends { id: string }>({
   isLoading,
   globalFilter,
   onGlobalFilterChange,
-  emptyMessage
+  emptyMessage,
+  onRowClick
 }: InlineTableProps<T>) {
   const [sorting, setSorting] = useState<SortingState>([]);
 
@@ -280,9 +297,25 @@ function InlineTable<T extends { id: string }>({
           <TableBody>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id}>
+                <TableRow
+                  key={row.id}
+                  className={
+                    onRowClick ? 'hover:bg-muted/50 cursor-pointer' : ''
+                  }
+                  onClick={
+                    onRowClick ? () => onRowClick(row.original) : undefined
+                  }
+                >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell
+                      key={cell.id}
+                      onClick={
+                        cell.column.id === 'actions' ||
+                        cell.column.id === 'select'
+                          ? (e) => e.stopPropagation()
+                          : undefined
+                      }
+                    >
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()
@@ -383,8 +416,7 @@ function slugify(text: string): string {
 const careerSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   slug: z.string().min(1, 'Slug is required'),
-  description: z.string().optional().default(''),
-  is_active: z.boolean().default(true)
+  img: z.string().nullable().optional()
 });
 type CareerFormValues = z.infer<typeof careerSchema>;
 
@@ -422,11 +454,10 @@ function CareersTab() {
         form.reset({
           name: editing.name,
           slug: editing.slug,
-          description: editing.description ?? '',
-          is_active: editing.is_active
+          img: (editing as any).img ?? null
         });
       } else {
-        form.reset({ name: '', slug: '', description: '', is_active: true });
+        form.reset({ name: '', slug: '', img: null });
       }
     }
   }, [dialogOpen, editing, form]);
@@ -522,7 +553,12 @@ function CareersTab() {
 
   return (
     <>
-      <div className='mb-4 flex justify-end'>
+      <div className='mb-4 flex items-center justify-end gap-2'>
+        <BulkImportExport
+          endpoint='/data-admin/careers/'
+          entityName='Career'
+          queryKey='data-admin-careers'
+        />
         <Button
           size='sm'
           onClick={() => {
@@ -542,6 +578,10 @@ function CareersTab() {
         globalFilter={globalFilter}
         onGlobalFilterChange={setGlobalFilter}
         emptyMessage='No careers found.'
+        onRowClick={(item) => {
+          setEditing(item);
+          setDialogOpen(true);
+        }}
       />
 
       <Dialog
@@ -644,20 +684,19 @@ function CareersTab() {
 
 const scholarshipSchema = z.object({
   name: z.string().min(1, 'Name is required'),
-  slug: z.string().optional().default(''),
+  img: z.string().nullable().optional(),
   country: z.string().nullable().optional(),
   university: z.string().nullable().optional(),
   description: z.string().optional().default(''),
-  amount: z.coerce.number().nullable().optional().default(null),
-  currency: z.string().optional().default('USD'),
-  coverage: z.string().optional().default(''),
+  amount: z.string().nullable().optional().default(null),
   eligibility: z.string().optional().default(''),
+  eligibility_short: z.string().optional().default(''),
+  requirements: z.string().optional().default(''),
+  posted_at: z.string().nullable().optional().default(null),
   deadline: z.string().nullable().optional().default(null),
-  is_active: z.boolean().default(true),
   category: z.string().optional().default(''),
   region: z.string().optional().default(''),
-  link: z.string().optional().default(''),
-  requirements: z.string().optional().default('')
+  link: z.string().optional().default('')
 });
 type ScholarshipFormValues = z.infer<typeof scholarshipSchema>;
 
@@ -687,6 +726,34 @@ function ScholarshipsTab() {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [toDelete, setToDelete] = useState<DataScholarship | null>(null);
   const [globalFilter, setGlobalFilter] = useState('');
+  const [scholFilterValues, setScholFilterValues] = useState<
+    Record<string, string>
+  >({});
+
+  const scholAllItems = data?.results ?? [];
+  const scholCategoryOptions = useMemo(() => {
+    const cats = [
+      ...new Set(scholAllItems.map((i: any) => i.category).filter(Boolean))
+    ];
+    return cats.map((c) => ({ value: c as string, label: c as string }));
+  }, [scholAllItems]);
+  const scholRegionOptions = useMemo(() => {
+    const regions = [
+      ...new Set(scholAllItems.map((i: any) => i.region).filter(Boolean))
+    ];
+    return regions.map((r) => ({ value: r as string, label: r as string }));
+  }, [scholAllItems]);
+
+  const scholFilteredItems = useMemo(() => {
+    let items = scholAllItems;
+    if (scholFilterValues.category)
+      items = items.filter(
+        (i: any) => i.category === scholFilterValues.category
+      );
+    if (scholFilterValues.region)
+      items = items.filter((i: any) => i.region === scholFilterValues.region);
+    return items;
+  }, [scholAllItems, scholFilterValues]);
 
   const form = useForm<ScholarshipFormValues>({
     resolver: zodResolver(scholarshipSchema),
@@ -714,50 +781,42 @@ function ScholarshipsTab() {
       if (editing) {
         form.reset({
           name: editing.name,
-          slug: editing.slug ?? '',
+          img: (editing as any).img ?? null,
           country: editing.country,
           university: editing.university,
           description: editing.description ?? '',
-          amount: editing.amount,
-          currency: editing.currency ?? 'USD',
-          coverage: editing.coverage ?? '',
+          amount: (editing as any).amount ?? null,
           eligibility: editing.eligibility ?? '',
+          eligibility_short: (editing as any).eligibility_short ?? '',
+          requirements: (editing as any).requirements ?? '',
+          posted_at: (editing as any).posted_at ?? null,
           deadline: editing.deadline,
-          is_active: editing.is_active,
           category: (editing as any).category ?? '',
           region: (editing as any).region ?? '',
-          link: (editing as any).link ?? '',
-          requirements: (editing as any).requirements ?? ''
+          link: (editing as any).link ?? ''
         });
       } else {
         form.reset({
           name: '',
-          slug: '',
+          img: null,
           country: null,
           university: null,
           description: '',
           amount: null,
-          currency: 'USD',
-          coverage: '',
           eligibility: '',
+          eligibility_short: '',
+          requirements: '',
+          posted_at: null,
           deadline: null,
-          is_active: true,
           category: '',
           region: '',
-          link: '',
-          requirements: ''
+          link: ''
         });
       }
     }
   }, [dialogOpen, editing, form]);
 
-  // Auto slug
-  const watchedName = form.watch('name');
-  useEffect(() => {
-    if (!editing && watchedName) {
-      form.setValue('slug', slugify(watchedName));
-    }
-  }, [watchedName, editing, form]);
+  // No auto slug needed for scholarships
 
   const onSubmit = (values: ScholarshipFormValues) => {
     if (editing) {
@@ -885,26 +944,57 @@ function ScholarshipsTab() {
 
   return (
     <>
-      <div className='mb-4 flex justify-end'>
-        <Button
-          size='sm'
-          onClick={() => {
-            setEditing(null);
-            setDialogOpen(true);
-          }}
-        >
-          <Plus className='mr-2 h-4 w-4' />
-          Add Scholarship
-        </Button>
+      <div className='mb-4 flex flex-wrap items-center gap-2'>
+        <TableFilters
+          filters={[
+            {
+              key: 'category',
+              label: 'Category',
+              type: 'select',
+              options: scholCategoryOptions
+            },
+            {
+              key: 'region',
+              label: 'Region',
+              type: 'select',
+              options: scholRegionOptions
+            }
+          ]}
+          values={scholFilterValues}
+          onChange={(key, val) =>
+            setScholFilterValues((prev) => ({ ...prev, [key]: val }))
+          }
+        />
+        <div className='ml-auto flex items-center gap-2'>
+          <BulkImportExport
+            endpoint='/data-admin/scholarships/'
+            entityName='Scholarship'
+            queryKey='data-admin-scholarships'
+          />
+          <Button
+            size='sm'
+            onClick={() => {
+              setEditing(null);
+              setDialogOpen(true);
+            }}
+          >
+            <Plus className='mr-2 h-4 w-4' />
+            Add Scholarship
+          </Button>
+        </div>
       </div>
 
       <InlineTable
-        data={data?.results ?? []}
+        data={scholFilteredItems}
         columns={columns}
         isLoading={isLoading}
         globalFilter={globalFilter}
         onGlobalFilterChange={setGlobalFilter}
         emptyMessage='No scholarships found.'
+        onRowClick={(item) => {
+          setEditing(item);
+          setDialogOpen(true);
+        }}
       />
 
       <Dialog
@@ -1214,10 +1304,23 @@ function ScholarshipsTab() {
 const trendSchema = z.object({
   career: z.string().nullable().optional(),
   category: z.string().optional().default(''),
-  demand_level: z.string().optional().default(''),
-  growth_percentage: z.coerce.number().nullable().optional().default(null),
-  description: z.string().optional().default(''),
-  year: z.coerce.number().nullable().optional().default(null)
+  formal_employment_chances: z.coerce
+    .number()
+    .nullable()
+    .optional()
+    .default(null),
+  self_employment_chances: z.coerce
+    .number()
+    .nullable()
+    .optional()
+    .default(null),
+  world_trend_demand: z.coerce.number().nullable().optional().default(null),
+  local_market_demand: z.coerce.number().nullable().optional().default(null),
+  local_market_supply: z.coerce.number().nullable().optional().default(null),
+  major_stakeholders: z.string().optional().default(''),
+  side_hustles: z.string().optional().default(''),
+  market_perspective: z.string().optional().default(''),
+  relevant_courses: z.string().optional().default('')
 });
 type TrendFormValues = z.infer<typeof trendSchema>;
 
@@ -1247,16 +1350,41 @@ function TrendsTab() {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [toDelete, setToDelete] = useState<CareerTrend | null>(null);
   const [globalFilter, setGlobalFilter] = useState('');
+  const [trendFilterValues, setTrendFilterValues] = useState<
+    Record<string, string>
+  >({});
+
+  const trendAllItems = data?.results ?? [];
+  const trendCategoryOptions = useMemo(() => {
+    const cats = [
+      ...new Set(trendAllItems.map((i) => i.category).filter(Boolean))
+    ];
+    return cats.map((c) => ({ value: c, label: c }));
+  }, [trendAllItems]);
+
+  const trendFilteredItems = useMemo(() => {
+    let items = trendAllItems;
+    if (trendFilterValues.career)
+      items = items.filter((i) => i.career === trendFilterValues.career);
+    if (trendFilterValues.category)
+      items = items.filter((i) => i.category === trendFilterValues.category);
+    return items;
+  }, [trendAllItems, trendFilterValues]);
 
   const form = useForm<TrendFormValues>({
     resolver: zodResolver(trendSchema),
     defaultValues: {
       career: null,
       category: '',
-      demand_level: '',
-      growth_percentage: null,
-      description: '',
-      year: null
+      formal_employment_chances: null,
+      self_employment_chances: null,
+      world_trend_demand: null,
+      local_market_demand: null,
+      local_market_supply: null,
+      major_stakeholders: '',
+      side_hustles: '',
+      market_perspective: '',
+      relevant_courses: ''
     }
   });
 
@@ -1266,19 +1394,31 @@ function TrendsTab() {
         form.reset({
           career: editing.career,
           category: editing.category ?? '',
-          demand_level: editing.demand_level ?? '',
-          growth_percentage: editing.growth_percentage,
-          description: editing.description ?? '',
-          year: editing.year
+          formal_employment_chances:
+            (editing as any).formal_employment_chances ?? null,
+          self_employment_chances:
+            (editing as any).self_employment_chances ?? null,
+          world_trend_demand: (editing as any).world_trend_demand ?? null,
+          local_market_demand: (editing as any).local_market_demand ?? null,
+          local_market_supply: (editing as any).local_market_supply ?? null,
+          major_stakeholders: (editing as any).major_stakeholders ?? '',
+          side_hustles: (editing as any).side_hustles ?? '',
+          market_perspective: (editing as any).market_perspective ?? '',
+          relevant_courses: (editing as any).relevant_courses ?? ''
         });
       } else {
         form.reset({
           career: null,
           category: '',
-          demand_level: '',
-          growth_percentage: null,
-          description: '',
-          year: null
+          formal_employment_chances: null,
+          self_employment_chances: null,
+          world_trend_demand: null,
+          local_market_demand: null,
+          local_market_supply: null,
+          major_stakeholders: '',
+          side_hustles: '',
+          market_perspective: '',
+          relevant_courses: ''
         });
       }
     }
@@ -1323,29 +1463,28 @@ function TrendsTab() {
         }
       },
       {
-        accessorKey: 'demand_level',
-        header: 'Demand',
+        accessorKey: 'formal_employment_chances',
+        header: 'Formal Emp.',
         cell: ({ row }) => {
-          const v = row.getValue('demand_level') as string;
-          return v ? <Badge variant='secondary'>{v}</Badge> : '-';
+          const v = row.original.formal_employment_chances;
+          return v != null ? <Badge variant='secondary'>{v}/10</Badge> : '-';
         }
       },
       {
-        accessorKey: 'growth_percentage',
-        header: 'Growth %',
+        accessorKey: 'self_employment_chances',
+        header: 'Self Emp.',
         cell: ({ row }) => {
-          const v = row.original.growth_percentage;
-          return v != null ? (
-            <span className='font-semibold text-emerald-600'>{v}%</span>
-          ) : (
-            '-'
-          );
+          const v = row.original.self_employment_chances;
+          return v != null ? <Badge variant='secondary'>{v}/10</Badge> : '-';
         }
       },
       {
-        accessorKey: 'year',
-        header: 'Year',
-        cell: ({ row }) => row.original.year ?? '-'
+        accessorKey: 'world_trend_demand',
+        header: 'World Trend',
+        cell: ({ row }) => {
+          const v = row.original.world_trend_demand;
+          return v != null ? <Badge variant='outline'>{v}/10</Badge> : '-';
+        }
       },
       {
         id: 'actions',
@@ -1370,26 +1509,57 @@ function TrendsTab() {
 
   return (
     <>
-      <div className='mb-4 flex justify-end'>
-        <Button
-          size='sm'
-          onClick={() => {
-            setEditing(null);
-            setDialogOpen(true);
-          }}
-        >
-          <Plus className='mr-2 h-4 w-4' />
-          Add Trend
-        </Button>
+      <div className='mb-4 flex flex-wrap items-center gap-2'>
+        <TableFilters
+          filters={[
+            {
+              key: 'career',
+              label: 'Career',
+              type: 'entity',
+              endpoint: '/data-admin/careers/',
+              queryKey: 'data-admin-careers',
+              mapItem: (item) => ({
+                value: String(item.id),
+                label: String(item.name)
+              })
+            },
+            {
+              key: 'category',
+              label: 'Category',
+              type: 'select',
+              options: trendCategoryOptions
+            }
+          ]}
+          values={trendFilterValues}
+          onChange={(key, val) =>
+            setTrendFilterValues((prev) => ({ ...prev, [key]: val }))
+          }
+        />
+        <div className='ml-auto'>
+          <Button
+            size='sm'
+            onClick={() => {
+              setEditing(null);
+              setDialogOpen(true);
+            }}
+          >
+            <Plus className='mr-2 h-4 w-4' />
+            Add Trend
+          </Button>
+        </div>
       </div>
 
       <InlineTable
-        data={data?.results ?? []}
+        data={trendFilteredItems}
         columns={columns}
         isLoading={isLoading}
         globalFilter={globalFilter}
         onGlobalFilterChange={setGlobalFilter}
         emptyMessage='No career trends found.'
+        onRowClick={(item) => {
+          setEditing(item);
+          setDialogOpen(true);
+        }}
       />
 
       <Dialog
@@ -1428,58 +1598,32 @@ function TrendsTab() {
                   </FormItem>
                 )}
               />
-              <div className='grid grid-cols-2 gap-4'>
+              <FormField
+                control={form.control}
+                name='category'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Category</FormLabel>
+                    <FormControl>
+                      <Input placeholder='e.g. Technology' {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <div className='grid grid-cols-3 gap-4'>
                 <FormField
                   control={form.control}
-                  name='category'
+                  name='formal_employment_chances'
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Category</FormLabel>
-                      <FormControl>
-                        <Input placeholder='e.g. Technology' {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name='demand_level'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Demand Level</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        value={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder='Select level' />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value='HIGH'>High</SelectItem>
-                          <SelectItem value='MEDIUM'>Medium</SelectItem>
-                          <SelectItem value='LOW'>Low</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <div className='grid grid-cols-2 gap-4'>
-                <FormField
-                  control={form.control}
-                  name='growth_percentage'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Growth %</FormLabel>
+                      <FormLabel>Formal Employment (0-10)</FormLabel>
                       <FormControl>
                         <Input
                           type='number'
-                          step='0.1'
-                          placeholder='e.g. 15.5'
+                          min='0'
+                          max='10'
+                          placeholder='0'
                           {...field}
                           value={field.value ?? ''}
                           onChange={(e) =>
@@ -1497,14 +1641,99 @@ function TrendsTab() {
                 />
                 <FormField
                   control={form.control}
-                  name='year'
+                  name='self_employment_chances'
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Year</FormLabel>
+                      <FormLabel>Self Employment (0-10)</FormLabel>
                       <FormControl>
                         <Input
                           type='number'
-                          placeholder='e.g. 2026'
+                          min='0'
+                          max='10'
+                          placeholder='0'
+                          {...field}
+                          value={field.value ?? ''}
+                          onChange={(e) =>
+                            field.onChange(
+                              e.target.value === ''
+                                ? null
+                                : Number(e.target.value)
+                            )
+                          }
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name='world_trend_demand'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>World Trend (0-10)</FormLabel>
+                      <FormControl>
+                        <Input
+                          type='number'
+                          min='0'
+                          max='10'
+                          placeholder='0'
+                          {...field}
+                          value={field.value ?? ''}
+                          onChange={(e) =>
+                            field.onChange(
+                              e.target.value === ''
+                                ? null
+                                : Number(e.target.value)
+                            )
+                          }
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <div className='grid grid-cols-2 gap-4'>
+                <FormField
+                  control={form.control}
+                  name='local_market_demand'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Local Market Demand (0-10)</FormLabel>
+                      <FormControl>
+                        <Input
+                          type='number'
+                          min='0'
+                          max='10'
+                          placeholder='0'
+                          {...field}
+                          value={field.value ?? ''}
+                          onChange={(e) =>
+                            field.onChange(
+                              e.target.value === ''
+                                ? null
+                                : Number(e.target.value)
+                            )
+                          }
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name='local_market_supply'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Local Market Supply (0-10)</FormLabel>
+                      <FormControl>
+                        <Input
+                          type='number'
+                          min='0'
+                          max='10'
+                          placeholder='0'
                           {...field}
                           value={field.value ?? ''}
                           onChange={(e) =>
@@ -1523,13 +1752,64 @@ function TrendsTab() {
               </div>
               <FormField
                 control={form.control}
-                name='description'
+                name='major_stakeholders'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Description</FormLabel>
+                    <FormLabel>Major Stakeholders</FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder='Trend description'
+                        placeholder='Key stakeholders...'
+                        rows={2}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name='side_hustles'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Side Hustles</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder='Related side hustles...'
+                        rows={2}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name='market_perspective'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Market Perspective</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder='Market outlook...'
+                        rows={2}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name='relevant_courses'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Relevant Courses</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder='Related courses...'
                         rows={2}
                         {...field}
                       />
@@ -1766,6 +2046,10 @@ function SalariesTab() {
         globalFilter={globalFilter}
         onGlobalFilterChange={setGlobalFilter}
         emptyMessage='No career salaries found.'
+        onRowClick={(item) => {
+          setEditing(item);
+          setDialogOpen(true);
+        }}
       />
 
       <Dialog
@@ -2047,7 +2331,15 @@ export default function CareersDataPage() {
         <Tabs value={activeTab ?? ''} onValueChange={setActiveTab}>
           <TabsList>
             <TabsTrigger value='careers'>Careers</TabsTrigger>
+            <TabsTrigger value='specifics'>Specifics</TabsTrigger>
+            <TabsTrigger value='career-courses'>Career Courses</TabsTrigger>
+            <TabsTrigger value='career-disciplines'>
+              Career Disciplines
+            </TabsTrigger>
             <TabsTrigger value='scholarships'>Scholarships</TabsTrigger>
+            <TabsTrigger value='scholarship-images'>
+              Scholarship Images
+            </TabsTrigger>
             <TabsTrigger value='trends'>Trends</TabsTrigger>
             <TabsTrigger value='salaries'>Salaries</TabsTrigger>
           </TabsList>
@@ -2056,8 +2348,165 @@ export default function CareersDataPage() {
             <CareersTab />
           </TabsContent>
 
+          <TabsContent value='specifics' className='mt-4'>
+            <GenericDataTable
+              endpoint='/data-admin/career-specifics/'
+              queryKey='data-admin-career-specifics'
+              entityName='Career Specific'
+              columns={
+                [
+                  { key: 'career_name', header: 'Career', type: 'text' },
+                  { key: 'version', header: 'Version', type: 'number' },
+                  {
+                    key: 'introduction',
+                    header: 'Introduction',
+                    type: 'truncate'
+                  },
+                  { key: 'created_at', header: 'Created', type: 'date' }
+                ] as GenericColumnDef[]
+              }
+              formFields={
+                [
+                  {
+                    name: 'career',
+                    label: 'Career',
+                    type: 'entity',
+                    endpoint: '/data-admin/careers/',
+                    queryKey: 'data-admin-careers-picker'
+                  },
+                  { name: 'version', label: 'Version', type: 'number' },
+                  {
+                    name: 'introduction',
+                    label: 'Introduction',
+                    type: 'textarea'
+                  },
+                  {
+                    name: 'responsibilities',
+                    label: 'Responsibilities',
+                    type: 'textarea'
+                  },
+                  { name: 'skills', label: 'Skills', type: 'textarea' },
+                  {
+                    name: 'qualifications',
+                    label: 'Qualifications',
+                    type: 'textarea'
+                  },
+                  { name: 'career_map', label: 'Career Map', type: 'textarea' }
+                ] as FormFieldDef[]
+              }
+            />
+          </TabsContent>
+
+          <TabsContent value='career-courses' className='mt-4'>
+            <GenericDataTable
+              endpoint='/data-admin/career-courses/'
+              queryKey='data-admin-career-courses'
+              entityName='Career Course'
+              columns={
+                [
+                  { key: 'career_name', header: 'Career', type: 'text' },
+                  { key: 'course_name', header: 'Course', type: 'text' },
+                  { key: 'created_at', header: 'Created', type: 'date' }
+                ] as GenericColumnDef[]
+              }
+              formFields={
+                [
+                  {
+                    name: 'career',
+                    label: 'Career',
+                    type: 'entity',
+                    endpoint: '/data-admin/careers/',
+                    queryKey: 'data-admin-careers-picker'
+                  },
+                  {
+                    name: 'course',
+                    label: 'Course',
+                    type: 'entity',
+                    endpoint: '/data-admin/courses/',
+                    queryKey: 'data-admin-courses-picker'
+                  }
+                ] as FormFieldDef[]
+              }
+            />
+          </TabsContent>
+
+          <TabsContent value='career-disciplines' className='mt-4'>
+            <GenericDataTable
+              endpoint='/data-admin/career-disciplines/'
+              queryKey='data-admin-career-disciplines'
+              entityName='Career Discipline'
+              columns={
+                [
+                  { key: 'career_name', header: 'Career', type: 'text' },
+                  {
+                    key: 'discipline_name',
+                    header: 'Discipline',
+                    type: 'text'
+                  },
+                  { key: 'created_at', header: 'Created', type: 'date' }
+                ] as GenericColumnDef[]
+              }
+              formFields={
+                [
+                  {
+                    name: 'career',
+                    label: 'Career',
+                    type: 'entity',
+                    endpoint: '/data-admin/careers/',
+                    queryKey: 'data-admin-careers-picker'
+                  },
+                  {
+                    name: 'discipline',
+                    label: 'Discipline',
+                    type: 'entity',
+                    endpoint: '/data-admin/disciplines/',
+                    queryKey: 'data-admin-disciplines-picker'
+                  }
+                ] as FormFieldDef[]
+              }
+            />
+          </TabsContent>
+
           <TabsContent value='scholarships' className='mt-4'>
             <ScholarshipsTab />
+          </TabsContent>
+
+          <TabsContent value='scholarship-images' className='mt-4'>
+            <GenericDataTable
+              endpoint='/data-admin/scholarship-images/'
+              queryKey='data-admin-scholarship-images'
+              entityName='Scholarship Image'
+              columns={
+                [
+                  {
+                    key: 'scholarship_name',
+                    header: 'Scholarship',
+                    type: 'text'
+                  },
+                  { key: 'name', header: 'Name', type: 'text' },
+                  { key: 'image', header: 'Image URL', type: 'truncate' },
+                  { key: 'created_at', header: 'Created', type: 'date' }
+                ] as GenericColumnDef[]
+              }
+              formFields={
+                [
+                  {
+                    name: 'scholarship',
+                    label: 'Scholarship',
+                    type: 'entity',
+                    endpoint: '/data-admin/scholarships/',
+                    queryKey: 'data-admin-scholarships-picker'
+                  },
+                  { name: 'name', label: 'Name', type: 'text', required: true },
+                  {
+                    name: 'image',
+                    label: 'Image',
+                    type: 'image',
+                    required: true
+                  }
+                ] as FormFieldDef[]
+              }
+            />
           </TabsContent>
 
           <TabsContent value='trends' className='mt-4'>

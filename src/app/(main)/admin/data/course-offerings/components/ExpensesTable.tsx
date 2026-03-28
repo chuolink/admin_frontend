@@ -5,7 +5,6 @@ import { useMemo, useState } from 'react';
 import {
   useReactTable,
   getCoreRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   getFilteredRowModel,
   flexRender,
@@ -16,6 +15,10 @@ import { format } from 'date-fns';
 import { Receipt } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import {
+  TableFilters,
+  type FilterDef
+} from '@/features/data-admin/components/TableFilters';
+import {
   Table,
   TableBody,
   TableCell,
@@ -24,18 +27,50 @@ import {
   TableRow
 } from '@/components/ui/table';
 import { DataTableToolbar } from '@/components/data-table/data-table-toolbar';
-import { DataTablePagination } from '@/components/data-table/data-table-pagination';
+import { ServerPagination } from '@/features/data-admin/components/ServerPagination';
 import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useCourseOfferingExpenses } from '@/features/data-admin/hooks/use-course-offerings';
 import type { DataCourseOfferingExpense } from '@/features/data-admin/types';
 import { formatCurrency } from '@/lib/utils';
 
+const expenseFilters: FilterDef[] = [
+  {
+    key: 'is_default',
+    label: 'Default',
+    type: 'boolean'
+  },
+  {
+    key: 'currency',
+    label: 'Currency',
+    type: 'select',
+    options: [
+      { value: 'TZS', label: 'TZS' },
+      { value: 'USD', label: 'USD' },
+      { value: 'EUR', label: 'EUR' },
+      { value: 'GBP', label: 'GBP' }
+    ]
+  }
+];
+
 export default function ExpensesTable() {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState('');
+  const [filterValues, setFilterValues] = useState<Record<string, string>>({});
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
 
-  const { data, isLoading } = useCourseOfferingExpenses();
+  const queryParams = useMemo(() => {
+    const params: Record<string, string> = {
+      page: String(page),
+      page_size: String(pageSize)
+    };
+    Object.entries(filterValues).forEach(([k, v]) => {
+      if (v) params[k] = v;
+    });
+    return params;
+  }, [filterValues, page, pageSize]);
+  const { data, isLoading } = useCourseOfferingExpenses(queryParams);
 
   const columns = useMemo<ColumnDef<DataCourseOfferingExpense>[]>(
     () => [
@@ -173,7 +208,6 @@ export default function ExpensesTable() {
     onGlobalFilterChange: setGlobalFilter,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel()
   });
 
@@ -190,12 +224,21 @@ export default function ExpensesTable() {
 
   return (
     <div className='flex flex-col gap-4'>
-      <DataTableToolbar
-        table={table}
-        globalFilter={globalFilter}
-        onGlobalFilterChange={setGlobalFilter}
-        searchPlaceholder='Search expenses...'
-      />
+      <div className='flex flex-wrap items-center gap-2'>
+        <DataTableToolbar
+          table={table}
+          globalFilter={globalFilter}
+          onGlobalFilterChange={setGlobalFilter}
+          searchPlaceholder='Search expenses...'
+        />
+        <TableFilters
+          filters={expenseFilters}
+          values={filterValues}
+          onChange={(key, val) =>
+            setFilterValues((prev) => ({ ...prev, [key]: val }))
+          }
+        />
+      </div>
 
       <div className='overflow-x-auto rounded-md border'>
         <Table>
@@ -243,7 +286,16 @@ export default function ExpensesTable() {
         </Table>
       </div>
 
-      <DataTablePagination table={table} />
+      <ServerPagination
+        totalCount={data?.count ?? 0}
+        page={page}
+        pageSize={pageSize}
+        onPageChange={setPage}
+        onPageSizeChange={(size) => {
+          setPageSize(size);
+          setPage(1);
+        }}
+      />
     </div>
   );
 }

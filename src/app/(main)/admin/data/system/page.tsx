@@ -91,7 +91,9 @@ interface Subscription {
   id: string;
   name: string;
   amount: number;
-  duration: number;
+  duration_period: number;
+  duration_desc: string;
+  duration?: number;
   duration_unit?: string;
   discount_percentage: number | null;
   description: string;
@@ -207,6 +209,7 @@ interface InlineTableProps<T extends { id: string }> {
   globalFilter: string;
   onGlobalFilterChange: (v: string) => void;
   emptyMessage: string;
+  onRowClick?: (item: T) => void;
 }
 
 function InlineTable<T extends { id: string }>({
@@ -215,7 +218,8 @@ function InlineTable<T extends { id: string }>({
   isLoading,
   globalFilter,
   onGlobalFilterChange,
-  emptyMessage
+  emptyMessage,
+  onRowClick
 }: InlineTableProps<T>) {
   const [sorting, setSorting] = useState<SortingState>([]);
 
@@ -267,9 +271,25 @@ function InlineTable<T extends { id: string }>({
           <TableBody>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id}>
+                <TableRow
+                  key={row.id}
+                  className={
+                    onRowClick ? 'hover:bg-muted/50 cursor-pointer' : ''
+                  }
+                  onClick={
+                    onRowClick ? () => onRowClick(row.original) : undefined
+                  }
+                >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell
+                      key={cell.id}
+                      onClick={
+                        cell.column.id === 'actions' ||
+                        cell.column.id === 'select'
+                          ? (e) => e.stopPropagation()
+                          : undefined
+                      }
+                    >
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()
@@ -504,6 +524,10 @@ function NumberConstantsTab() {
         globalFilter={globalFilter}
         onGlobalFilterChange={setGlobalFilter}
         emptyMessage='No number constants found.'
+        onRowClick={(item) => {
+          setEditing(item);
+          setDialogOpen(true);
+        }}
       />
 
       <Dialog
@@ -618,11 +642,12 @@ function NumberConstantsTab() {
 const subscriptionSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   amount: z.coerce.number().min(0, 'Amount must be 0 or more'),
-  duration: z.coerce.number().min(1, 'Duration must be at least 1'),
-  duration_unit: z.string().optional().default('months'),
+  duration_period: z.coerce
+    .number()
+    .min(1, 'Duration period must be at least 1'),
+  duration_desc: z.string().optional().default(''),
   discount_percentage: z.coerce.number().nullable().optional().default(null),
-  description: z.string().optional().default(''),
-  is_active: z.boolean().optional().default(true)
+  description: z.string().optional().default('')
 });
 type SubscriptionForm = z.infer<typeof subscriptionSchema>;
 
@@ -658,11 +683,10 @@ function SubscriptionsTab() {
     defaultValues: {
       name: '',
       amount: 0,
-      duration: 1,
-      duration_unit: 'months',
+      duration_period: 1,
+      duration_desc: '',
       discount_percentage: null,
-      description: '',
-      is_active: true
+      description: ''
     }
   });
 
@@ -672,21 +696,21 @@ function SubscriptionsTab() {
         form.reset({
           name: editing.name,
           amount: editing.amount,
-          duration: editing.duration,
-          duration_unit: editing.duration_unit ?? 'months',
+          duration_period:
+            (editing as any).duration_period ?? editing.duration ?? 1,
+          duration_desc:
+            (editing as any).duration_desc ?? editing.duration_unit ?? '',
           discount_percentage: editing.discount_percentage,
-          description: editing.description ?? '',
-          is_active: editing.is_active ?? true
+          description: editing.description ?? ''
         });
       } else {
         form.reset({
           name: '',
           amount: 0,
-          duration: 1,
-          duration_unit: 'months',
+          duration_period: 1,
+          duration_desc: '',
           discount_percentage: null,
-          description: '',
-          is_active: true
+          description: ''
         });
       }
     }
@@ -734,11 +758,11 @@ function SubscriptionsTab() {
         )
       },
       {
-        accessorKey: 'duration',
+        accessorKey: 'duration_period',
         header: 'Duration',
         cell: ({ row }) => (
           <span className='text-sm'>
-            {row.getValue('duration')} {row.original.duration_unit ?? 'months'}
+            {row.getValue('duration_period')} {row.original.duration_desc ?? ''}
           </span>
         )
       },
@@ -811,6 +835,10 @@ function SubscriptionsTab() {
         globalFilter={globalFilter}
         onGlobalFilterChange={setGlobalFilter}
         emptyMessage='No subscriptions found.'
+        onRowClick={(item) => {
+          setEditing(item);
+          setDialogOpen(true);
+        }}
       />
 
       <Dialog
@@ -885,10 +913,10 @@ function SubscriptionsTab() {
               <div className='grid grid-cols-2 gap-4'>
                 <FormField
                   control={form.control}
-                  name='duration'
+                  name='duration_period'
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel required>Duration</FormLabel>
+                      <FormLabel required>Duration Period</FormLabel>
                       <FormControl>
                         <Input
                           type='number'
@@ -903,12 +931,12 @@ function SubscriptionsTab() {
                 />
                 <FormField
                   control={form.control}
-                  name='duration_unit'
+                  name='duration_desc'
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Unit</FormLabel>
+                      <FormLabel>Duration Description</FormLabel>
                       <FormControl>
-                        <Input placeholder='months' {...field} />
+                        <Input placeholder='e.g. months' {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -1102,6 +1130,10 @@ function MailingListTab() {
         globalFilter={globalFilter}
         onGlobalFilterChange={setGlobalFilter}
         emptyMessage='No mailing list entries found.'
+        onRowClick={(item) => {
+          setEditing(item);
+          setDialogOpen(true);
+        }}
       />
 
       {/* View Dialog */}

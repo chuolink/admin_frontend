@@ -7,7 +7,6 @@ import { useEffect, useMemo, useState } from 'react';
 import {
   useReactTable,
   getCoreRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   getFilteredRowModel,
   flexRender,
@@ -26,7 +25,8 @@ import {
   MoreHorizontal,
   Pencil,
   Plus,
-  Trash2
+  Trash2,
+  TreePine
 } from 'lucide-react';
 import PageContainer from '@/components/layout/page-container';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -71,11 +71,15 @@ import {
   FormLabel,
   FormMessage
 } from '@/components/ui/form';
-import { DataTablePagination } from '@/components/data-table/data-table-pagination';
+import { ServerPagination } from '@/features/data-admin/components/ServerPagination';
 import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header';
 import { SectionAnalytics } from '@/features/data-admin/components/SectionAnalytics';
 import { DeleteConfirmDialog } from '@/features/data-admin/components/DeleteConfirmDialog';
 import { EntityPicker } from '@/features/data-admin/components/EntityPicker';
+import {
+  TableFilters,
+  type FilterDef
+} from '@/features/data-admin/components/TableFilters';
 import {
   useCourseYears,
   useCreateCourseYear,
@@ -100,6 +104,7 @@ import type {
   DataCourseSemester,
   DataCourseModule
 } from '@/features/data-admin/types';
+import { SyllabusTreeView } from '@/features/data-admin/components/SyllabusTreeView';
 
 // ─── Course Years Tab ────────────────────────────────────────────────────────
 
@@ -120,9 +125,17 @@ function CourseYearsTab({
   onDialogOpenChange: (open: boolean) => void;
 }) {
   const [offeringFilter, setOfferingFilter] = useState<string | null>(null);
-  const { data, isLoading } = useCourseYears(
-    offeringFilter ? { uni_course: offeringFilter } : undefined
-  );
+  const [yearFilterValues, setYearFilterValues] = useState<
+    Record<string, string>
+  >({});
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+  const { data, isLoading } = useCourseYears({
+    page: String(page),
+    page_size: String(pageSize),
+    ...(offeringFilter ? { uni_course: offeringFilter } : {}),
+    ...Object.fromEntries(Object.entries(yearFilterValues).filter(([, v]) => v))
+  } as Record<string, string>);
   const createMutation = useCreateCourseYear();
   const updateMutation = useUpdateCourseYear();
   const deleteMutation = useDeleteCourseYear();
@@ -261,7 +274,6 @@ function CourseYearsTab({
     state: { sorting },
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel()
   });
@@ -282,17 +294,40 @@ function CourseYearsTab({
   return (
     <>
       <div className='flex flex-col gap-4'>
-        <div className='max-w-xs'>
-          <EntityPicker
-            endpoint='/data-admin/course-offerings/'
-            queryKey='data-admin-course-offerings'
-            mapItem={(item) => ({
-              id: item.id as string,
-              name: item.name as string
-            })}
-            value={offeringFilter}
-            onChange={setOfferingFilter}
-            placeholder='Filter by course offering...'
+        <div className='flex flex-wrap items-center gap-2'>
+          <div className='max-w-xs'>
+            <EntityPicker
+              endpoint='/data-admin/course-offerings/'
+              queryKey='data-admin-course-offerings'
+              mapItem={(item) => ({
+                id: item.id as string,
+                name: item.name as string
+              })}
+              value={offeringFilter}
+              onChange={setOfferingFilter}
+              placeholder='Filter by course offering...'
+            />
+          </div>
+          <TableFilters
+            filters={[
+              {
+                key: 'year',
+                label: 'Year',
+                type: 'select',
+                options: [
+                  { value: '1', label: 'Year 1' },
+                  { value: '2', label: 'Year 2' },
+                  { value: '3', label: 'Year 3' },
+                  { value: '4', label: 'Year 4' },
+                  { value: '5', label: 'Year 5' },
+                  { value: '6', label: 'Year 6' }
+                ]
+              }
+            ]}
+            values={yearFilterValues}
+            onChange={(key, val) =>
+              setYearFilterValues((prev) => ({ ...prev, [key]: val }))
+            }
           />
         </div>
         <div className='overflow-x-auto rounded-md border'>
@@ -313,9 +348,20 @@ function CourseYearsTab({
             <TableBody>
               {table.getRowModel().rows?.length ? (
                 table.getRowModel().rows.map((row) => (
-                  <TableRow key={row.id}>
+                  <TableRow
+                    key={row.id}
+                    className='hover:bg-muted/50 cursor-pointer'
+                    onClick={() => handleEdit(row.original)}
+                  >
                     {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
+                      <TableCell
+                        key={cell.id}
+                        onClick={
+                          cell.column.id === 'actions'
+                            ? (e) => e.stopPropagation()
+                            : undefined
+                        }
+                      >
                         {flexRender(
                           cell.column.columnDef.cell,
                           cell.getContext()
@@ -337,7 +383,16 @@ function CourseYearsTab({
             </TableBody>
           </Table>
         </div>
-        <DataTablePagination table={table} />
+        <ServerPagination
+          totalCount={data?.count ?? 0}
+          page={page}
+          pageSize={pageSize}
+          onPageChange={setPage}
+          onPageSizeChange={(size) => {
+            setPageSize(size);
+            setPage(1);
+          }}
+        />
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={handleCloseDialog}>
@@ -479,7 +534,12 @@ function SemestersTab({
   dialogOpen: boolean;
   onDialogOpenChange: (open: boolean) => void;
 }) {
-  const { data, isLoading } = useSemesters();
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+  const { data, isLoading } = useSemesters({
+    page: String(page),
+    page_size: String(pageSize)
+  });
   const createMutation = useCreateSemester();
   const updateMutation = useUpdateSemester();
   const deleteMutation = useDeleteSemester();
@@ -638,7 +698,6 @@ function SemestersTab({
     state: { sorting },
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel()
   });
@@ -677,9 +736,20 @@ function SemestersTab({
             <TableBody>
               {table.getRowModel().rows?.length ? (
                 table.getRowModel().rows.map((row) => (
-                  <TableRow key={row.id}>
+                  <TableRow
+                    key={row.id}
+                    className='hover:bg-muted/50 cursor-pointer'
+                    onClick={() => handleEdit(row.original)}
+                  >
                     {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
+                      <TableCell
+                        key={cell.id}
+                        onClick={
+                          cell.column.id === 'actions'
+                            ? (e) => e.stopPropagation()
+                            : undefined
+                        }
+                      >
                         {flexRender(
                           cell.column.columnDef.cell,
                           cell.getContext()
@@ -701,7 +771,16 @@ function SemestersTab({
             </TableBody>
           </Table>
         </div>
-        <DataTablePagination table={table} />
+        <ServerPagination
+          totalCount={data?.count ?? 0}
+          page={page}
+          pageSize={pageSize}
+          onPageChange={setPage}
+          onPageSizeChange={(size) => {
+            setPageSize(size);
+            setPage(1);
+          }}
+        />
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={handleCloseDialog}>
@@ -843,7 +922,12 @@ function CourseSemestersTab({
   dialogOpen: boolean;
   onDialogOpenChange: (open: boolean) => void;
 }) {
-  const { data, isLoading } = useCourseSemesters();
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+  const { data, isLoading } = useCourseSemesters({
+    page: String(page),
+    page_size: String(pageSize)
+  });
   const createMutation = useCreateCourseSemester();
   const updateMutation = useUpdateCourseSemester();
   const deleteMutation = useDeleteCourseSemester();
@@ -852,6 +936,36 @@ function CourseSemestersTab({
   const [editing, setEditing] = useState<DataCourseSemester | null>(null);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [toDelete, setToDelete] = useState<DataCourseSemester | null>(null);
+  const [csFilterValues, setCsFilterValues] = useState<Record<string, string>>(
+    {}
+  );
+
+  const csAllItems = data?.results ?? [];
+  const csSemesterOptions = useMemo(() => {
+    const sems = [
+      ...new Set(
+        csAllItems
+          .map((i: any) => i.semister_name || i.semister)
+          .filter(Boolean)
+      )
+    ];
+    return sems.map((s) => ({ value: String(s), label: String(s) }));
+  }, [csAllItems]);
+
+  const csFilteredItems = useMemo(() => {
+    let items = csAllItems;
+    if (csFilterValues.course_year)
+      items = items.filter(
+        (i: any) => i.course_year === csFilterValues.course_year
+      );
+    if (csFilterValues.semister)
+      items = items.filter(
+        (i: any) =>
+          i.semister === csFilterValues.semister ||
+          i.semister_name === csFilterValues.semister
+      );
+    return items;
+  }, [csAllItems, csFilterValues]);
 
   const isEdit = !!editing;
 
@@ -953,14 +1067,12 @@ function CourseSemestersTab({
     []
   );
 
-  const tableData = data?.results ?? [];
   const table = useReactTable({
-    data: tableData,
+    data: csFilteredItems,
     columns,
     state: { sorting },
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel()
   });
@@ -981,6 +1093,37 @@ function CourseSemestersTab({
   return (
     <>
       <div className='flex flex-col gap-4'>
+        <div className='flex flex-wrap items-center gap-2'>
+          <TableFilters
+            filters={[
+              {
+                key: 'course_year',
+                label: 'Course Year',
+                type: 'entity',
+                endpoint: '/data-admin/course-years/',
+                queryKey: 'data-admin-course-years',
+                mapItem: (item) => ({
+                  value: String(item.id),
+                  label: item.uni_course_name
+                    ? String(item.uni_course_name) +
+                      ' Year ' +
+                      String(item.year || '')
+                    : String(item.id)
+                })
+              },
+              {
+                key: 'semister',
+                label: 'Semester',
+                type: 'select',
+                options: csSemesterOptions
+              }
+            ]}
+            values={csFilterValues}
+            onChange={(key, val) =>
+              setCsFilterValues((prev) => ({ ...prev, [key]: val }))
+            }
+          />
+        </div>
         <div className='overflow-x-auto rounded-md border'>
           <Table>
             <TableHeader>
@@ -999,9 +1142,20 @@ function CourseSemestersTab({
             <TableBody>
               {table.getRowModel().rows?.length ? (
                 table.getRowModel().rows.map((row) => (
-                  <TableRow key={row.id}>
+                  <TableRow
+                    key={row.id}
+                    className='hover:bg-muted/50 cursor-pointer'
+                    onClick={() => handleEdit(row.original)}
+                  >
                     {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
+                      <TableCell
+                        key={cell.id}
+                        onClick={
+                          cell.column.id === 'actions'
+                            ? (e) => e.stopPropagation()
+                            : undefined
+                        }
+                      >
                         {flexRender(
                           cell.column.columnDef.cell,
                           cell.getContext()
@@ -1023,7 +1177,16 @@ function CourseSemestersTab({
             </TableBody>
           </Table>
         </div>
-        <DataTablePagination table={table} />
+        <ServerPagination
+          totalCount={data?.count ?? 0}
+          page={page}
+          pageSize={pageSize}
+          onPageChange={setPage}
+          onPageSizeChange={(size) => {
+            setPageSize(size);
+            setPage(1);
+          }}
+        />
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={handleCloseDialog}>
@@ -1145,9 +1308,17 @@ function ModulesTab({
   onDialogOpenChange: (open: boolean) => void;
 }) {
   const [csFilter, setCsFilter] = useState<string | null>(null);
-  const { data, isLoading } = useCourseModules(
-    csFilter ? { course_semister: csFilter } : undefined
-  );
+  const [modFilterValues, setModFilterValues] = useState<
+    Record<string, string>
+  >({});
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+  const { data, isLoading } = useCourseModules({
+    page: String(page),
+    page_size: String(pageSize),
+    ...(csFilter ? { course_semister: csFilter } : {}),
+    ...Object.fromEntries(Object.entries(modFilterValues).filter(([, v]) => v))
+  } as Record<string, string>);
   const createMutation = useCreateCourseModule();
   const updateMutation = useUpdateCourseModule();
   const deleteMutation = useDeleteCourseModule();
@@ -1316,7 +1487,6 @@ function ModulesTab({
     state: { sorting },
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel()
   });
@@ -1337,17 +1507,36 @@ function ModulesTab({
   return (
     <>
       <div className='flex flex-col gap-4'>
-        <div className='max-w-xs'>
-          <EntityPicker
-            endpoint='/data-admin/course-semesters/'
-            queryKey='data-admin-course-semesters'
-            mapItem={(item) => ({
-              id: item.id as string,
-              name: `${(item as Record<string, unknown>).course_year_name ?? 'Year'} - ${(item as Record<string, unknown>).semister_name ?? 'Semester'}`
-            })}
-            value={csFilter}
-            onChange={setCsFilter}
-            placeholder='Filter by course semester...'
+        <div className='flex flex-wrap items-center gap-2'>
+          <div className='max-w-xs'>
+            <EntityPicker
+              endpoint='/data-admin/course-semesters/'
+              queryKey='data-admin-course-semesters'
+              mapItem={(item) => ({
+                id: item.id as string,
+                name: `${(item as Record<string, unknown>).course_year_name ?? 'Year'} - ${(item as Record<string, unknown>).semister_name ?? 'Semester'}`
+              })}
+              value={csFilter}
+              onChange={setCsFilter}
+              placeholder='Filter by course semester...'
+            />
+          </div>
+          <TableFilters
+            filters={[
+              {
+                key: 'category',
+                label: 'Category',
+                type: 'select',
+                options: [
+                  { value: 'ELECTIVE', label: 'Elective' },
+                  { value: 'NON ELECTIVE', label: 'Non Elective' }
+                ]
+              }
+            ]}
+            values={modFilterValues}
+            onChange={(key, val) =>
+              setModFilterValues((prev) => ({ ...prev, [key]: val }))
+            }
           />
         </div>
         <div className='overflow-x-auto rounded-md border'>
@@ -1368,9 +1557,20 @@ function ModulesTab({
             <TableBody>
               {table.getRowModel().rows?.length ? (
                 table.getRowModel().rows.map((row) => (
-                  <TableRow key={row.id}>
+                  <TableRow
+                    key={row.id}
+                    className='hover:bg-muted/50 cursor-pointer'
+                    onClick={() => handleEdit(row.original)}
+                  >
                     {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
+                      <TableCell
+                        key={cell.id}
+                        onClick={
+                          cell.column.id === 'actions'
+                            ? (e) => e.stopPropagation()
+                            : undefined
+                        }
+                      >
                         {flexRender(
                           cell.column.columnDef.cell,
                           cell.getContext()
@@ -1392,7 +1592,16 @@ function ModulesTab({
             </TableBody>
           </Table>
         </div>
-        <DataTablePagination table={table} />
+        <ServerPagination
+          totalCount={data?.count ?? 0}
+          page={page}
+          pageSize={pageSize}
+          onPageChange={setPage}
+          onPageSizeChange={(size) => {
+            setPageSize(size);
+            setPage(1);
+          }}
+        />
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={handleCloseDialog}>
@@ -1556,7 +1765,7 @@ function ModulesTab({
 
 export default function SyllabusPage() {
   const [activeTab, setActiveTab] = useQueryState('tab', {
-    defaultValue: 'course-years'
+    defaultValue: 'syllabus-tree'
   });
   const [courseYearDialogOpen, setCourseYearDialogOpen] = useState(false);
   const [semesterDialogOpen, setSemesterDialogOpen] = useState(false);
@@ -1622,6 +1831,10 @@ export default function SyllabusPage() {
         <Tabs value={activeTab ?? ''} onValueChange={setActiveTab}>
           <div className='flex items-center justify-between'>
             <TabsList>
+              <TabsTrigger value='syllabus-tree'>
+                <TreePine className='mr-1.5 h-4 w-4' />
+                Syllabus Tree
+              </TabsTrigger>
               <TabsTrigger value='course-years'>Course Years</TabsTrigger>
               <TabsTrigger value='semesters'>Semesters</TabsTrigger>
               <TabsTrigger value='course-semesters'>
@@ -1659,6 +1872,10 @@ export default function SyllabusPage() {
               )}
             </div>
           </div>
+
+          <TabsContent value='syllabus-tree' className='mt-4'>
+            <SyllabusTreeView />
+          </TabsContent>
 
           <TabsContent value='course-years' className='mt-4'>
             <CourseYearsTab

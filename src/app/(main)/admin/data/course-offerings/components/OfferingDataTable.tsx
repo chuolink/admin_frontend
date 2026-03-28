@@ -5,7 +5,6 @@ import { useMemo, useState } from 'react';
 import {
   useReactTable,
   getCoreRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   getFilteredRowModel,
   getFacetedRowModel,
@@ -43,10 +42,14 @@ import {
   TableRow
 } from '@/components/ui/table';
 import { DataTableToolbar } from '@/components/data-table/data-table-toolbar';
-import { DataTablePagination } from '@/components/data-table/data-table-pagination';
+import { ServerPagination } from '@/features/data-admin/components/ServerPagination';
 import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header';
 import { Skeleton } from '@/components/ui/skeleton';
 import { DeleteConfirmDialog } from '@/features/data-admin/components/DeleteConfirmDialog';
+import {
+  TableFilters,
+  type FilterDef
+} from '@/features/data-admin/components/TableFilters';
 import {
   useCourseOfferings,
   useDeleteCourseOffering
@@ -54,6 +57,17 @@ import {
 import type { DataCourseOffering } from '@/features/data-admin/types';
 import { formatCurrency } from '@/lib/utils';
 import { OfferingFormDialog } from './OfferingFormDialog';
+
+const offeringFilters: FilterDef[] = [
+  {
+    key: 'university__country',
+    label: 'Country',
+    type: 'entity',
+    endpoint: '/data-admin/countries/',
+    queryKey: 'data-admin-countries'
+  },
+  { key: 'is_active', label: 'Active', type: 'boolean' }
+];
 
 export default function OfferingDataTable() {
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -64,6 +78,9 @@ export default function OfferingDataTable() {
   });
   const [rowSelection, setRowSelection] = useState({});
   const [globalFilter, setGlobalFilter] = useState('');
+  const [filterValues, setFilterValues] = useState<Record<string, string>>({});
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
 
   // Edit state
   const [editOffering, setEditOffering] = useState<DataCourseOffering | null>(
@@ -76,7 +93,18 @@ export default function OfferingDataTable() {
     useState<DataCourseOffering | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
-  const { data, isLoading } = useCourseOfferings();
+  const queryParams = useMemo(() => {
+    const params: Record<string, string> = {
+      page: String(page),
+      page_size: String(pageSize)
+    };
+    Object.entries(filterValues).forEach(([k, v]) => {
+      if (v) params[k] = v;
+    });
+    return params;
+  }, [filterValues, page, pageSize]);
+
+  const { data, isLoading } = useCourseOfferings(queryParams);
   const deleteMutation = useDeleteCourseOffering();
 
   const handleDelete = () => {
@@ -281,7 +309,6 @@ export default function OfferingDataTable() {
     onGlobalFilterChange: setGlobalFilter,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues()
@@ -310,6 +337,13 @@ export default function OfferingDataTable() {
           onGlobalFilterChange={setGlobalFilter}
           searchPlaceholder='Search offerings...'
         />
+        <TableFilters
+          filters={offeringFilters}
+          values={filterValues}
+          onChange={(key, val) =>
+            setFilterValues((prev) => ({ ...prev, [key]: val }))
+          }
+        />
 
         <div className='overflow-x-auto rounded-md border'>
           <Table>
@@ -335,9 +369,21 @@ export default function OfferingDataTable() {
                   <TableRow
                     key={row.id}
                     data-state={row.getIsSelected() && 'selected'}
+                    className='hover:bg-muted/50 cursor-pointer'
+                    onClick={() => {
+                      setEditOffering(row.original);
+                      setEditDialogOpen(true);
+                    }}
                   >
                     {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
+                      <TableCell
+                        key={cell.id}
+                        onClick={
+                          cell.column.id === 'actions'
+                            ? (e) => e.stopPropagation()
+                            : undefined
+                        }
+                      >
                         {flexRender(
                           cell.column.columnDef.cell,
                           cell.getContext()
@@ -360,7 +406,16 @@ export default function OfferingDataTable() {
           </Table>
         </div>
 
-        <DataTablePagination table={table} />
+        <ServerPagination
+          totalCount={data?.count ?? 0}
+          page={page}
+          pageSize={pageSize}
+          onPageChange={setPage}
+          onPageSizeChange={(size) => {
+            setPageSize(size);
+            setPage(1);
+          }}
+        />
       </div>
 
       {/* Edit Dialog */}
