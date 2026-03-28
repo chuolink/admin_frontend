@@ -70,6 +70,8 @@ export interface ColumnDef {
     | 'number'
     | 'boolean'
     | 'image'
+    | 'video'
+    | 'file'
     | 'link'
     | 'truncate';
   /** For badge type: color mapping */
