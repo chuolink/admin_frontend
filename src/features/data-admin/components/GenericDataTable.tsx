@@ -13,6 +13,7 @@ import {
   Upload,
   X
 } from 'lucide-react';
+import { FileUploadField, MediaThumbnail } from './FileUploadField';
 import { toast } from 'sonner';
 import useClientApi from '@/lib/axios/clientSide';
 import { Button } from '@/components/ui/button';
@@ -99,7 +100,9 @@ export interface FormFieldDef {
     | 'entity'
     | 'url'
     | 'email'
-    | 'image';
+    | 'image'
+    | 'video'
+    | 'file';
   /** Required field */
   required?: boolean;
   /** Placeholder */
@@ -202,9 +205,44 @@ export function GenericDataTable({
   const items = data?.results ?? (Array.isArray(data) ? data : []);
   const totalCount = data?.count ?? items.length;
 
+  // Helper: convert payload to FormData if it contains File objects
+  const FILE_FIELD_TYPES = new Set(['image', 'video', 'file']);
+  const fileFieldNames = new Set(
+    formFields.filter((f) => FILE_FIELD_TYPES.has(f.type)).map((f) => f.name)
+  );
+
+  const preparePayload = (
+    payload: Record<string, any>
+  ): Record<string, any> | FormData => {
+    const hasFiles = Object.entries(payload).some(
+      ([key, val]) => val instanceof File && fileFieldNames.has(key)
+    );
+    if (!hasFiles) return payload;
+
+    const formData = new FormData();
+    for (const [key, val] of Object.entries(payload)) {
+      if (val === null || val === undefined) continue;
+      if (val instanceof File) {
+        formData.append(key, val);
+      } else if (typeof val === 'boolean') {
+        formData.append(key, val ? 'true' : 'false');
+      } else {
+        formData.append(key, String(val));
+      }
+    }
+    return formData;
+  };
+
   // Mutations
   const createMutation = useMutation({
-    mutationFn: (payload: Record<string, any>) => api!.post(endpoint, payload),
+    mutationFn: (payload: Record<string, any>) => {
+      const prepared = preparePayload(payload);
+      const config =
+        prepared instanceof FormData
+          ? { headers: { 'Content-Type': 'multipart/form-data' } }
+          : {};
+      return api!.post(endpoint, prepared, config);
+    },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: [queryKey] });
       toast.success(`${entityName} created`);
@@ -228,7 +266,14 @@ export function GenericDataTable({
     }: {
       id: string;
       data: Record<string, any>;
-    }) => api!.patch(`${endpoint}${id}/`, payload),
+    }) => {
+      const prepared = preparePayload(payload);
+      const config =
+        prepared instanceof FormData
+          ? { headers: { 'Content-Type': 'multipart/form-data' } }
+          : {};
+      return api!.patch(`${endpoint}${id}/`, prepared, config);
+    },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: [queryKey] });
       toast.success(`${entityName} updated`);
@@ -299,6 +344,15 @@ export function GenericDataTable({
     formFields.forEach((f) => {
       if (!f.required && payload[f.name] === '') {
         payload[f.name] = null;
+      }
+      // For file fields: if value is a URL string (unchanged), don't send it
+      // Only send if it's a new File object or null (to clear)
+      if (
+        FILE_FIELD_TYPES.has(f.type) &&
+        typeof payload[f.name] === 'string' &&
+        payload[f.name]
+      ) {
+        delete payload[f.name]; // Don't override existing file with its own URL
       }
     });
 
@@ -545,15 +599,11 @@ function CellRenderer({
     case 'number':
       return <span>{Number(value).toLocaleString()}</span>;
     case 'image':
-      return value ? (
-        <img
-          src={String(value)}
-          alt=''
-          className='h-8 w-8 rounded object-cover'
-        />
-      ) : (
-        <span className='text-muted-foreground'>—</span>
-      );
+      return <MediaThumbnail url={value ? String(value) : null} type='image' />;
+    case 'video':
+      return <MediaThumbnail url={value ? String(value) : null} type='video' />;
+    case 'file':
+      return <MediaThumbnail url={value ? String(value) : null} type='file' />;
     case 'link':
       return value ? (
         <a
@@ -705,8 +755,17 @@ function FormFieldRenderer({
         />
       )}
 
-      {field.type === 'image' && (
-        <ImageField value={value} onChange={onChange} label={field.label} />
+      {(field.type === 'image' ||
+        field.type === 'video' ||
+        field.type === 'file') && (
+        <FileUploadField
+          value={value || null}
+          onChange={(val) => onChange(val as any)}
+          type={field.type as 'image' | 'video' | 'file'}
+          placeholder={
+            field.placeholder || `Upload ${field.label.toLowerCase()}`
+          }
+        />
       )}
 
       {field.help && field.type !== 'boolean' && (
@@ -720,106 +779,4 @@ function FormFieldRenderer({
    Image Field — shows thumbnail + upload button
    ═══════════════════════════════════════════════ */
 
-function ImageField({
-  value,
-  onChange,
-  label
-}: {
-  value: string | null;
-  onChange: (val: string) => void;
-  label: string;
-}) {
-  const { api } = useClientApi();
-  const [uploading, setUploading] = useState(false);
-  const fileInputRef = useState<HTMLInputElement | null>(null);
-
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !api) return;
-
-    setUploading(true);
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-      const res = await api.post('/upload/', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
-      const url = res.data?.url || res.data?.file_url || res.data?.secure_url;
-      if (url) {
-        onChange(url);
-        toast.success('Image uploaded');
-      }
-    } catch {
-      // Fallback: if no upload endpoint, use FileReader for preview + keep URL input
-      const reader = new FileReader();
-      reader.onload = () => onChange(reader.result as string);
-      reader.readAsDataURL(file);
-    } finally {
-      setUploading(false);
-    }
-  };
-
-  return (
-    <div className='space-y-2'>
-      {/* Current image preview */}
-      {value && (
-        <div className='relative inline-block'>
-          <img
-            src={value}
-            alt={label}
-            className='h-24 w-24 rounded-lg border object-cover'
-            onError={(e) => {
-              (e.target as HTMLImageElement).style.display = 'none';
-            }}
-          />
-          <button
-            type='button'
-            onClick={() => onChange('')}
-            className='bg-destructive text-destructive-foreground hover:bg-destructive/90 absolute -top-1.5 -right-1.5 rounded-full p-0.5 shadow-sm'
-          >
-            <X className='h-3 w-3' />
-          </button>
-        </div>
-      )}
-
-      {/* Upload button + URL fallback */}
-      <div className='flex gap-2'>
-        <div className='flex-1'>
-          <input
-            type='file'
-            accept='image/*'
-            className='hidden'
-            id={`img-upload-${label}`}
-            onChange={handleFileChange}
-          />
-          <Button
-            type='button'
-            variant='outline'
-            size='sm'
-            className='w-full text-xs'
-            disabled={uploading}
-            onClick={() =>
-              document.getElementById(`img-upload-${label}`)?.click()
-            }
-          >
-            {uploading ? (
-              <Loader2 className='mr-1.5 h-3.5 w-3.5 animate-spin' />
-            ) : (
-              <Upload className='mr-1.5 h-3.5 w-3.5' />
-            )}
-            {value ? 'Change Image' : 'Upload Image'}
-          </Button>
-        </div>
-      </div>
-
-      {/* URL input as fallback */}
-      <Input
-        type='url'
-        value={value ?? ''}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder='Or paste image URL...'
-        className='text-xs'
-      />
-    </div>
-  );
-}
+/* ImageField removed — replaced by FileUploadField from ./FileUploadField.tsx */
